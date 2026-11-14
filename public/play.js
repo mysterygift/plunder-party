@@ -567,7 +567,9 @@ screenEl.addEventListener('click', async (e) => {
   if (act === 'choose') {
     busy = true;
     el.classList.add('chosen');
-    const result = await send({ type: 'choose', key: view.key, id: Number(id) });
+    // Send the option's own id back: most are numbers, but Parley's are player ids (strings).
+    const option = view.options?.find((o) => String(o.id) === id);
+    const result = await send({ type: 'choose', key: view.key, id: option ? option.id : Number(id) });
     if (result.error) busy = false;
     return;
   }
