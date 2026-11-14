@@ -2,6 +2,7 @@
   "voyages": 1,
   "legs": 0,
   "hull": 3,
+  "fog": 0.35,
   "mutineers": 0,
   "brigSize": 0,
   "drink": "",

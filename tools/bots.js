@@ -81,6 +81,7 @@ async function runBot(name, index) {
   let starting = false;
 
   let latest = null;
+  const brigMemo = { leg: null, lookouts: [], split: false, suspects: new Set() }; // To the Brig with Ye: what this robot remembers between screens
 
   async function onView(view) {
     latest = view;
@@ -91,6 +92,7 @@ async function runBot(name, index) {
     switch (view.screen) {
       case 'lobby':
         handled.clear(); // back in port: the next game's screens are all new, even if they share names with the last one's
+        brigMemo.suspects.clear();
         if (autoGame && view.isVip && view.crew >= count && !starting) {
           starting = true;
           setTimeout(() => (starting = false), 5000);
@@ -181,38 +183,82 @@ async function runBot(name, index) {
         }
         break;
       }
-      // To the Brig with Ye: loyal robots are honest and a bit gullible; mutinous ones lie most of the time.
+      // To the Brig with Ye. Loyal robots are honest and a bit gullible. Mutinous
+      // ones play to win: they send themselves up the nest, lie when it counts
+      // (and always when one more strike would sink her), never shop a mate, and
+      // try to get the honest lookout from a split locked up. Mutineers know each
+      // other, so two of them in the nest agree who lies without a word.
       case 'tb-role':
+        brigMemo.suspects.clear(); // a new voyage, new sides
         await pause(1500, 6000);
         await act({ type: 'tb-ready' });
         break;
       case 'tb-pick': {
         await pause(2000, 8000);
-        const first = pick(view.options);
-        const second = pick(view.options.filter((o) => o.id !== first.id && !(o.tired && first.tired)));
+        const mate = (o) => o.me || view.mates.includes(o.name);
+        const ok = (a, b) => b && b.id !== a.id && !(a.tired && b.tired);
+        let first, second;
+        if (view.role === 'mutineer') {
+          first = view.options.find((o) => o.me) ?? pick(view.options.filter(mate).concat(view.options)); // me, else a mate, else anybody
+          second = pick(view.options.filter((o) => !mate(o) && ok(first, o))) ?? pick(view.options.filter((o) => ok(first, o)));
+        } else {
+          const trusted = view.options.filter((o) => !brigMemo.suspects.has(o.name));
+          first = pick(trusted.length ? trusted : view.options);
+          const rest = view.options.filter((o) => ok(first, o));
+          const trustedRest = rest.filter((o) => !brigMemo.suspects.has(o.name));
+          second = pick(trustedRest.length ? trustedRest : rest);
+        }
         await act({ type: 'tb-pick', key: view.key, ids: [first.id, second.id] });
         break;
       }
       case 'tb-nest': {
         if (view.mine) break;
         await pause(1500, 6000);
-        const lie = view.role === 'mutineer' && Math.random() < 0.7;
+        let lie = false;
+        if (view.role === 'mutineer') {
+          const killing = view.hull === 1; // one more strike sinks her
+          if (view.mates.includes(view.mate)) lie = killing || name < view.mate; // two mates up: one lies (a split they can argue), or both for the kill
+          else lie = killing || Math.random() < 0.8;
+        }
+        // view.safe is what this robot's spyglass shows, which in fog may be wrong.
         await act({ type: 'tb-flag', key: view.key, side: lie ? otherSide(view.safe) : view.safe });
         break;
       }
       case 'tb-helm': {
+        const lookouts = view.lookouts.split(' and ');
+        const split = view.flags[0] !== view.flags[1];
+        Object.assign(brigMemo, { leg: view.key, lookouts, split });
+        if (split) for (const l of lookouts) if (l !== name) brigMemo.suspects.add(l);
         if (view.mine) break;
         await pause(2500, 14000);
-        const agreed = view.flags[0] === view.flags[1] ? view.flags[0] : null;
-        const honest = view.saw ?? agreed ?? pick(view.flags);
-        await act({ type: 'tb-steer', key: view.key, side: view.role === 'mutineer' && (view.saw || agreed) ? otherSide(honest) : honest });
+        const agreed = split ? null : view.flags[0];
+        let side;
+        if (view.role !== 'mutineer') side = view.saw ?? agreed ?? pick(view.flags);
+        else if (view.saw) side = otherSide(view.saw);
+        else if (agreed) side = lookouts.every((l) => view.mates.includes(l)) && view.hull === 1 ? agreed : otherSide(agreed); // two mates both lying for the kill: back them
+        else side = pick(view.flags); // a split, and no telling which flag is the lie
+        await act({ type: 'tb-steer', key: view.key, side });
         break;
       }
-      case 'tb-brig':
+      case 'tb-brig': {
         if (view.mine) break;
         await pause(2500, 12000);
-        await act({ type: 'tb-jail', key: view.key, id: Math.random() < 0.25 ? 'nobody' : pick(view.options).id });
+        const memo = brigMemo.leg?.startsWith(view.key.replace(/-brig$/, '')) ? brigMemo : { lookouts: [], split: false };
+        const named = (n) => view.options.find((o) => o.name === n);
+        let vote = null;
+        if (view.role === 'mutineer') {
+          const honest = memo.lookouts.filter((l) => l !== name && !view.mates.includes(l));
+          const frame = memo.split && honest.length === 1 && memo.lookouts.length - honest.length === 1 ? named(honest[0]) : null; // a mate lied: blame the other one
+          const loyal = view.options.filter((o) => !view.mates.includes(o.name));
+          vote = frame ?? (Math.random() < 0.4 ? null : pick(loyal));
+        } else if (memo.split && Math.random() < 0.7) {
+          vote = pick(memo.lookouts.map(named).filter(Boolean)) ?? null;
+        } else if (Math.random() < 0.4) {
+          vote = pick(view.options);
+        }
+        await act({ type: 'tb-jail', key: view.key, id: vote?.id ?? 'nobody' });
         break;
+      }
       case 'op-end':
         if (autoGame && view.canContinue) {
           await pause(8000, 9000);

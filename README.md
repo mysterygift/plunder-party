@@ -290,6 +290,11 @@ A voyage is five legs (six for a crew of 6, 9 or 12). Each leg:
   (out loud, in the room) and votes on the heading; the timer ends early once
   every vote is in. A dead heat goes the captain's way.
 - She goes where the vote says. The wrong side costs a plank of the hull.
+- **Fog.** About one leg in three is foggy, and everybody is told when it is.
+  In fog each lookout's spyglass has a one-in-four chance of showing the wrong
+  side, and they can't tell when it has. So a split in fog doesn't prove
+  anybody lied, and a mutineer caught out can blame the weather. A lookout
+  finds out afterwards if the fog fooled them, but only they know.
 - **The brig.** Everybody on deck votes for somebody, or for nobody. Most votes
   goes below, but it takes at least two, and it has to beat both the runner-up
   and "nobody". A prisoner can still heckle but cannot vote, climb or be
@@ -312,7 +317,8 @@ mutineer's jumps when she strikes.)
 game: one is about a quarter of an hour, and two or three make a half-hour game
 with the sides dealt afresh each voyage and the doubloons carried over. `legs`,
 `mutineers` and `brigSize` are 0 to let the crew size decide, or a number to
-overrule it; `hull` is how many strikes sink her. `drink` is what a pirate
+overrule it; `hull` is how many strikes sink her. `fog` is the share of legs
+that are foggy, from 0 (never) to 1 (always); it starts at 0.35. `drink` is what a pirate
 swigs on the way down to the brig (leave it empty for no drinking). `seconds`
 has the timers: `roles`, `pick`, `nest`, `argue` (the flags disagree), `agree`
 (they don't) and `brig`. `hazards` are the names of the forks, one drawn per leg.
@@ -320,7 +326,8 @@ has the timers: `roles`, `pick`, `nest`, `argue` (the flags disagree), `agree`
 The crew-size numbers came from simulating a few hundred thousand voyages and
 keep the mutineers winning roughly a third to a half of the time; real crews
 will be better liars and worse detectives than the simulation, so if one side
-keeps winning, `hull` and `mutineers` are the two to change.
+keeps winning, `hull`, `mutineers` and `fog` are the ones to change (more fog
+helps the mutineers).
 
 **The narrator**
 
@@ -389,7 +396,7 @@ npm run bots -- 6 bombard       # three a side, firing more or less at random
 npm run bots -- 4 liars         # they bid, bluff a bit, and call each other out
 npm run bots -- 5 onepiece      # they vote for whatever, and roll
 npm run bots -- 8 knots         # four ships of two; they answer every few seconds and get most right
-npm run bots -- 7 brig          # loyal robots are honest and gullible; mutinous ones lie most of the time
+npm run bots -- 7 brig          # loyal robots are honest and gullible; mutinous ones lie when it counts and frame honest lookouts
 ```
 
 Join on your own phone as well and you can play a real game against them.

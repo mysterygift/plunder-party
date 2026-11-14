@@ -127,10 +127,11 @@ function pick(v) {
 /** A lookout: you can see the reef. Hoist a flag (a true one, or not). */
 function nest(v) {
   const safe = SIDE[v.safe];
-  const sight = `<div class="tb-sight ${esc(v.safe)}">
-      <small>Through the spyglass</small>
-      <b>${v.safe === 'port' ? `${safe.arrow} ` : ''}${safe.word} is safe${v.safe === 'starboard' ? ` ${safe.arrow}` : ''}</b>
-      <span>The reef is to ${v.safe === 'port' ? 'starboard' : 'port'}.</span>
+  // In fog the spyglass can be wrong, and the lookout can't tell when it is.
+  const sight = `<div class="tb-sight ${esc(v.safe)} ${v.fog ? 'fog' : ''}">
+      <small>${v.fog ? '🌫️ Through the fog' : 'Through the spyglass'}</small>
+      <b>${v.safe === 'port' ? `${safe.arrow} ` : ''}${safe.word} ${v.fog ? 'looks' : 'is'} safe${v.safe === 'starboard' ? ` ${safe.arrow}` : ''}</b>
+      <span>${v.fog ? 'In fog a spyglass can be wrong. Yours might be.' : `The reef is to ${v.safe === 'port' ? 'starboard' : 'port'}.`}</span>
     </div>`;
   if (v.mine) {
     return page(v, `${sight}<p class="sub">You hoisted</p><div class="tb-mine">${signalFlag(v.mine)}</div><p class="tiny">The crew will see both flags, but not whose is whose.</p>`);
@@ -144,7 +145,7 @@ function nest(v) {
      ${sight}
      <p class="prompt light">Hoist a flag to tell the crew which way to steer:</p>
      <div class="tb-two">${flag('port')}${flag('starboard')}</div>
-     ${v.role === 'mutineer' ? '<p class="tiny">😈 Nobody will know which flag was yours.</p>' : ''}`,
+     ${v.role === 'mutineer' ? `<p class="tiny">😈 Nobody will know which flag was yours.${v.fog ? ' And if they work it out, blame the fog.' : ''}</p>` : ''}`,
   );
 }
 
@@ -152,8 +153,10 @@ function nest(v) {
 function helm(v) {
   const split = v.flags[0] !== v.flags[1];
   const flags = `<div class="tb-flags">${v.flags.map((f) => signalFlag(f)).join('')}</div>
-    <p class="tiny">${split ? `${esc(v.lookouts)}: one of them is lying.` : `${esc(v.lookouts)} agree.`}</p>`;
-  const saw = v.saw ? `<p class="tb-saw">🔭 You saw it yourself: <b>${SIDE[v.saw].word.toLowerCase()}</b> is safe.</p>` : '';
+    <p class="tiny">${split ? `${esc(v.lookouts)}: ${v.fog ? 'one is lying, or the fog fooled them.' : 'one of them is lying.'}` : `${esc(v.lookouts)} agree.`}</p>`;
+  const saw = !v.saw ? '' : v.fog
+    ? `<p class="tb-saw">🌫️ Through the fog, <b>${SIDE[v.saw].word.toLowerCase()}</b> looked safe. You could be wrong.</p>`
+    : `<p class="tb-saw">🔭 You saw it yourself: <b>${SIDE[v.saw].word.toLowerCase()}</b> is safe.</p>`;
   if (v.mine) {
     return page(v, `${flags}<p class="sub">You voted to steer</p><div class="tb-mine">${signalFlag(v.mine)}</div><p class="tiny">Keep arguing until the rest have voted.</p>`);
   }

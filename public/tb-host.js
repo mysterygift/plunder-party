@@ -70,7 +70,7 @@ const bits = []; // things thrown in the air: splinters, spray
 const clouds = [];
 
 // Where she is and how she is sitting in the water.
-const nav = { dist: 400, speed: 5, travel: 0, lastTravel: 0, flow: 5, steering: false, stuck: false, lateral: 0, yaw: 0, lean: 0, pitch: 0, sink: 0, gloom: 0, gloomWant: 0, painted: -1 };
+const nav = { dist: 400, speed: 5, travel: 0, lastTravel: 0, flow: 5, steering: false, stuck: false, lateral: 0, yaw: 0, lean: 0, pitch: 0, sink: 0, gloom: 0, gloomWant: 0, painted: -1, mist: 0, mistWant: 0, paintedMist: -1 };
 let fork = null; // { group, reefs: { port, starboard }, buoys: [], up: null }
 let island = null; // { group, dist } - the end of a voyage the crew wins
 let legKey = null;
@@ -231,11 +231,18 @@ function buildSky() {
   }
 }
 
-/** Colour the sky, the haze and the light for how much trouble she is in: 0 is a fair morning, 1 is grim. */
-function paintMood(g) {
+/**
+ * Colour the sky, the haze and the light for how much trouble she is in (g: 0
+ * is a fair morning, 1 is grim) and how foggy the leg is (mist: 0 to 1). Fog
+ * pulls the haze in close, so the fork only comes clear as she heaves to.
+ */
+function paintMood(g, mist = nav.mist) {
   nav.painted = g;
-  const zenith = new THREE.Color(0x27497f).lerp(new THREE.Color(0x151b29), g);
-  const haze = new THREE.Color(0xf4bd8c).lerp(new THREE.Color(0x6d7280), g);
+  nav.paintedMist = mist;
+  const zenith = new THREE.Color(0x27497f).lerp(new THREE.Color(0x151b29), g).lerp(new THREE.Color(0xa9b0b7), mist * 0.9);
+  const haze = new THREE.Color(0xf4bd8c).lerp(new THREE.Color(0x6d7280), g).lerp(new THREE.Color(0xbfc5ca), mist * 0.9);
+  scene.fog.near = 70 - 64 * mist;
+  scene.fog.far = 345 - 170 * mist; // at its thickest the fork is a ghost where she heaves to
   const pos = dome.geometry.attributes.position;
   const col = dome.geometry.attributes.color;
   const c = new THREE.Color();
@@ -250,8 +257,8 @@ function paintMood(g) {
   sea.material.color.set(0xffffff).lerp(new THREE.Color(0x76808f), g);
   hemi.intensity = 1.15 - 0.5 * g;
   sun.intensity = 2.4 - 1.5 * g;
-  sunGlow.material.opacity = 1 - 0.85 * g;
-  for (const cl of clouds) cl.children[0].material.color.set(0xffe2c4).lerp(new THREE.Color(0x565b68), g);
+  sunGlow.material.opacity = (1 - 0.85 * g) * (1 - 0.92 * mist);
+  for (const cl of clouds) cl.children[0].material.color.set(0xffe2c4).lerp(new THREE.Color(0x565b68), g).lerp(new THREE.Color(0xd5d9dd), mist * 0.6);
 }
 
 // ----- the sea -----
@@ -908,7 +915,8 @@ function frame(now) {
 
   // The weather follows the hull: every hole in it makes the day a little worse.
   nav.gloom += (nav.gloomWant - nav.gloom) * Math.min(1, dt * 0.5);
-  if (Math.abs(nav.gloom - nav.painted) > 0.008) paintMood(nav.gloom);
+  nav.mist += (nav.mistWant - nav.mist) * Math.min(1, dt * 0.6);
+  if (Math.abs(nav.gloom - nav.painted) > 0.008 || Math.abs(nav.mist - nav.paintedMist) > 0.008) paintMood(nav.gloom, nav.mist);
 
   // She rolls and pitches gently on the swell; the camera goes with her.
   const swell = 1 + nav.gloom * 0.9;
@@ -959,6 +967,7 @@ export function show(view) {
   }
 
   if (!view.finale) nav.gloomWant = (1 - view.hull / view.hullMax) * 0.9;
+  nav.mistWant = view.fog && ['pick', 'nest', 'flags', 'helm', 'steer', 'reef', 'clear'].includes(view.phase) ? 1 : 0; // it lifts for the brig
   if (view.phase !== phase) {
     const was = phase;
     phase = view.phase;
@@ -984,7 +993,7 @@ export function hide() {
   phase = null;
   shake = 0;
   bell.rotation.z = 0;
-  Object.assign(nav, { dist: 400, speed: 5, steering: false, stuck: false, lateral: 0, yaw: 0, lean: 0, pitch: 0, sink: 0, gloom: 0, gloomWant: 0 });
+  Object.assign(nav, { dist: 400, speed: 5, steering: false, stuck: false, lateral: 0, yaw: 0, lean: 0, pitch: 0, sink: 0, gloom: 0, gloomWant: 0, mist: 0, mistWant: 0 });
 }
 
 // ---------------------------------------------------------------------------
@@ -1000,18 +1009,19 @@ export function brigScreens({ anim, chip, player }) {
   };
   const face = (id) => chip(id, { label: false });
 
-  /** What the result says about the lookouts. */
+  /** What the result says about the lookouts. In fog a wrong flag might be an honest mistake, so it is never called a lie. */
   function verdict(v) {
     const r = v.result;
     const followed = r.choice === v.flags[0];
-    if (r.hit) return r.split ? 'The crew believed the wrong flag.' : followed ? 'Both lookouts lied!' : 'The flags were true, and the crew ignored them.';
-    return r.split ? 'The crew saw through the lie.' : followed ? 'Both flags were true.' : 'Both lookouts lied, and the crew called their bluff!';
+    if (r.hit) return r.split ? 'The crew believed the wrong flag.' : !followed ? 'The flags were true, and the crew ignored them.' : v.fog ? 'Both flags were wrong. Fog, or foul play?' : 'Both lookouts lied!';
+    if (r.split) return v.fog ? 'The crew picked the right flag.' : 'The crew saw through the lie.';
+    return followed ? 'Both flags were true.' : v.fog ? 'Both flags were wrong, and the crew ignored them!' : 'Both lookouts lied, and the crew called their bluff!';
   }
 
   /** The banner along the top: what is happening, in a kicker, a headline and a line underneath. */
   function banner(v) {
     const r = v.result;
-    const leg = v.leg ? `${v.leg === v.legs ? 'The last leg' : `Leg ${v.leg} of ${v.legs}`} · ${esc(v.hazard ?? '')}` : '';
+    const leg = v.leg ? `${v.leg === v.legs ? 'The last leg' : `Leg ${v.leg} of ${v.legs}`} · ${esc(v.hazard ?? '')}${v.fog ? ' · 🌫️ Fog' : ''}` : '';
     const flags = v.flags ? `<span class="tb-flags">${v.flags.map((f, i) => `<span${anim(`flag${i}`, 'tb-hoist', i * 500, 550)}>${signalFlag(f)}</span>`).join('')}</span>` : '';
     const split = v.flags && v.flags[0] !== v.flags[1];
     const onDeck = v.crew.length - v.brig.length;
@@ -1025,13 +1035,13 @@ export function brigScreens({ anim, chip, player }) {
           `${v.traitors === 1 ? 'One of you is a mutineer' : `${v.traitors} of you are mutineers`}. Keep it to yourself. <span class="tb-in">${v.ready.length} of ${v.crew.length} ready</span>`,
         ];
       case 'pick':
-        return [leg, `${chip(v.captain)} <i>is captain</i>`, 'Captain: send two pirates up the crow’s nest'];
+        return [leg, `${chip(v.captain)} <i>is captain</i>`, `Captain: send two pirates up the crow’s nest${v.fog ? '. It’s foggy: a spyglass could be wrong' : ''}`];
       case 'nest':
-        return [leg, v.nest.map((id) => chip(id)).join(' <i>and</i> '), `are up the crow’s nest. Only they can see the reef.${v.parrot ? ' <span class="tb-in">🦜 the parrot chose</span>' : ''}`];
+        return [leg, v.nest.map((id) => chip(id)).join(' <i>and</i> '), `are up the crow’s nest. Only they can see the reef${v.fog ? ', if the fog lets them' : ''}.${v.parrot ? ' <span class="tb-in">🦜 the parrot chose</span>' : ''}`];
       case 'flags':
-        return [`${names(v.nest)} signal…`, flags, split ? 'They disagree. One of them is lying!' : `Both say ${v.flags[0]}.`];
+        return [`${names(v.nest)} signal…`, flags, split ? (v.fog ? 'They disagree. A liar, or the fog?' : 'They disagree. One of them is lying!') : `Both say ${v.flags[0]}.`];
       case 'helm':
-        return [`${names(v.nest)} signal…`, flags, `${split ? 'One of them is lying. Argue it out, then vote on your phone' : 'Do you trust them? Vote on your phone'} ${count(v.voted.length, onDeck)}`];
+        return [`${names(v.nest)} signal…`, flags, `${split ? (v.fog ? 'A liar, or the fog? Argue it out, then vote on your phone' : 'One of them is lying. Argue it out, then vote on your phone') : 'Do you trust them? Vote on your phone'} ${count(v.voted.length, onDeck)}`];
       case 'steer':
         return [
           r.tie ? `Dead heat! Captain ${name(v.captain)} has the wheel` : 'The crew has voted',

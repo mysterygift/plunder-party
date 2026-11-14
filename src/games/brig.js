@@ -19,6 +19,11 @@
 // Hole the hull enough times and the mutineers win. Reach the island and the
 // loyal crew does.
 //
+// Some legs are foggy, and everybody is told so. In fog each lookout's
+// spyglass has a one-in-four chance of showing them the wrong side, and they
+// can't tell when it has. So in fog a split doesn't prove anybody lied, and a
+// mutineer caught out can blame the weather.
+//
 // A mutineer is a side you are on for the whole voyage; a lookout is a job for
 // one leg. Mutineers know each other, but they see the sea no better than
 // anybody else: their only weapons are a false flag when they are sent up the
@@ -52,16 +57,22 @@ export const autoMutineers = (crew) => (crew <= 6 ? 2 : crew <= 9 ? 3 : 4);
 export const autoCells = (crew) => (crew <= 6 ? 1 : crew <= 9 ? 2 : 3);
 export const autoLegs = (crew) => (crew % 3 === 0 ? 6 : 5); // 6, 9 and 12 are where the mutineers are thinnest on the ground
 
+const MISREAD = 0.25; // in fog, the chance a spyglass shows a lookout the wrong side
+
 const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'];
 const ORDINALS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 const SIDES = ['port', 'starboard'];
 const HAZARDS = ['Dead Man’s Gap', 'The Widow’s Teeth', 'Shipbreaker Sound', 'The Devil’s Molars', 'Hangman’s Reach', 'Barnacle Alley'];
 
-/** What the narrator makes of a leg: did she strike, did the flags disagree, and did the crew do as the flags said? */
-function verdict(hit, split, followed) {
-  if (hit) return `She’s struck the reef! ${split ? 'The crew believed the wrong flag.' : followed ? 'Both lookouts lied!' : 'The flags were true, and the crew ignored them.'}`;
-  if (split) return 'Clear water! The crew saw through the lie.';
-  return followed ? null : 'Clear water! Both lookouts lied, and the crew called their bluff.';
+/**
+ * What the narrator makes of a leg: did she strike, did the flags disagree, did
+ * the crew do as the flags said, and was it foggy? In fog a wrong flag might be
+ * an honest mistake, so the narrator never calls it a lie.
+ */
+function verdict(hit, split, followed, fog) {
+  if (hit) return `She’s struck the reef! ${split ? 'The crew believed the wrong flag.' : !followed ? 'The flags were true, and the crew ignored them.' : fog ? 'Both flags were wrong. Fog, or foul play?' : 'Both lookouts lied!'}`;
+  if (split) return fog ? 'Clear water! The crew picked the right flag.' : 'Clear water! The crew saw through the lie.';
+  return followed ? null : fog ? 'Clear water! Both flags were wrong, and the crew ignored them.' : 'Clear water! Both lookouts lied, and the crew called their bluff.';
 }
 
 /** Either setting from the content file as a whole number in range, or the fallback when it is missing or 0. */
@@ -75,15 +86,17 @@ export async function run(ctx) {
   const hullMax = setting(settings.hull, 3, 1, 5);
   const traitors = setting(settings.mutineers, autoMutineers(crew), 1, Math.max(1, Math.floor((crew - 1) / 2)));
   const cells = setting(settings.brigSize, autoCells(crew), 1, Math.max(1, crew - 4)); // always leaves four on deck
+  const fogChance = settings.fog == null || settings.fog === '' || !Number.isFinite(Number(settings.fog)) ? 0.35 : clamp(Number(settings.fog), 0, 1); // the share of legs that are foggy; 0 turns it off
   const drink = typeof settings.drink === 'string' ? settings.drink.trim() : '';
   const hazards = ctx.deck('hazards', Array.isArray(settings.hazards) && settings.hazards.length ? settings.hazards : HAZARDS);
 
-  // Four short rules: the intro screen has room for about seven lines, and the TV and phones explain the rest as it comes up.
+  // Four or five short rules: the intro screen has room for about seven lines, and the TV and phones explain the rest as it comes up.
   const strikes = hullMax === 1 ? 'once' : hullMax === 2 ? 'twice' : `${(WORDS[hullMax] ?? String(hullMax)).toLowerCase()} times`;
   await ctx.intro([
     `${WORDS[traitors] ?? traitors} of you are secretly mutineers. Your phone will tell you.`,
     'Each leg, two pirates climb the crow’s nest and flag the safe way past the reef.',
     'If their flags disagree, one is lying. Argue it out, then vote on the heading.',
+    ...(fogChance > 0 ? ['Some legs are foggy, and in fog a spyglass can be wrong.'] : []),
     `Then vote somebody into the brig. Strike the reef ${strikes} and she sinks.`,
   ]);
 
@@ -167,6 +180,9 @@ export async function run(ctx) {
       const key = `tb-${voyage}-${leg}`;
       const hazard = hazards.draw();
       const safe = sample(SIDES);
+      const fog = Math.random() < fogChance;
+      const other = safe === 'port' ? 'starboard' : 'port';
+      const sight = new Map(); // lookout -> the side their spyglass says is safe (in fog, maybe wrongly)
 
       let captain;
       do captain = order[turn++ % order.length];
@@ -197,6 +213,7 @@ export async function run(ctx) {
         phase: st.phase,
         ...chart(leg),
         hazard,
+        fog,
         captain: captain.id,
         nest: ids(st.nest),
         flags: st.flags,
@@ -208,7 +225,7 @@ export async function run(ctx) {
 
       const phone = (p) => {
         const jailed = brig.includes(p);
-        const common = { jailed, leg, legs, hull, hullMax, ...secret(p) };
+        const common = { jailed, leg, legs, hull, hullMax, fog, ...secret(p) };
         const wait = (icon, text, sub = '') => ({ screen: 'tb-wait', key: `${key}-${st.phase}`, icon, text, sub, ...common });
         const lookouts = st.nest.map((n) => n.name).join(' and ');
         const r = st.result;
@@ -223,10 +240,10 @@ export async function run(ctx) {
 
           case 'nest':
             if (st.nest.includes(p)) {
-              return { screen: 'tb-nest', key: `${key}-nest`, safe, mine: raised.get(p) ?? null, mate: st.nest.find((n) => n !== p).name, ...common };
+              return { screen: 'tb-nest', key: `${key}-nest`, safe: sight.get(p), mine: raised.get(p) ?? null, mate: st.nest.find((n) => n !== p).name, ...common };
             }
             if (jailed) return wait('⛓️', 'You’re in the brig.', `${lookouts} are up the crow’s nest.`);
-            return wait('🔭', `${lookouts} are up the crow’s nest.`, 'Only they can see the reef.');
+            return wait(fog ? '🌫️' : '🔭', `${lookouts} are up the crow’s nest.`, fog ? 'Only they can see the reef, if the fog lets them.' : 'Only they can see the reef.');
 
           case 'flags':
             return st.nest.includes(p) ? wait('😇', 'The flags are up.', 'Look innocent.') : wait('👀', 'Eyes on the big screen!');
@@ -238,7 +255,7 @@ export async function run(ctx) {
               key: `${key}-helm`,
               flags: st.flags,
               mine: votes.get(p) ?? null,
-              saw: st.nest.includes(p) ? safe : null, // a lookout knows the truth, whatever they hoisted
+              saw: st.nest.includes(p) ? sight.get(p) : null, // a lookout knows what they saw, whatever they hoisted (in fog it may be wrong)
               lookouts,
               ...common,
             };
@@ -248,10 +265,12 @@ export async function run(ctx) {
 
           case 'reef':
             if (mutineers.has(p)) return wait('😈', 'She’s struck the reef!', `${won(p)}. Look horrified.`);
+            if (sight.has(p) && sight.get(p) !== safe) return wait('🌫️', 'She’s struck the reef!', `The fog fooled your spyglass. The safe way was ${safe}.${won(p) ? ` ${won(p)}` : ''}`);
             return wait('💥', 'She’s struck the reef!', won(p) ? `You voted the right way. ${won(p)}` : `The safe way was ${safe}.`);
 
           case 'clear':
             if (mutineers.has(p)) return wait('😒', 'Clear water.', 'Curses. Look pleased.');
+            if (sight.has(p) && sight.get(p) !== safe) return wait('🌫️', 'Clear water!', `The fog fooled your spyglass: ${safe} was safe all along.${won(p) ? ` ${won(p)}` : ''}`);
             return wait('🌊', 'Clear water!', won(p));
 
           case 'brig':
@@ -277,7 +296,7 @@ export async function run(ctx) {
       // --- 1. the captain picks two lookouts ---
       let pair = null;
       ctx.screen({
-        say: `${leg === legs ? 'The last leg' : `Leg ${ORDINALS[leg] ?? leg}`}: ${hazard}. Captain ${captain.name}, send two pirates up the crow’s nest.`,
+        say: `${leg === legs ? 'The last leg' : `Leg ${ORDINALS[leg] ?? leg}`}: ${hazard}${fog ? ', in thick fog. A spyglass could be wrong today' : ''}. Captain ${captain.name}, send two pirates up the crow’s nest.`,
         sfx: 'tbBell',
         host: hostView,
         player: phone,
@@ -298,6 +317,7 @@ export async function run(ctx) {
       // --- 2. up the crow's nest: each lookout hoists a flag ---
       st.phase = 'nest';
       st.nest = pair;
+      for (const p of pair) sight.set(p, fog && Math.random() < MISREAD ? other : safe);
       ctx.screen({
         sfx: 'tbClimb',
         host: hostView,
@@ -309,7 +329,7 @@ export async function run(ctx) {
         },
       });
       await ctx.wait(ctx.seconds('nest', 25), { timer: true, until: () => pair.every((p) => raised.has(p) || ctx.away(p)) });
-      for (const p of pair) if (!raised.has(p)) raised.set(p, safe); // a lookout who froze gets an honest flag
+      for (const p of pair) if (!raised.has(p)) raised.set(p, sight.get(p)); // a lookout who froze gets an honest flag (honest about what they saw)
 
       // --- 3. the flags, for all to see (but not who raised which) ---
       st.phase = 'flags';
@@ -317,7 +337,7 @@ export async function run(ctx) {
       st.flags = pair.map((p) => raised.get(p)).sort(); // sorted, so the order gives nothing away
       const split = st.flags[0] !== st.flags[1];
       ctx.screen({
-        say: split ? 'The flags disagree. One of them is lying!' : `Both flags say ${st.flags[0]}.`,
+        say: split ? (fog ? 'The flags disagree. A liar, or the fog?' : 'The flags disagree. One of them is lying!') : `Both flags say ${st.flags[0]}.`,
         sfx: split ? 'tbSplit' : 'tbFlags',
         host: hostView,
         player: phone,
@@ -358,7 +378,7 @@ export async function run(ctx) {
       st.result = { ...st.result, safe, hit, split, sunk: hull === 0 };
       st.phase = hit ? 'reef' : 'clear';
       ctx.screen({
-        say: verdict(hit, split, choice === st.flags[0]),
+        say: verdict(hit, split, choice === st.flags[0], fog),
         sfx: hit ? 'tbReef' : 'tbClear',
         host: hostView,
         player: phone,
