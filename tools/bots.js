@@ -3,7 +3,7 @@
 //   npm run bots                  -> 4 bots join the lobby and play along
 //   npm run bots -- 6             -> 6 bots
 //   npm run bots -- 4 scuttlebutt -> 4 bots, and they start that game themselves
-//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots)
+//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots | brig)
 //
 // Start the server first (npm start). You can join on your own phone too:
 // the bots answer and vote, you play for real.
@@ -43,6 +43,7 @@ function scribble() {
 }
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
+const otherSide = (side) => (side === 'port' ? 'starboard' : 'port');
 const pause = (lo, hi) => new Promise((r) => setTimeout(r, fast ? 60 + Math.random() * 150 : lo + Math.random() * (hi - lo)));
 
 /**
@@ -180,6 +181,38 @@ async function runBot(name, index) {
         }
         break;
       }
+      // To the Brig with Ye: loyal robots are honest and a bit gullible; mutinous ones lie most of the time.
+      case 'tb-role':
+        await pause(1500, 6000);
+        await act({ type: 'tb-ready' });
+        break;
+      case 'tb-pick': {
+        await pause(2000, 8000);
+        const first = pick(view.options);
+        const second = pick(view.options.filter((o) => o.id !== first.id && !(o.tired && first.tired)));
+        await act({ type: 'tb-pick', key: view.key, ids: [first.id, second.id] });
+        break;
+      }
+      case 'tb-nest': {
+        if (view.mine) break;
+        await pause(1500, 6000);
+        const lie = view.role === 'mutineer' && Math.random() < 0.7;
+        await act({ type: 'tb-flag', key: view.key, side: lie ? otherSide(view.safe) : view.safe });
+        break;
+      }
+      case 'tb-helm': {
+        if (view.mine) break;
+        await pause(2500, 14000);
+        const agreed = view.flags[0] === view.flags[1] ? view.flags[0] : null;
+        const honest = view.saw ?? agreed ?? pick(view.flags);
+        await act({ type: 'tb-steer', key: view.key, side: view.role === 'mutineer' && (view.saw || agreed) ? otherSide(honest) : honest });
+        break;
+      }
+      case 'tb-brig':
+        if (view.mine) break;
+        await pause(2500, 12000);
+        await act({ type: 'tb-jail', key: view.key, id: Math.random() < 0.25 ? 'nobody' : pick(view.options).id });
+        break;
       case 'op-end':
         if (autoGame && view.canContinue) {
           await pause(8000, 9000);

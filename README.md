@@ -4,7 +4,7 @@ A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the
 same wifi. Nothing to install on the phones.
 
-Eight original games:
+Nine original games:
 
 | Game | What it is | Players |
 | --- | --- | --- |
@@ -16,6 +16,7 @@ Eight original games:
 | 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. The TV shows the table as a 3D diorama: leather cups, the bid chalked on the baize, and the dice that count hopping onto the chalk marks. | 2–12 |
 | 🏝️ **Find the One Piece** | A choose-your-own captain’s log, played as one crew with no scores. The log writes itself beside a model island; the crew votes on what to do, then everybody rolls one die and the total decides how it goes, from Perfect down to Diabolical. Beach, jungle, New Oldham, a monkey, a volcano, a dragon, and five endings. About ten minutes. | 2–12 |
 | ⛵ **Knot So Fast** | A quick-fire trivia regatta. Crews of two or three race a ship round a desert island: questions fire onto every phone with no pause, right answers fill the sails, and a gold question fires your cannon at the ship in front. A 45-second solo sprint picks the crews, then three races. The TV shows it as a 3D model on the tavern table. About seven minutes. | 4–12 (2 or 3 can play, a boat each) |
+| ⛓️ **To the Brig with Ye** | A talking game with secret mutineers. Each leg, the captain sends two pirates up the crow’s nest; only they can see which side of the channel hides the reef, and each hoists a flag in secret. If the flags disagree, one of them is lying: the crew argues it out, votes on the heading, then votes somebody into the brig. Three strikes on the reef and the mutineers win. The TV shows the view from the bow, with the fork in the channel ahead. About a quarter of an hour. | 5–12 |
 
 ## Running it
 
@@ -67,6 +68,7 @@ restarting.
 | `content/one-piece.json` | Find the One Piece: the whole story (every entry, option and outcome), the odds, the timers, and which tune each scene plays |
 | `content/knots.json` | Knot So Fast: races, laps, timers, how the wind and the cannon behave, doubloons, ship names |
 | `content/knots-questions.json` | Knot So Fast: the 600 trivia questions, by category |
+| `content/brig.json` | To the Brig with Ye: voyages, legs, the hull, how many mutineers, the size of the brig, the timers, and the names of the forks |
 | `content/dead-reckoning.json` | Locations: name, theme, coordinates, clues, fun fact, optional photo. Also the themes themselves, and whether distances are in miles or km |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
@@ -260,6 +262,56 @@ everyone gets it) to 3. A phone is never dealt the same question twice until
 it has seen them all. The last category, `house`, is empty: put questions
 about your own crowd there, in the same shape.
 
+**To the Brig with Ye: the rules, and tuning them**
+
+A few of the crew are secretly mutineers (two in a crew of 5 or 6, three for 7
+to 9, four for 10 to 12). Phones deal the sides at the start; the mutineers are
+told who each other are. A strip along the bottom of every phone shows your
+side again for a few seconds when tapped.
+
+A voyage is five legs (six for a crew of 6, 9 or 12). Each leg:
+
+- **The captain** (it passes round the crew) sends two pirates up the crow's
+  nest. Nobody climbs two legs running if there are enough rested hands.
+- **The lookouts** see which side of the fork is safe and each hoists a flag in
+  secret: red for port, green for starboard. The TV shows both flags, but not
+  who raised which. A lookout who runs out of time gets an honest flag.
+- **The helm.** If the flags disagree, one of the two is lying. Everybody argues
+  (out loud, in the room) and votes on the heading; the timer ends early once
+  every vote is in. A dead heat goes the captain's way.
+- She goes where the vote says. The wrong side costs a plank of the hull.
+- **The brig.** Everybody on deck votes for somebody, or for nobody. Most votes
+  goes below, but it takes at least two, and it has to beat both the runner-up
+  and "nobody". A prisoner can still heckle but cannot vote, climb or be
+  captain. The brig has one cell (two for 7 to 9 pirates, three for 10 to 12):
+  when it is full, a new prisoner turns the longest-serving one loose.
+
+Three strikes and she sinks: the mutineers win. Reach the island and the loyal
+crew does. Either way the mutineers are unmasked at the end. A mutineer is a
+side for the whole voyage and a lookout is a job for one leg: mutineers see
+the sea no better than anybody else, so their only weapons are a false flag
+when they are sent up, a vote for the rocks, and getting honest pirates locked up.
+
+Doubloons: 100 to a loyal pirate for each vote for the safe side and 150 for
+each brig vote that names a real mutineer; 250 to every mutineer each time she
+strikes and 150 for helping lock up an honest pirate; 2,000 to everybody on the
+winning side. (The phones hide the doubloon counter in this game, since a
+mutineer's jumps when she strikes.)
+
+`content/brig.json` has the settings. `voyages` is how many voyages make a
+game: one is about a quarter of an hour, and two or three make a half-hour game
+with the sides dealt afresh each voyage and the doubloons carried over. `legs`,
+`mutineers` and `brigSize` are 0 to let the crew size decide, or a number to
+overrule it; `hull` is how many strikes sink her. `drink` is what a pirate
+swigs on the way down to the brig (leave it empty for no drinking). `seconds`
+has the timers: `roles`, `pick`, `nest`, `argue` (the flags disagree), `agree`
+(they don't) and `brig`. `hazards` are the names of the forks, one drawn per leg.
+
+The crew-size numbers came from simulating a few hundred thousand voyages and
+keep the mutineers winning roughly a third to a half of the time; real crews
+will be better liars and worse detectives than the simulation, so if one side
+keeps winning, `hull` and `mutineers` are the two to change.
+
 **The narrator**
 
 On a Mac, the server renders each narrator line with one of macOS's own voices
@@ -327,6 +379,7 @@ npm run bots -- 6 bombard       # three a side, firing more or less at random
 npm run bots -- 4 liars         # they bid, bluff a bit, and call each other out
 npm run bots -- 5 onepiece      # they vote for whatever, and roll
 npm run bots -- 8 knots         # four ships of two; they answer every few seconds and get most right
+npm run bots -- 7 brig          # loyal robots are honest and gullible; mutinous ones lie most of the time
 ```
 
 Join on your own phone as well and you can play a real game against them.
@@ -350,6 +403,7 @@ public/bombard-*.js  Bombard!: the 3D diorama on the TV (-host), the flat board 
 public/liars-*.js    LiAARRRRGH’s Dice: the 3D dice table on the TV (-host), your dice and the bid buttons on phones (-play), its sounds and tavern band (-sound)
 public/onepiece-*.js Find the One Piece: the log page on the TV (-host), the island it sits beside (-world), the vote and the die on phones (-play), its sounds and tunes (-sound)
 public/knots-*.js    Knot So Fast: the island and the race on the TV (-host), the question screen on phones (-play), the motion sum shared with the server (-motion), its sounds and reel (-sound)
+public/tb-*.js       To the Brig with Ye: the view from the bow on the TV (-host), your orders and the votes on phones (-play), its sounds and slow air (-sound)
 public/vendor/       three.js, which draws the diorama (copied from node_modules, so no internet is needed)
 tools/bots.js        Robot players
 tools/build-assets.js  Regenerates the map data and fonts (already done; rarely needed)

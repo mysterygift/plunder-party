@@ -20,6 +20,7 @@ const FILES = {
   onepiece: 'one-piece.json',
   knots: 'knots.json',
   knotsQuestions: 'knots-questions.json',
+  brig: 'brig.json',
 };
 
 function readJson(file) {

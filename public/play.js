@@ -7,6 +7,7 @@ import { bombardScreens, bombardTap, bombardShown } from './bombard-play.js';
 import { liarsScreens, liarsTap, liarsShown } from './liars-play.js';
 import { onePieceScreens, onePieceTap, onePieceShown } from './onepiece-play.js';
 import { knotsShown } from './knots-play.js';
+import { brigScreens, brigTap, brigShown } from './tb-play.js';
 import { FLAG_W, FLAG_H, CLOTHS, INKS, WIDTHS, ERASER, MAX_STROKES, MAX_POINTS, strokePath, strokesSvg, inkColor, flagTag } from './flag.js';
 
 const $ = (id) => document.getElementById(id);
@@ -356,6 +357,7 @@ const screens = {
   ...bombardScreens, // Bombard!: bb-side, bb-aim, bb-watch (see bombard-play.js)
   ...liarsScreens, // LiAARRRRGH's Dice: ld-hand (see liars-play.js)
   ...onePieceScreens, // Find the One Piece: op-page, op-vote, op-roll, op-end (see onepiece-play.js)
+  ...brigScreens, // To the Brig with Ye: tb-role, tb-wait, tb-pick, tb-nest, tb-helm, tb-brig (see tb-play.js)
 
   gameover(v) {
     return `<div class="center">
@@ -416,6 +418,7 @@ function render(v) {
   bombardShown(v);
   liarsShown(v);
   onePieceShown(v);
+  brigShown(v);
   const draft = typing && previous?.key === v.key ? { id: typing.id, value: typing.value } : null;
   screenEl.innerHTML = (screens[v.screen] ?? screens.wait)(v);
   if (draft && $(draft.id)) $(draft.id).value = draft.value;
@@ -480,6 +483,7 @@ screenEl.addEventListener('click', async (e) => {
   if (act.startsWith('bb-')) return bombardTap(act, id, view, send);
   if (act.startsWith('ld-')) return liarsTap(act, id, view, send);
   if (act.startsWith('op-')) return onePieceTap(act, id, view, send);
+  if (act.startsWith('tb-')) return brigTap(act, id, view, send);
   if (busy) return;
   if (act === 'zoom-in') return map.zoomBy(0.55);
   if (act === 'zoom-out') return map.zoomBy(1.8);

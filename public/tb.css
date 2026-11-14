@@ -1,0 +1,264 @@
+/* To the Brig with Ye: the signal flags (shared), then the big screen, then the phones. */
+
+/* ============ signal flags: red for port, green for starboard ============ */
+.tb-flag {
+  display: inline-flex; align-items: center; gap: 0.22em; padding: 0.06em 0.5em 0.14em; vertical-align: middle; white-space: nowrap;
+  font: 400 1em/1.1 var(--display); letter-spacing: 0.03em; color: #fff; text-shadow: 0 0.05em 0 rgba(0, 0, 0, 0.35);
+  border: 0.07em solid rgba(255, 255, 255, 0.8); border-radius: 0.14em; box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45);
+}
+.tb-flag b { font-weight: 400; }
+.tb-flag i { font-style: normal; font-size: 0.66em; }
+.tb-flag i:empty { display: none; }
+.tb-flag.port { background: linear-gradient(180deg, #e2564b, #b3261d); }
+.tb-flag.starboard { background: linear-gradient(180deg, #3fb866, #1f7f3f); }
+
+/* ============ the big screen ============ */
+
+/* The view from the bow fills the whole window, behind the 1920x1080 stage (see tb-host.js). */
+#tbLayer { position: fixed; inset: 0; overflow: hidden; background: #f4bd8c; }
+#tbLayer canvas { display: block; width: 100%; height: 100%; }
+body[data-screen='tb'] #backdrop { display: none; }
+body[data-screen='tb'] #barTitle { display: none; } /* the banner has the middle of the bar, the chart has the corner */
+
+/* Dark along the top and bottom, where the words go; darker all over while the crew votes on the brig. */
+.tb-vignette {
+  position: absolute; inset: 0; pointer-events: none; transition: background-color 0.8s;
+  background-image: linear-gradient(180deg, rgba(6, 12, 20, 0.7) 0%, rgba(6, 12, 20, 0.25) 16%, transparent 30%, transparent 76%, rgba(6, 12, 20, 0.7) 100%);
+}
+#tbLayer[data-phase='brig'] .tb-vignette, #tbLayer[data-phase='brigged'] .tb-vignette { background-color: rgba(6, 12, 20, 0.5); }
+#tbLayer[data-phase='end'] .tb-vignette { background-color: rgba(6, 12, 20, 0.22); }
+.tb-flash { position: absolute; inset: 0; pointer-events: none; background: #fff; opacity: 0; }
+.tb-flash.go { animation: tb-flash 0.7s ease-out; }
+@keyframes tb-flash { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+/* going under */
+.tb-drown { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 3s ease-in; background: linear-gradient(180deg, #1f6f86 0%, #0c3a55 45%, #04121f 100%); }
+#tbLayer.sunk .tb-drown { opacity: 0.96; }
+
+/* --- the signs over the two channels. --u is one "TV pixel"; a sign is sized by its font-size. --- */
+.tb-marks { position: absolute; inset: 0; pointer-events: none; font-size: calc(var(--u) * 34px); }
+.tb-mark {
+  position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 0.1em; white-space: nowrap;
+  padding: 0.12em 0.7em 0.22em; border-radius: 0.5em; color: #fff; border: 0.09em solid rgba(255, 255, 255, 0.85); box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.5);
+  transition: scale 0.3s, filter 0.3s;
+}
+.tb-mark::after { content: ''; position: absolute; left: 50%; top: 100%; translate: -50% 0; border: 0.4em solid transparent; border-bottom: 0; border-top-color: rgba(255, 255, 255, 0.85); }
+.tb-mark.port { background: #b3261d; }
+.tb-mark.starboard { background: #1f7f3f; }
+.tb-mark b { font: 400 1.25em/1.1 var(--display); letter-spacing: 0.04em; }
+.tb-mark span { font-size: 0.72em; font-style: italic; }
+.tb-mark em { font: 400 0.9em var(--display); font-style: normal; letter-spacing: 0.04em; padding: 0 0.5em 0.06em; border-radius: 1em; background: rgba(0, 0, 0, 0.45); }
+.tb-mark.chosen { scale: 1.18; box-shadow: 0 0 0.3em var(--gold), 0 0 1.2em rgba(247, 201, 72, 0.7); border-color: var(--gold); }
+.tb-mark.reef { background: #2a2a2e; }
+.tb-mark.reef em { background: var(--red); }
+.tb-mark.safe em { background: #2f7d3a; }
+
+/* --- the words, drawn on the stage by host.js --- */
+body.host .tb-hud { position: absolute; inset: -100px 0 0 0; }
+
+/* the banner along the top */
+.tb-top {
+  position: absolute; left: 50%; top: 14px; translate: -50% 0; min-width: 780px; max-width: 1280px; padding: 10px 56px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; white-space: nowrap;
+}
+.tb-top p { margin: 0; }
+.tb-top i { font-style: italic; }
+.tb-kicker { font: 28px var(--display); letter-spacing: 0.07em; color: var(--red-dark); }
+.tb-main { display: flex; align-items: center; justify-content: center; gap: 0.28em; min-height: 76px; font: 400 62px/1.1 var(--display); color: var(--ink); }
+.tb-main i { font: italic 0.6em var(--body); }
+.tb-main .chip { font-size: 0.74em; }
+.tb-flags { display: inline-flex; gap: 0.5em; }
+.tb-flags > span { display: inline-flex; }
+.tb-sub { font-size: 32px; }
+.tb-in { margin-left: 0.5em; padding: 0 0.6em 0.1em; border-radius: 1em; font: 0.82em var(--display); letter-spacing: 0.04em; background: rgba(110, 75, 25, 0.2); }
+.tb-tally { padding: 0 0.6em 0.08em; border-radius: 0.3em; font: 1em var(--display); letter-spacing: 0.04em; color: #fff; }
+.tb-tally.port { background: #b3261d; }
+.tb-tally.starboard { background: #1f7f3f; }
+[data-anim='tb-hoist'] { animation-name: a-tb-hoist; animation-timing-function: cubic-bezier(0.25, 0.9, 0.3, 1.1); }
+@keyframes a-tb-hoist { from { opacity: 0; transform: translateY(110px); } 35% { opacity: 1; } }
+
+/* the voyage so far, top left: a dot for each leg and the island at the end */
+body.host .tb-chart { position: absolute; left: 46px; top: 30px; display: flex; align-items: center; gap: 0; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6)); }
+body.host .tb-chart i { position: relative; width: 34px; height: 34px; margin-right: 26px; border-radius: 50%; border: 4px solid var(--parchment); background: rgba(6, 12, 20, 0.55); }
+body.host .tb-chart i::after { content: ''; position: absolute; left: 100%; top: 50%; width: 26px; margin: -2px 0 0 4px; border-top: 4px dashed var(--parchment); opacity: 0.8; }
+body.host .tb-chart i.safe { background: #2f9a4a; }
+body.host .tb-chart i.hit { background: var(--red); }
+body.host .tb-chart i.safe::before, body.host .tb-chart i.hit::before { position: absolute; inset: 0; display: grid; place-items: center; font: 700 22px/1 var(--os-font); color: #fff; }
+body.host .tb-chart i.safe::before { content: '✓'; }
+body.host .tb-chart i.hit::before { content: '✕'; }
+body.host .tb-chart i.now { background: var(--gold); border-color: #fff; box-shadow: 0 0 18px var(--gold); animation: tb-now 0.9s ease-in-out infinite alternate; }
+@keyframes tb-now { to { scale: 1.18; } }
+body.host .tb-chart span { font-size: 46px; line-height: 1; }
+
+/* the hull, top right beside the clock: a plank for every strike she can still take */
+body.host .tb-hull { position: absolute; right: 180px; top: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.6)); }
+body.host .tb-hull b { font: 400 26px/1 var(--display); letter-spacing: 0.1em; text-transform: uppercase; color: var(--parchment); }
+body.host .tb-hull span { display: flex; gap: 8px; }
+body.host .tb-hull i { width: 74px; height: 26px; border-radius: 4px; border: 3px solid #3d2a12; background: linear-gradient(180deg, #b98a52, #8a5a2c); }
+body.host .tb-hull i.gone { background: none; border: 3px dashed var(--red); opacity: 0.85; }
+body.host .tb-hull.last i:not(.gone) { animation: tb-last 0.6s ease-in-out infinite alternate; }
+@keyframes tb-last { to { background: linear-gradient(180deg, #e2564b, #b3261d); } }
+[data-anim='tb-crack'] { animation-name: a-tb-crack; animation-timing-function: ease-in; }
+@keyframes a-tb-crack {
+  0% { background: linear-gradient(180deg, #b98a52, #8a5a2c); border: 3px solid #3d2a12; transform: none; opacity: 1; }
+  20% { transform: translateX(-6px) rotate(-4deg); }
+  40% { transform: translateX(6px) rotate(5deg); background: var(--red); }
+  100% { background: var(--red); transform: translateY(70px) rotate(40deg); opacity: 0; }
+}
+
+/* along the bottom: the brig, and everybody on deck */
+.tb-crew { position: absolute; left: 40px; right: 40px; bottom: 22px; display: flex; align-items: flex-end; gap: 30px; font-size: 34px; }
+.tb-crew.dense { font-size: 26px; }
+.tb-deck { flex: 1; display: flex; flex-wrap: wrap-reverse; justify-content: center; gap: 0.75em 0.5em; }
+.tb-hand {
+  position: relative; display: inline-flex; padding: 0.14em 0.55em 0.2em 0.2em; border-radius: 1.2em; color: var(--parchment);
+  background: rgba(6, 12, 18, 0.8); border: 0.08em solid rgba(201, 239, 230, 0.28); box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.45); transition: border-color 0.3s, background 0.3s;
+}
+.tb-hand.away { opacity: 0.55; }
+.tb-hand.voted { border-color: var(--gold); background: rgba(60, 40, 6, 0.92); }
+.tb-hand.voted::after {
+  content: '✓'; position: absolute; right: -0.35em; top: -0.35em; width: 1.2em; height: 1.2em; display: grid; place-items: center; border-radius: 50%;
+  font: 700 0.6em/1 var(--os-font); color: var(--ink); background: var(--gold); animation: tb-tick 0.3s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+@keyframes tb-tick { from { scale: 0; } }
+.tb-hand.traitor { border-color: var(--red); background: rgba(90, 16, 12, 0.92); }
+.tb-tag {
+  position: absolute; left: 50%; top: -1.05em; translate: -50% 0; white-space: nowrap; padding: 0.02em 0.6em 0.1em; border-radius: 1em;
+  font: 0.62em var(--display); letter-spacing: 0.04em; color: var(--parchment); background: #1f1612; border: 0.08em solid rgba(244, 230, 193, 0.5); box-shadow: 0 0.12em 0.3em rgba(0, 0, 0, 0.5);
+}
+.tb-tag.gold { background: var(--gold); color: var(--ink); border-color: #fff; }
+.tb-tag.red { background: var(--red); color: #fff; border-color: #fff; }
+
+/* the brig: a row of cells with bars across them */
+.tb-cage {
+  position: relative; flex: none; display: flex; align-items: center; gap: 0.3em; padding: 0.95em 0.4em 0.35em; border-radius: 0.3em;
+  background: rgba(10, 10, 12, 0.85); border: 0.12em solid #55565c; box-shadow: inset 0 0 0.8em #000, 0 0.2em 0.6em rgba(0, 0, 0, 0.5);
+}
+.tb-cage > b { position: absolute; left: 0.6em; top: 0.12em; font: 400 0.62em var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: #a9aab3; }
+.tb-cell { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 4.6em; height: 2.3em; }
+.tb-hud[data-phase='end'] .tb-cage > b { visibility: hidden; } /* the Mutineer tags need the room */
+.tb-cell.empty { border-radius: 0.2em; background: rgba(255, 255, 255, 0.04); }
+.tb-cell .tb-hand { background: none; border-color: transparent; box-shadow: none; filter: saturate(0.6); }
+/* the bars */
+.tb-cage::after {
+  content: ''; position: absolute; inset: 0.75em 0.1em 0.1em; pointer-events: none; border-radius: 0.2em;
+  background: repeating-linear-gradient(90deg, transparent 0 0.62em, #77787f 0.62em 0.7em, #2c2d31 0.7em 0.8em);
+  opacity: 0.85;
+}
+
+/* the brig vote, laid out */
+.tb-ballot { position: absolute; left: 50%; top: 262px; translate: -50% 0; min-width: 880px; max-width: 1300px; padding: 22px 44px 26px; display: flex; flex-direction: column; gap: 10px; }
+.tb-row { margin: 0; display: flex; align-items: center; gap: 26px; font-size: 40px; padding: 4px 18px; border-radius: 16px; }
+.tb-row .tb-who { flex: none; min-width: 330px; }
+.tb-row .tb-who > .nm { font-family: var(--display); font-style: italic; opacity: 0.7; } /* "Nobody" */
+.tb-row .tb-by { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.82em; }
+.tb-row > b { font: 400 1.3em var(--display); min-width: 1em; text-align: right; }
+.tb-row.sent { background: rgba(200, 55, 45, 0.2); box-shadow: inset 0 0 0 4px var(--red); }
+.tb-ballot:has(.tb-row:nth-child(6)) .tb-row { font-size: 32px; }
+
+.tb-stamp {
+  position: absolute; left: 50%; top: 400px; translate: -50% 0; rotate: -6deg; padding: 0 50px 10px; white-space: nowrap; opacity: 0;
+  font: 150px/1.1 var(--display); color: var(--red); border: 12px double var(--red); border-radius: 26px;
+  background: rgba(244, 230, 193, 0.95); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.tb-stamp.good { color: #2f7d3a; border-color: #2f7d3a; }
+[data-anim='tb-stamp'] { animation-name: a-tb-stamp; animation-timing-function: ease; }
+@keyframes a-tb-stamp {
+  0% { opacity: 0; transform: scale(3.2); }
+  9% { opacity: 1; transform: none; }
+  82% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: scale(0.92); }
+}
+
+/* the unmasking */
+/* (low down, over the deck: the island or the rising water has the middle of the picture) */
+.tb-unmask { position: absolute; left: 50%; bottom: 170px; translate: -50% 0; min-width: 760px; max-width: 1500px; padding: 18px 60px 28px; text-align: center; }
+.tb-unmask p { margin: 0 0 10px; font: 40px var(--display); letter-spacing: 0.05em; color: var(--red-dark); }
+.tb-unmask > div { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 50px; font-size: 60px; }
+.tb-rogue { display: inline-flex; }
+
+/* ============ the phones ============ */
+/* Top to bottom: how the voyage is going, whatever this leg needs from you, and
+   (pinned to the bottom) the strip that shows which side you are on. */
+body[data-game='brig'] #me .score { display: none; } /* a mutineer's doubloons jump when she strikes: not something to leave on show */
+body.play .tb { gap: 10px; padding-top: 10px; }
+body.play .tb > * { flex: none; width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; }
+body.play .tb-body { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+body.play .tb-body > p { margin: 0; }
+body.play .tb .heading.light { font-size: 30px; }
+body.play .tb .prompt.light { margin: 0; }
+
+body.play .tb-chart { margin: 0 auto; display: flex; align-items: center; justify-content: space-between; font: 13px var(--os-font); letter-spacing: 0.1em; text-transform: uppercase; color: var(--foam); opacity: 0.9; }
+body.play .tb-hull { display: flex; gap: 4px; }
+body.play .tb-hull i { width: 26px; height: 10px; border-radius: 2px; background: linear-gradient(180deg, #b98a52, #8a5a2c); border: 1px solid #3d2a12; }
+body.play .tb-hull i.gone { background: none; border: 1px dashed var(--red); }
+
+/* behind bars */
+body.play .tb.jailed { background: repeating-linear-gradient(90deg, transparent 0 46px, rgba(0, 0, 0, 0.5) 46px 56px); }
+
+/* the strip along the bottom: tap to see which side you are on */
+.tb-orders {
+  margin-top: auto; display: flex; align-items: baseline; justify-content: center; gap: 8px; padding: 10px 12px 12px; border-radius: 14px; font-size: 16px; color: var(--foam);
+  background: rgba(4, 16, 28, 0.6); border: 2px dashed rgba(201, 239, 230, 0.35);
+}
+.tb-orders b { font: 400 20px var(--display); letter-spacing: 0.03em; }
+.tb-orders small { font-size: 14px; font-style: italic; opacity: 0.8; }
+.tb-orders.open { border-style: solid; border-color: #6fb6e8; background: #12406a; color: #fff; }
+.tb-orders.open.mutineer { border-color: #ff8f85; background: #7e1a14; }
+
+/* your secret orders, at the start of a voyage */
+.tb-card {
+  width: 100%; padding: 22px 20px 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; border-radius: 18px;
+  color: #fff; border: 3px solid #6fb6e8; background: linear-gradient(180deg, #1b5a91, #12406a); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+.tb-card-icon { font-size: 74px; line-height: 1.1; }
+.tb-card b { font: 400 36px/1.05 var(--display); letter-spacing: 0.02em; }
+.tb-card p { margin: 0; font-size: 19px; line-height: 1.25; }
+.tb-card em { font-style: normal; font-family: var(--display); font-size: 1.15em; color: var(--gold); }
+.tb-card ul { margin: 4px 0 0; padding: 0 0 0 20px; text-align: left; font-size: 17px; line-height: 1.35; }
+.tb-card small { font-size: 16px; font-style: italic; opacity: 0.9; }
+.tb-card.mutineer { border-color: #ff8f85; background: linear-gradient(180deg, #a3261d, #6b140f); }
+.tb-card.back {
+  min-height: 300px; justify-content: center; color: var(--parchment); border: 3px solid var(--gold-dark);
+  background: repeating-linear-gradient(45deg, #2a1b10 0 14px, #33210f 14px 28px);
+}
+.tb-card.back b { color: var(--gold); }
+
+/* a list of pirates to choose from */
+.tb-picks { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.tb-pick {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; font-size: 22px; text-align: left; color: var(--parchment);
+  background: rgba(4, 16, 28, 0.65); border: 3px solid rgba(201, 239, 230, 0.28); border-radius: 16px;
+}
+.tb-pick small { font-size: 14px; font-style: italic; opacity: 0.8; text-align: right; }
+.tb-pick.on { border-color: var(--gold); background: rgba(60, 40, 6, 0.85); box-shadow: 0 0 14px rgba(247, 201, 72, 0.35); }
+.tb-pick:disabled { opacity: 0.4; }
+.tb-pick.on:disabled { opacity: 1; }
+.tb-pick:active { transform: translateY(2px); }
+.tb-pick.nobody { justify-content: center; border-style: dashed; }
+.tb-pick.nobody b { font: 400 24px var(--display); letter-spacing: 0.03em; }
+
+/* port or starboard: two big buttons side by side, the same way round as the ship */
+.tb-two { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tb-hoist {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 6px 16px; font-size: 25px; color: var(--parchment);
+  background: rgba(4, 16, 28, 0.65); border: 3px solid rgba(201, 239, 230, 0.28); border-radius: 16px;
+}
+.tb-hoist.port { border-color: #e2564b; }
+.tb-hoist.starboard { border-color: #3fb866; }
+.tb-hoist small { font-size: 14px; font-style: italic; opacity: 0.8; }
+.tb-hoist:active { transform: translateY(3px); }
+.tb-hoist:disabled { opacity: 0.5; }
+
+/* what a lookout can see */
+.tb-sight { width: 100%; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 2px; border-radius: 16px; color: #fff; border: 3px solid #fff; }
+.tb-sight.port { background: linear-gradient(180deg, #c8372d, #8c211a); }
+.tb-sight.starboard { background: linear-gradient(180deg, #2f9a4a, #1c6630); }
+.tb-sight small { font: 12px var(--os-font); letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+.tb-sight b { font: 400 38px/1.05 var(--display); letter-spacing: 0.02em; }
+.tb-sight span { font-size: 17px; font-style: italic; }
+.tb-saw { padding: 8px 12px; border-radius: 12px; font-size: 17px; color: var(--parchment); background: rgba(4, 16, 28, 0.6); }
+.tb-saw b { font: 400 1.15em var(--display); color: var(--gold); }
+
+body.play .tb-flags { display: flex; justify-content: center; gap: 12px; font-size: 30px; }
+.tb-mine { font-size: 40px; color: var(--parchment); }
+.tb-mine > b { font: 400 1em var(--display); color: var(--gold); }

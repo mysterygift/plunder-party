@@ -38,6 +38,18 @@
       "port": 3521
     },
     {
+      "name": "brig-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3710", "node", "server.js"],
+      "port": 3710
+    },
+    {
+      "name": "brig-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3711", "SPEED=6", "node", "server.js"],
+      "port": 3711
+    },
+    {
       "name": "onepiece-test",
       "runtimeExecutable": "env",
       "runtimeArgs": ["PORT=3420", "node", "server.js"],

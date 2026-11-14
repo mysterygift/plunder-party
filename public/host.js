@@ -9,6 +9,7 @@ import * as diceTable from './liars-host.js';
 import * as captainsLog from './onepiece-host.js';
 import * as regatta from './knots-host.js';
 import * as chartTable from './reckoning-host.js';
+import * as bowView from './tb-host.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -394,6 +395,9 @@ const screens = {
   // Dead Reckoning: the map is a 3D model drawn behind this; these are the clues and the results (see reckoning-host.js).
   ...chartTable.reckoningScreens({ anim, chip, progress }),
 
+  // To the Brig with Ye: the view from the bow is a 3D model drawn behind this; these are the words over it (see tb-host.js).
+  ...bowView.brigScreens({ anim, chip, player: (id) => players.get(id) }),
+
   // Bombard!: the battle itself is a 3D model drawn behind this (see bombard-host.js).
   // These are just the words along the top: the two sides and their crews.
   bombard(v) {
@@ -472,6 +476,8 @@ function render(v) {
 
   if (v.screen?.startsWith('dr-')) chartTable.show(v, players);
   else chartTable.hide();
+  if (v.screen === 'tb') bowView.show(v);
+  else bowView.hide();
 
   // Toast (errors such as "needs 3 pirates" or a typo in a content file)
   $('toast').hidden = !v.toast;
