@@ -45,10 +45,13 @@ Hover the bottom-right corner for buttons, or use the keyboard:
 | Key | Does |
 | --- | --- |
 | Space | Skip ahead (ends the current timer or reveal) |
-| P | Pause / resume |
-| Esc | End the game and return to the lobby |
-| S / M / N | Sound effects / music & sea ambience / narrator voice on or off |
+| P | Pause / resume. The pause screen also has **End game, back to port** |
+| S / M / N | Sound effects / music & sea ambience / narrator voice on or off (the narrator starts off) |
+| L | Step through the lighting styles (or click 💡 for the menu) |
 | F | Fullscreen |
+
+Ending a game isn't on Esc, because Esc also takes the browser out of fullscreen.
+Pause (P) and use the button there, or the ⏹ button in the corner.
 
 In the lobby, click a player's name to remove them. Anything that can't be
 undone (removing a player, ending a game) asks first in a popup: Enter for yes,

@@ -286,7 +286,12 @@ body[data-game='colours'] .stars { opacity: 0.5; inset: 0 0 60% 0; }
 
 /* ============ overlays ============ */
 .modal { font-size: 3vh; }
-#paused { position: fixed; left: 50%; top: 2vh; translate: -50% 0; z-index: 20; font: 6vh var(--display); color: var(--gold); padding: 0.6vh 4vh 1vh; background: rgba(4, 14, 24, 0.92); border: 0.4vh solid var(--gold); border-radius: 2vh; }
+#paused { position: fixed; left: 50%; top: 2vh; translate: -50% 0; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 1.4vh; padding: 0.6vh 4vh 2vh; background: rgba(4, 14, 24, 0.92); border: 0.4vh solid var(--gold); border-radius: 2vh; }
+#paused[hidden] { display: none; }
+#paused .paused-title { font: 6vh var(--display); color: var(--gold); }
+#paused .paused-btns { display: flex; gap: 1.2vh; font-size: 2.6vh; }
+#paused .paused-btns button { white-space: nowrap; }
+#paused .paused-btns [hidden] { display: none; }
 #toast { position: fixed; left: 50%; top: 3vh; translate: -50% 0; z-index: 30; max-width: 80vw; font: 700 2.6vh var(--os-font); color: #fff; padding: 1.6vh 3vh; background: var(--red); border-radius: 1.5vh; box-shadow: 0 1vh 3vh rgba(0, 0, 0, 0.5); }
 #lookNote { position: fixed; right: 1.2vh; bottom: 7.4vh; z-index: 25; font: 700 2.2vh var(--os-font); color: #fff; padding: 1vh 2vh; background: rgba(4, 14, 24, 0.92); border-radius: 1.2vh; }
 body.retro #lookNote { bottom: 13.2vh; }

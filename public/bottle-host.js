@@ -8,7 +8,7 @@
 //
 // Built with the kit in kit3d.js, like Sea Lawyer and Parley.
 
-import { THREE, createStage, shapes, paint, part, decal, palm, rand, easeOut, easeInOut, linear, chipHtml } from './kit3d.js';
+import { THREE, createStage, shapes, paint, part, keepPlain, decal, palm, rand, easeOut, easeInOut, linear, chipHtml } from './kit3d.js';
 import { esc, fmt } from './common.js';
 import { flagTag } from './flag.js';
 import { createAmbience } from './ambience.js';
@@ -50,7 +50,8 @@ const onRing = (angle, k = 1, y = 0) => new THREE.Vector3(Math.sin(angle) * RING
 function buildSea(scene) {
   const geo = new THREE.PlaneGeometry(260, 200, 120, 90).rotateX(-Math.PI / 2);
   const base = Float32Array.from(geo.attributes.position.array);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x1b8fb0, roughness: 0.3, metalness: 0.1, flatShading: true }));
+  // The water keeps smooth light in every lighting style: banding on the rolling waves looks wrong.
+  const mesh = new THREE.Mesh(geo, keepPlain(new THREE.MeshStandardMaterial({ color: 0x1b8fb0, roughness: 0.3, metalness: 0.1, flatShading: true })));
   mesh.receiveShadow = true;
   scene.add(mesh);
   // Sandy shallows under the whole ring, seen through the water as a paler lagoon.

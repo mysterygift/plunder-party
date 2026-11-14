@@ -53,7 +53,13 @@
     <div id="screen"></div>
   </div>
 
-  <div id="paused" hidden>⏸ Paused</div>
+  <div id="paused" hidden>
+    <div class="paused-title">⏸ Paused</div>
+    <div class="paused-btns">
+      <button class="modal-btn" data-ctl="pause">▶ Carry on (P)</button>
+      <button class="modal-btn yes" data-ctl="end" id="pausedEnd">⏹ End game, back to port</button>
+    </div>
+  </div>
   <div id="toast" hidden></div>
   <div id="lookNote" hidden></div>
   <div id="lookMenu" hidden></div>
@@ -62,7 +68,7 @@
   <div id="controls">
     <button data-ctl="pause" title="Pause / resume (P)">⏯</button>
     <button data-ctl="skip" title="Skip ahead (Space)">⏭</button>
-    <button data-ctl="end" title="End this game (Esc)">⏹</button>
+    <button data-ctl="end" title="End this game (also on the pause screen)">⏹</button>
     <span class="sep"></span>
     <button data-ctl="sound" title="Sound effects (S)">🔊</button>
     <button data-ctl="music" title="Music and sea ambience (M)">🎵</button>

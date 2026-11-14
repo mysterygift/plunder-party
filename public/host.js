@@ -497,6 +497,7 @@ function render(v) {
   document.body.dataset.game = v.game ?? '';
   $('barTitle').textContent = v.game ? `${v.gameIcon} ${v.gameName}` : '';
   $('paused').hidden = !v.paused;
+  $('pausedEnd').hidden = !v.game; // ending the game lives here, not on Esc (which also drops out of fullscreen)
 
   if (v.urls.join !== qr.url) {
     qr = { url: v.urls.join, svg: '' };
@@ -648,12 +649,14 @@ document.addEventListener('pointerdown', (e) => {
 });
 showLook(false);
 
-$('controls').addEventListener('click', (e) => {
-  const button = e.target.closest('[data-ctl]');
-  if (button) control(button.dataset.ctl);
-});
+for (const bar of [$('controls'), $('paused')]) {
+  bar.addEventListener('click', (e) => {
+    const button = e.target.closest('[data-ctl]');
+    if (button) control(button.dataset.ctl);
+  });
+}
 
-const KEYS = { ' ': 'skip', p: 'pause', Escape: 'end', f: 'fullscreen', s: 'sound', m: 'music', n: 'narrator', l: 'lookNext' };
+const KEYS = { ' ': 'skip', p: 'pause', f: 'fullscreen', s: 'sound', m: 'music', n: 'narrator', l: 'lookNext' };
 document.addEventListener('keydown', (e) => {
   const name = KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (!name || e.metaKey || e.ctrlKey || e.altKey) return;
