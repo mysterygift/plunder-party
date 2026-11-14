@@ -7,6 +7,7 @@ import * as sound from './sound.js';
 import { flagTag } from './flag.js';
 import * as diorama from './bombard-host.js';
 import * as diceTable from './liars-host.js';
+import * as captainsLog from './onepiece-host.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -384,6 +385,9 @@ const screens = {
   // LiAARRRRGH's Dice: the table is a 3D model drawn behind this; these are the words over it (see liars-host.js).
   ...diceTable.liarsScreens({ anim, chip, player: (id) => players.get(id) }),
 
+  // Find the One Piece: the captain's log, beside a 3D island drawn behind it (see onepiece-host.js).
+  ...captainsLog.onePieceScreens({ anim, chip, inked }),
+
   // Bombard!: the battle itself is a 3D model drawn behind this (see bombard-host.js).
   // These are just the words along the top: the two sides and their crews.
   bombard(v) {
@@ -526,6 +530,8 @@ function render(v) {
   else diorama.hide();
   if (v.screen === 'ld-table') diceTable.show(v, players);
   else diceTable.hide();
+  if (v.screen === 'op') captainsLog.show(v, players);
+  else captainsLog.hide();
 
   if (v.screen === 'dr-reveal') {
     showRevealMap(v);

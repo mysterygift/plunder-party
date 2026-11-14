@@ -3,27 +3,23 @@
 
   "odds": { "diabolical": 10, "bad": 20, "neutral": 40, "good": 20, "perfect": 10 },
 
+  "name": "Find the One Piece",
+  "tagline": "A captain’s log. There is treasure. Probably.",
+
   "ship": "{star}’s Revenge",
 
   "title": {
+    "music": "opBeach",
     "heading": "The Log of the {ship}",
     "kept": "Kept by Capt. {star}",
     "note": "If found, please return to the sea."
   },
 
   "rules": [
-    "This is the captain’s log, and we are writing it together.",
+    "This is the captain’s log of our search for the One Piece, and we are writing it together.",
     "When the log asks what we did, vote on your phone.",
     "Then everybody rolls one die. The crew’s total decides how it went, from Perfect all the way down to Diabolical."
   ],
-
-  "lines": {
-    "tie": "The vote was tied. It was settled with a doubloon.",
-    "cat": "The ship’s cat rolled for {name}.",
-    "needs": "We need {total} or better.",
-    "helped": "In our favour: {things}.",
-    "hurt": "Against us: {things}."
-  },
 
   "bands": {
     "perfect": "Perfect",
@@ -66,10 +62,11 @@
   "scenes": [
     {
       "id": "beach",
+      "music": "opBeach",
       "name": "The Beach",
       "set": "beach",
       "header": { "day": "Day the 1st", "wind": "Spiteful", "course": "Downwards", "remarks": "Ship mislaid" },
-      "entry": "At first light the {ship} struck a reef that was not on the chart, chiefly because we have no chart. All hands reached the beach alive, and have complained without pause since. The wreck is still above water.",
+      "entry": "At first light the {ship}, eleven weeks out in search of the One Piece, struck a reef that was not on the chart, chiefly because we have no chart. All hands reached the beach alive, and have complained without pause since. The wreck is still above water.",
       "ask": "We resolved to…",
       "options": [
         {
@@ -114,6 +111,7 @@
 
     {
       "id": "jungle",
+      "music": "opJungle",
       "name": "The Jungle",
       "set": "jungle",
       "header": { "day": "Day the 2nd", "wind": "None. Air like soup", "course": "Inland, roughly", "remarks": "Drums" },
@@ -160,6 +158,7 @@
 
     {
       "id": "pan",
+      "music": "opOldham",
       "name": "New Oldham",
       "set": "pan",
       "header": { "day": "Day the 2nd, evening", "wind": "Blocked by the lid", "course": "Clockwise, when stirred", "remarks": "Carrots" },
@@ -228,6 +227,7 @@
 
     {
       "id": "feast",
+      "music": "opOldham",
       "name": "New Oldham",
       "set": "feast",
       "header": { "day": "Day the 2nd, evening", "wind": "Fair, with gravy", "course": "Three, and a pudding", "remarks": "Do not ask" },
@@ -293,10 +293,11 @@
 
     {
       "id": "monkey",
+      "music": "opMonkey",
       "name": "The Monkey",
       "set": "monkey",
       "header": { "day": "Day the 3rd", "wind": "Held its breath", "course": "Backwards, briskly", "remarks": "Monkey" },
-      "entry": "At noon the drums stopped. A monkey walked out of the woods and into the middle of the village. He wore a small waistcoat. Big Sandra went white, and said, “It’s ’im.” He looked at each of us in turn. Then he went for us.",
+      "entry": "At noon the drums stopped. A monkey walked out of the woods and into the middle of the village. An ordinary monkey, so far as I could judge. Big Sandra went white, and said, “It’s ’im.” He looked at each of us in turn. Then he went for us.",
       "also": [
         { "if": "potted", "text": "We were let out of the pan for the purpose, on the understanding that we get back in after." },
         { "if": "stick", "text": "We had, by the grace of God, a stick." },
@@ -352,10 +353,11 @@
 
     {
       "id": "trial",
+      "music": "opTrial",
       "name": "The Trial",
       "set": "cross",
       "header": { "day": "Day the 3rd, later", "wind": "Returned", "course": "Justice", "remarks": "Guilty" },
-      "entry": "The village held a trial at once. The charge was being from Rochdale. He offered no defence. They hung him up on a cross made of the stick and one other stick, and he looked very cross indeed. In his waistcoat pocket we found a map of this island, with an X upon the volcano and, beside it, a small drawing of a dragon. “Oh aye,” said Big Sandra. “We don’t go up there.”",
+      "entry": "The village held a trial at once. The charge was being from Rochdale. He offered no defence. They hung him up on a cross made of the stick and one other stick, and he looked very cross indeed. In his fist we found a map of this island. There is an X upon the volcano, marked “the One Piece”, and beside it a small drawing of a dragon. “Oh aye,” said Big Sandra. “We don’t go up there.”",
       "also": [
         { "if": "clean", "text": "The map is whole, and quite legible.", "gain": ["map-whole"] },
         { "if": "scrappy", "text": "The map was torn across the middle in the struggle.", "gain": ["map-torn"] },
@@ -366,10 +368,11 @@
 
     {
       "id": "volcano",
+      "music": "opVolcano",
       "name": "The Volcano",
       "set": "volcano",
       "header": { "day": "Day the 4th", "wind": "Hot, from below", "course": "Up", "remarks": "Smells of eggs" },
-      "entry": "Set out at dawn for the volcano, by the monkey’s map. The mountain smokes, the ground is warm underfoot, and the whole place smells of eggs. Near the top the map offers a choice of roads.",
+      "entry": "Set out at dawn for the volcano and the One Piece, by the monkey’s map. The mountain smokes, the ground is warm underfoot, and the whole place smells of eggs. Near the top the map offers a choice of roads.",
       "also": [
         { "if": "map-torn", "text": "We hold the two halves together and hope." },
         { "if": "map-chewed", "text": "The half we need is, I fear, the half he ate." },
@@ -421,15 +424,17 @@
 
     {
       "id": "hoard",
+      "music": "opHoard",
       "name": "The Hoard",
       "set": "hoard",
       "header": { "day": "Day the 4th, later", "wind": "Breathing", "course": "None advisable", "remarks": "Dragon" },
-      "entry": "The X on the map is a cavern, and the cavern is full of gold: coin, and plate, and crowns, heaped to the roof. On top of the heap lay something the size of a ship, asleep. {player} sneezed. It is no longer asleep.",
+      "entry": "The X on the map is a cavern, and the cavern is full of gold: coin, and plate, and crowns, heaped to the roof. Which of it is the One Piece, nobody could say. On top of the heap lay something the size of a ship, asleep. {player} sneezed. It is no longer asleep.",
       "next": "dragon-1"
     },
 
     {
       "id": "dragon-1",
+      "music": "opDragon",
       "name": "The Dragon: it breathes in",
       "set": "dragon",
       "fight": true,
@@ -482,6 +487,7 @@
 
     {
       "id": "dragon-2",
+      "music": "opDragon",
       "name": "The Dragon: the soft spot",
       "set": "dragon",
       "fight": true,
@@ -537,6 +543,7 @@
 
     {
       "id": "dragon-3",
+      "music": "opDragon",
       "name": "The Dragon: now or never",
       "set": "dragon",
       "fight": true,
@@ -609,10 +616,11 @@
   "endings": {
     "perfect": {
       "name": "Fair Winds",
+      "music": "opFairWinds",
       "set": "sail",
       "header": { "day": "Day the 5th", "wind": "Fair, at last", "course": "Home", "remarks": "Rich" },
       "entry": [
-        "When the smoke cleared, the dragon lay still upon its gold, and the gold was ours. We carried out all that we could lift, and {hero} carried more.",
+        "When the smoke cleared, the dragon lay still upon its gold, and the gold was ours. We carried out all that we could lift, and {hero} carried more. The One Piece was not among it. We looked twice.",
         "From the mountain top, at dawn, we saw a sail. We lit a beacon from the dragon’s last ember, and she turned toward us.",
         "All hands are saved, and rich, and insufferable. Big Sandra waved us off from the beach and has asked us to write. I close this log."
       ],
@@ -620,21 +628,23 @@
     },
     "good": {
       "name": "A Receipt",
+      "music": "opReceipt",
       "set": "sail",
       "header": { "day": "Day the 5th", "wind": "Fair", "course": "Home, under escort", "remarks": "Receipt enclosed" },
       "entry": [
         "When the smoke cleared, the dragon had had enough. It slunk off down a side passage, and we filled our pockets.",
         "From the mountain top we saw a sail, lit a great fire, and were seen. She proved to be HMS Paperwork.",
-        "Her captain has rescued us, confiscated the treasure in the King’s name, and given us a receipt. All hands are alive. {jonah} has been asked to stop saying “at least”."
+        "Her captain has rescued us, confiscated the treasure in the King’s name, and given us a receipt. The One Piece is not on the receipt. All hands are alive. {jonah} has been asked to stop saying “at least”."
       ],
       "signed": "{star}, Captain"
     },
     "neutral": {
       "name": "Back for Tea",
+      "music": "opTea",
       "set": "village",
       "header": { "day": "Day the 5th", "wind": "Light, with gravy", "course": "Back down", "remarks": "Tea" },
       "entry": [
-        "When the smoke cleared, we and the dragon looked at one another, and it was agreed without a word to call it a draw. It keeps its gold. We keep our skins.",
+        "When the smoke cleared, we and the dragon looked at one another, and it was agreed without a word to call it a draw. It keeps its gold. We keep our skins. The One Piece, if it was ever there, keeps to itself.",
         "From the mountain top we saw a sail. Nobody had anything dry to light, and she passed.",
         "We are back in New Oldham in time for tea and, for the present, we are not in it. This log continues."
       ],
@@ -642,10 +652,11 @@
     },
     "bad": {
       "name": "The Smoke Was Us",
+      "music": "opSmoke",
       "set": "pan",
       "header": { "day": "Day the 5th", "wind": "Smoky", "course": "Downhill, at speed", "remarks": "On fire" },
       "entry": [
-        "When the smoke cleared, we were outside, running, and on fire. The gold is where we found it. So is the dragon, laughing.",
+        "When the smoke cleared, we were outside, running, and on fire. The gold is where we found it. So is the dragon, laughing. We never did find the One Piece.",
         "A ship did pass, and did see smoke. The smoke was us. She sailed on.",
         "We reached New Oldham at dusk. Big Sandra looked at the state of us and said, “Well, that’s saved us a job.” The Big Pan is on."
       ],
@@ -653,6 +664,7 @@
     },
     "diabolical": {
       "name": "Bit Gamey",
+      "music": "opAshes",
       "set": "ashes",
       "burns": true,
       "header": { "day": "Day the 5th", "wind": "Fire", "course": "None", "remarks": "None" },
@@ -660,7 +672,7 @@
         "The dragon breathed out. I write this in haste, as the page is alight, and so am I. All hands are"
       ],
       "otherHand": {
-        "text": "Day 5. Ate crew. Bit gamey.",
+        "text": "Day 5. Ate crew. Bit gamey. What is a One Piece?",
         "also": [
           { "if": "marinated", "text": "Nice gravy, though." },
           { "if": "rum", "text": "Kept the rum." }
@@ -671,6 +683,7 @@
   },
 
   "muster": {
+    "music": "opMuster",
     "heading": "Crew Muster",
     "intro": "Being a true account of who rolled what.",
     "titles": {

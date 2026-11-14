@@ -18,6 +18,18 @@
       "runtimeExecutable": "env",
       "runtimeArgs": ["PORT=3310", "node", "server.js"],
       "port": 3310
+    },
+    {
+      "name": "onepiece-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3421", "SPEED=40", "node", "server.js"],
+      "port": 3421
+    },
+    {
+      "name": "onepiece-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3420", "node", "server.js"],
+      "port": 3420
     }
   ]
 }

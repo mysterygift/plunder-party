@@ -3,7 +3,7 @@
 //   npm run bots                  -> 4 bots join the lobby and play along
 //   npm run bots -- 6             -> 6 bots
 //   npm run bots -- 4 scuttlebutt -> 4 bots, and they start that game themselves
-//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars)
+//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece)
 //
 // Start the server first (npm start). You can join on your own phone too:
 // the bots answer and vote, you play for real.
@@ -89,7 +89,7 @@ async function runBot(name, index) {
 
     switch (view.screen) {
       case 'lobby':
-        handled.delete(id);
+        handled.clear(); // back in port: the next game's screens are all new, even if they share names with the last one's
         if (autoGame && view.isVip && view.crew >= count && !starting) {
           starting = true;
           setTimeout(() => (starting = false), 5000);
@@ -149,6 +149,23 @@ async function runBot(name, index) {
         await act(liarsMove(view));
         break;
       }
+      case 'op-vote':
+        // Find the One Piece: vote for something, then roll when asked.
+        if (view.mine !== null) break;
+        await pause(1500, 9000);
+        await act({ type: 'op-vote', key: view.key, id: pick(view.options).id });
+        break;
+      case 'op-roll':
+        if (view.n !== null) break;
+        await pause(800, 6000);
+        await act({ type: 'op-roll', key: view.key });
+        break;
+      case 'op-end':
+        if (autoGame && view.canContinue) {
+          await pause(8000, 9000);
+          await act({ type: 'continue' });
+        }
+        break;
       case 'map':
         if (view.locked) break;
         await pause(4000, 20000);

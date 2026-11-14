@@ -5,6 +5,7 @@ import { esc, fmt, connect, post, startTimers, ask, dismissQuestion } from './co
 import { createMap } from './map.js';
 import { bombardScreens, bombardTap, bombardShown } from './bombard-play.js';
 import { liarsScreens, liarsTap, liarsShown } from './liars-play.js';
+import { onePieceScreens, onePieceTap, onePieceShown } from './onepiece-play.js';
 import { FLAG_W, FLAG_H, CLOTHS, INKS, WIDTHS, ERASER, MAX_STROKES, MAX_POINTS, strokePath, strokesSvg, inkColor, flagTag } from './flag.js';
 
 const $ = (id) => document.getElementById(id);
@@ -330,6 +331,7 @@ const screens = {
 
   ...bombardScreens, // Bombard!: bb-side, bb-aim, bb-watch (see bombard-play.js)
   ...liarsScreens, // LiAARRRRGH's Dice: ld-hand (see liars-play.js)
+  ...onePieceScreens, // Find the One Piece: op-page, op-vote, op-roll, op-end (see onepiece-play.js)
 
   gameover(v) {
     return `<div class="center">
@@ -356,8 +358,9 @@ function render(v) {
 
   document.title = v.title;
   document.body.dataset.screen = v.screen;
+  document.body.dataset.game = v.game ?? '';
   document.body.classList.toggle('retro', v.game === 'scuttlebutt');
-  $('me').innerHTML = v.me ? `${face(v.me)}<b>${esc(v.me.name)}</b><span class="score">${v.game ? `💰 ${fmt(v.me.score)}` : ''}</span>` : '';
+  $('me').innerHTML = v.me ? `${face(v.me)}<b>${esc(v.me.name)}</b><span class="score">${v.game && !v.coop ? `💰 ${fmt(v.me.score)}` : ''}</span>` : '';
 
   // Flying Colours: when the clock runs out, send in whatever was on the easel
   // (or already picked) rather than losing it. The server waits a moment for these.
@@ -374,6 +377,7 @@ function render(v) {
   const typing = screenEl.querySelector('input, textarea');
   bombardShown(v);
   liarsShown(v);
+  onePieceShown(v);
   const draft = typing && previous?.key === v.key ? { id: typing.id, value: typing.value } : null;
   screenEl.innerHTML = (screens[v.screen] ?? screens.wait)(v);
   if (draft && $(draft.id)) $(draft.id).value = draft.value;
@@ -410,7 +414,7 @@ function render(v) {
     });
     input.focus({ preventScroll: true });
   }
-  if (previous?.key !== v.key) navigator.vibrate?.(['write', 'choose', 'map', 'draw', 'combine', 'bb-side', 'bb-aim'].includes(v.screen) ? 40 : 0);
+  if (previous?.key !== v.key) navigator.vibrate?.(['write', 'choose', 'map', 'draw', 'combine', 'bb-side', 'bb-aim', 'op-vote', 'op-roll'].includes(v.screen) ? 40 : 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -434,6 +438,7 @@ screenEl.addEventListener('click', async (e) => {
   if (act === 'launch') return sendPick(pick.key);
   if (act.startsWith('bb-')) return bombardTap(act, id, view, send);
   if (act.startsWith('ld-')) return liarsTap(act, id, view, send);
+  if (act.startsWith('op-')) return onePieceTap(act, id, view, send);
   if (busy) return;
   if (act === 'zoom-in') return map.zoomBy(0.55);
   if (act === 'zoom-out') return map.zoomBy(1.8);

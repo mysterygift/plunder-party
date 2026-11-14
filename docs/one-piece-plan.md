@@ -1,38 +1,73 @@
-# Marooned: plan for a choose-your-own captain's log
+# Find the One Piece: plan for a choose-your-own captain's log
 
-A short co-operative story game for Plunder Party. The whole crew plays one
-team. On the TV an old ship's log writes itself beside a model island on the
-Bombard! tavern table, where the story is acted out; at every turn of the
-story the crew votes on what to do, then everybody rolls one die on their phone
+A short co-operative story game for Plunda the Bunda. The whole crew plays one
+team. On the TV an old ship's log writes itself beside a view of the island, a
+world built in the hand-carved diorama style of Bombard!, where the story is
+acted out. At every turn of the story the crew votes on what to do, then everybody rolls one die on their phone
 and the total decides how well it goes: Perfect, Good, Neutral, Bad or
 Diabolical.
 
-Working title is **Marooned** (game id `marooned`). "Captain's Log" is already
-the name of a Scuttlebutt round, so the game needs its own name; the logbook
-itself is titled *The Log of the {star}'s Revenge, kept by Capt. {star}*.
+The game is called **Find the One Piece** (game id `onepiece`). The crew are
+after a treasure called the One Piece, the map says it is in the volcano, and
+the joke is that nobody ever finds it, in any ending, or learns what it is a
+piece of. The logbook itself is titled *The Log of the {star}'s Revenge, kept
+by Capt. {star}*.
 
 - Players: 2 to 12, one team, no scores
 - Length: about 12 minutes (8 rolls)
-- Nothing here is built yet. This is the design to build from.
+- Built on 14 November 2026. This document was the design; "As built" below
+  says where the finished game differs from it.
+
+## As built
+
+The game is in and playable: `npm run bots -- 5 onepiece` plays one through.
+It follows this plan except where noted here.
+
+- **No narrator.** Nothing is read aloud. The page writes itself to the
+  scratch of a quill, each page is paced by how long it takes to write and
+  read, and the music carries the mood instead.
+- **A tune for every part of the story.** Fourteen in all: one each for the
+  beach, the jungle, New Oldham, the monkey, the trial, the climb, the hoard
+  and the dragon, one for each of the five endings, and one for the muster.
+  They are in `public/onepiece-sound.js`, and each scene names its tune.
+- **A slimmer log page and a nearer camera.** The page takes about a third of
+  the screen and the island fills the rest, framed much closer than first
+  planned.
+- **The camera keeps moving.** Every phase of a scene (the entry, the vote,
+  the roll, the count, the outcome) has its own camera move, and the camera
+  drifts between them.
+- **The trial.** The cross stands on open ground where the monkey fell, with
+  the monkey on the front of it and the crew well to one side. The village
+  sign is up on a tall post behind the huts.
+- **Falling over.** The lowest roller does a quick pratfall and gets straight
+  back up; the beaten monkey ends on his back with his legs in the air.
+- **No shared model kit.** The plan was to lift Bombard!'s model-making code
+  into a file both games use. Liar's Dice had already been built with its own
+  copy, so this game does the same in `public/onepiece-world.js`, and Bombard!
+  and Liar's Dice were left untouched. The dice drawing is borrowed directly
+  from `public/liars-play.js`.
+- **Not built:** the optional birthday-wish re-roll for the guest of honour.
+- **Not yet tried with a room of real phones.** It has been played end to end
+  by bots, and by hand on one phone-sized screen.
 
 ## 1. One beat of the game
 
 Every scene runs the same four steps, about a minute in all.
 
 1. **The entry.** A new log entry writes itself onto the log page in
-   handwriting while the narrator reads it. On the model island beside it, the
-   crew's pegs arrive at the scene.
+   handwriting, to the scratch of a quill. In the world behind it, the crew
+   arrive at the scene.
 2. **The vote.** The entry ends on a decision. Two or three options appear on
    the page and on every phone. 20 seconds, majority wins, votes show live on
    the TV as ink blots so people can shout about it. A tie is settled by a
    doubloon flip on the TV. The losing options get struck through with a quill.
 3. **The roll.** Every phone shows one bone die and a Roll button. Each die
-   is thrown onto the table on the TV under its owner's name and the running
-   total inks itself in. Anyone who hasn't rolled after 12 seconds (or whose phone is asleep) has
+   lands on the log page beside its owner's name and the running total inks
+   itself in. Anyone who hasn't rolled after 12 seconds (or whose phone is asleep) has
    theirs rolled by the ship's cat, so there are always exactly as many dice as
    players.
-4. **The outcome.** A slider runs along a brass rule on the table to the
-   total, a wax seal stamps the result (PERFECT … DIABOLICAL), and the
+4. **The outcome.** A marker slides along a scale at the foot of the page to
+   the total, a wax seal stamps the result (PERFECT … DIABOLICAL), and the
    rest of the entry writes itself in to say what happened.
 
 ## 2. Systems
@@ -63,7 +98,7 @@ Dice are whole numbers, so the real chances wobble a little (Perfect is 8% to
 crew from 1 to 12; the five target percentages live in the content file so they
 can be tuned after a playtest.
 
-The brass rule is engraved with its five zones, so the crew can see what
+The scale is ruled on the page with its five zones, so the crew can see what
 they need before they roll ("we need 24 for Good").
 
 ### 2.2 What a choice changes
@@ -82,9 +117,9 @@ purpose, taken for the prize or the laugh.
 
 ### 2.3 Kit, woes and the tilt of the scale
 
-Outcomes hand out **kit** (good) and **woes** (bad). Kit is set out on the
-table as little models, woes are written in the log's margin in red ink, and
-each is called back exactly once or twice later in the story.
+Outcomes hand out **kit** (good) and **woes** (bad). Each is sketched in the
+log's margin, woes in red ink, and the crew's figures carry the kit they hold.
+Each is called back exactly once or twice later in the story.
 
 | Kit | Where it comes from | Where it helps |
 | --- | --- | --- |
@@ -103,7 +138,7 @@ each is called back exactly once or twice later in the story.
 
 Each relevant piece of kit tilts the scale one notch the crew's way for that
 roll; each relevant woe tilts it one notch against. The tilt is capped at two
-notches either way. A notch moves the zone boundaries, visibly, on the brass
+notches either way. A notch moves the zone boundaries, visibly, on the
 scale:
 
 | Tilt | Diabolical | Bad | Neutral | Good | Perfect |
@@ -119,8 +154,8 @@ the same to a crew of three as to a crew of twelve.
 
 ### 2.4 The dragon fight and the five endings
 
-The climax is three rolls, not one. A fight gauge with seven notches sits on
-the table, the marker starting in the middle. Each exchange moves it:
+The climax is three rolls, not one. A fight gauge with seven notches is drawn
+across the log page, the marker starting in the middle. Each exchange moves it:
 Perfect +2, Good +1, Neutral 0, Bad −1, Diabolical −2. Where it rests after the
 third exchange is the ending:
 
@@ -131,6 +166,9 @@ third exchange is the ending:
 | 0 | **Neutral.** A draw. The dragon keeps its hoard, the crew keep their skins, and the ship sails past because nobody has anything dry to light. Back to the village for tea. The log continues. |
 | −1, −2 | **Bad.** The crew escape with nothing, on fire. The ship does see smoke. The smoke is the crew. It sails on. The tribe have the big pan on. |
 | −3 or worse | **Diabolical.** Everyone is eviscerated by dragonfire. The page burns away, and a last entry appears in a clawed hand: "Day 5. Ate crew. Bit gamey." |
+
+In none of them is the One Piece found: even the richest crew comes home
+without it, and the dragon has never heard of it.
 
 With nothing tilting the scale the endings fall roughly 9% / 30% / 22% / 30% /
 9%. A crew that arrives well kitted (a notch in their favour on every exchange)
@@ -156,7 +194,7 @@ decides it.
 
 ## 3. Narrative outline
 
-This outline came first; the script in `content/marooned.json` is now the
+This outline came first; the script in `content/one-piece.json` is now the
 authority and differs in small ways. It adds two prizes for daft choices (a
 warm welcome in the village, and Darren's secret that the dragon is ticklish),
 the monkey is tried for being from Rochdale, and the options in the dragon
@@ -236,7 +274,7 @@ the monkey.
 ### Day 3: The Monkey (roll 4)
 
 The drums stop. A monkey walks out of the woods and into the middle of the
-village. He is wearing a small waistcoat. Big Sandra goes pale: "It's 'im." He
+village. He is a real monkey, an ordinary one. Big Sandra goes pale: "It's 'im." He
 goes for the crew.
 
 Every option is the stick:
@@ -260,14 +298,15 @@ cross made of the stick and a second stick. The roll decides what it cost:
 | Bad | A win, after he has bitten nearly everyone: **Bitten**. Map torn. |
 | Diabolical | A long, humiliating win. Bitten, he drank the rum, and he ate half the map: map chewed. |
 
-Either way, in the waistcoat pocket: **a treasure map**. An X on the volcano.
+Either way, clutched in his fist: **a treasure map**. An X on the volcano,
+marked "the One Piece".
 In the corner, a small drawing of a dragon. Big Sandra: "Oh aye. We don't go up
 there."
 
 ### Day 4: The Volcano (roll 5)
 
-The camera leaves the village and climbs the island to the mountain as the fog
-lifts off it.
+The camera leaves the village and climbs to the mountain as the cloud lifts
+off it.
 
 - Canny: the goat track, the long way round.
 - Bold: the lava tube. Quicker, and only slightly on fire.
@@ -282,8 +321,8 @@ asleep on it. It is no longer asleep.
 
 ### Day 4, night: The Dragon (rolls 6, 7 and 8)
 
-Three exchanges on the fight gauge (section 2.4). The sun is out; the only
-light is the candle and the dragon.
+Three exchanges on the fight gauge (section 2.4). It is full night; the only
+light is lava, gold and the dragon.
 
 1. **It breathes in.** Canny: get behind a rock. Bold: charge in under the
    flame. Daft: throw {jonah} at it. *Helps: the Big Pan, high ground. Hurts:
@@ -299,98 +338,100 @@ light is the candle and the dragon.
 
 One of the five endings in section 2.4, then the crew muster.
 
-## 4. The look: the captain's log on the Bombard! table
+## 4. The look: the island itself, built like a diorama
 
-Same tavern table as Bombard!, same candle, same hand-carved painted models.
-Where Bombard! has a tray of ships, Marooned has a **model island** standing
-in the tray of resin sea, and the **captain's log lying open beside it**. The
-log tells the story; the model acts it out.
+The TV looks at the real island: open sea to the horizon, sky, weather, the
+time of day. There is no table and no tray. But everything in that world is
+made the way Bombard!'s models are made, hand-carved and painted, so it reads
+as a diorama you could reach into. The captain's log sits beside it: the
+page takes the left third of the screen and the island the right two thirds.
 
-**How the TV is laid out**
-- The left third is the open log page. The right two thirds is the island on
-  the table. Bombard! already works this way round: the model is drawn in 3D
-  and the words are laid over it as ordinary text, which keeps them sharp
-  enough to read from the sofa.
-- The log page keeps everything from before: the ruled header (Day, Wind,
-  Course, Remarks) in IM Fell English, the entry in handwriting that writes
-  itself on with the quill sound, options written in as alternatives, votes
-  landing beside them as ink blots in each player's colour, the losers struck
-  through, and the result stamped on as a wax seal.
+A simple split: **the world is where the story is seen; the page is where the
+game is played.**
 
-**The island**
-- One model holds the whole journey, front left to back right: the reef with
-  the wreck on it, the beach, the jungle, the village clearing, the volcano.
-  The camera travels along it from scene to scene, so the crew can always see
-  how far they have come and what is waiting.
-- Everything not yet reached sits under cotton-wool fog, the same fog Bombard!
-  uses for unexplored water. It lifts as the crew moves on.
-- **The crew** are peg pirates, one per player, painted in that player's
-  colour. They move as a gaggle. On each outcome the {hero}'s peg hops and the
-  {jonah}'s peg falls over.
-- **The cast and props**, all carved in the same style:
-  - Big Sandra, a large peg with an apron and a ladle, and the "New Oldham"
-    sign.
-  - The Big Pan, big enough that the crew's pegs are actually sat in it when
-    captured.
-  - The monkey, in his waistcoat, and afterwards the cross made of two sticks.
-    Played for laughs: a very cross peg monkey tied to two sticks.
-  - The volcano, whose top lifts off like a lid when the crew arrive, showing
-    the cavern, the heap of doubloons (Bombard!'s coins), and the dragon coiled
-    on it. Bombard!'s Kraken shows a creature can be built this way.
-- Life-size clutter around the tray, as in Bombard!, is what makes the island
-  read as a model: tankards, a dagger, the candle.
+**What keeps it looking like a diorama**
+- Flat-shaded, chunky, hand-carved shapes in pots of paint, exactly as in
+  Bombard!. Nothing smooth, nothing realistic.
+- The same faceted sea, now running to the horizon instead of stopping at the
+  edge of a tray.
+- Cotton-wool for everything soft: clouds, mist, smoke, the steam off the
+  volcano, the dragon's breath.
+- A low camera with the near and far edges of the picture thrown out of
+  focus. That shallow focus is what makes a real place look like a miniature.
+- People are little carved figures, not characters with faces.
 
-**The dice**
-- Real bone dice, one per player, thrown onto the table in front of the
-  island. Each tumbles and settles on the number the server picked, with its
-  owner's name floating over it.
-- A brass rule lies along the front of the table, engraved with the five
-  zones. A slider runs along it to the total.
-- For the dragon, a notched wooden track sits on the table with the dragon's
-  head carved at one end and the ship's flag at the other, and a peg that
-  moves along it.
+**The world**
+- One island holds the whole journey: the reef with the wreck on it, the
+  beach, the jungle, the village clearing, the volcano behind. The camera
+  travels through it from scene to scene, with an establishing shot for each.
+- What the crew has not reached yet is hidden by weather rather than by the
+  edge of a board: sea mist on the first morning, mist in the jungle, a cap of
+  cloud on the mountain. It clears as they go.
+- The sky keeps the log's time. Dawn on the beach, a hot white noon in the
+  jungle, dusk and firelight in the village, a red glow from below on the
+  climb, and full night with stars for the dragon, lit only by lava, gold and
+  fire.
+- **The crew** are small carved pirates, one per player, in that player's
+  colour. They move as a gaggle. On each outcome the {hero} hops and the
+  {jonah} falls over. They carry what they have won: one has the stick, two
+  roll the cask, one wears the Big Pan as a hat.
+- **The cast:**
+  - Big Sandra, larger than anyone, with an apron and a ladle, and the
+    "New Oldham" sign.
+  - The Big Pan over its fire, with the crew sat in it when captured.
+  - The monkey: a real monkey, who walks in from the woods on all fours. No
+    clothes, no character, nothing explained. Afterwards, the cross made of
+    two sticks.
+  - Inside the volcano, a second set: a cavern lit by lava, a heap of
+    Bombard!'s doubloons, and the dragon coiled on it. The camera goes in
+    through the crater. Bombard!'s Kraken shows a creature can be built this
+    way.
 
-**Kit and woes**
-- Kit is set out on the table beside the log as little models: the stick, the
-  cask, the pan, the scrap of map. Spending or losing one takes it off the
-  table.
-- Woes stay in the log's margin, in red ink.
+**The log page**
+- Always on screen, in the left third, beside the island. Ruled header (Day, Wind, Course,
+  Remarks) in IM Fell English; the entry in handwriting that writes itself on
+  with the quill sound.
+- Options are written in as alternatives. Votes land beside them as ink blots
+  in each player's colour, and the losers are struck through.
+- The dice land on the page, one beside each pirate's name in a muster
+  column. These are the same dice Liar's Dice draws, coloured as bone.
+- The scale is ruled across the foot of the page with its five zones, and the
+  result is stamped on as a wax seal: gold, green, plain, black, red.
+- Kit and woes are small ink sketches in the margin, woes in red.
+- For the dragon, the fight gauge is drawn across the page, with the dragon's
+  head at one end and the ship's flag at the other.
 
-**Light**
-- Bombard! already dims its sun for a storm; the same control gives each
-  scene its own light. Bright morning on the beach, green gloom in the jungle,
-  firelight in the village, red light from below on the volcano, and for the
-  dragon the sun goes out and only the candle and the dragon's fire are left.
-
-**The endings on the table**
-- Perfect: a beacon is lit on the mountain, a pirate ship from Bombard! sails
-  into the tray, fireworks.
+**The endings in the world**
+- Perfect: dawn, a beacon lit on the summit, a Bombard! pirate ship coming in
+  from the horizon, fireworks.
 - Good: the same, but the ship wears Bombard!'s navy paint. HMS Paperwork.
-- Neutral: the pegs are sat back round the pan in the village, this time
-  outside it.
-- Bad: the pegs run down the mountain alight, past a ship that keeps going,
-  and into the pan.
-- Diabolical: fire sweeps the model, the pegs char black and tip over, the
-  candle goes out, and the log page burns through to show the last entry in a
-  clawed hand.
+- Neutral: the sail crosses the horizon and goes. The crew are sat round the
+  pan in the village, this time outside it.
+- Bad: the crew run down the mountain alight, trailing smoke, past a ship
+  that keeps going, and into the pan.
+- Diabolical: fire fills the cavern and the picture goes white, then to ash.
+  The log page burns through to show the last entry in a clawed hand.
 
 **The phones** are a page torn from the log: the options as handwritten slips,
 one bone die and a Roll button. Big tap targets, nothing to read that isn't
 also on the TV.
 
-**What this replaces.** The first version of this plan had the TV as a flat
-logbook with pen-and-wash sketches and a page-turn to an island chart. The
-model island now does both jobs, so there are no sketches to draw.
+**How this plan got here.** First the TV was a flat logbook with pen sketches;
+then a model island on Bombard!'s tavern table. This version keeps Bombard!'s
+way of making things and drops the table: the island is the world.
 
 ## 5. Sound
 
-- The narrator reads every entry. Log entries are read **without** the pirate
-  sign-off ("Yo ho ho!") that the other games tack on, because it would wreck
-  the deadpan.
-- A slow concertina tune for the log, and a tenser one for the dragon.
-- New effects: dice rattling on wood, the seal stamp, tribal drums that stop
-  dead, a monkey screech, a dragon's roar, a crackling fire. The quill and
-  paper sounds already exist.
+- Nothing is read aloud. A quill scratches for as long as the page is writing,
+  each die clicks as it lands, and the seal comes down with a thump.
+- Every part of the story has its own tune, written to match its mood: a
+  wistful concertina waltz for the shipwreck, hand drums and a thumb piano for
+  the jungle, a colliery brass band for New Oldham, a quick chromatic scramble
+  for the monkey, a straight-faced hymn for the trial, low strings for the
+  climb, a music box for the hoard, and everything at once for the dragon.
+- Each ending has its own too: a sunlit shanty, a naval march that ends on the
+  wrong note, a lullaby, a waltz for one sad trombone, and a far-off bell.
+- Effects: dice rattling, the seal, a monkey's screech, a dragon's roar.
 
 ## 6. Build notes
 
@@ -399,7 +440,7 @@ model island now does both jobs, so there are no sketches to draw.
 LiAARRRRGH's Dice (being built in another session as this is written) has
 what is needed: the server rolls each die (`rollDie` in `src/games/liars.js`),
 and `public/liars-play.js` exports `dieTag(n)`, an SVG die face, with a `roll`
-class that tumbles it. Marooned uses the same drawing and tumble so the two
+class that tumbles it. This game uses the same drawing and tumble so the two
 games feel like the same set of dice, reskinned to bone by CSS.
 
 Two differences from Liar's Dice:
@@ -411,33 +452,31 @@ Two differences from Liar's Dice:
 
 Once Liar's Dice has settled, move `dieTag` and `rollDie` into shared files
 (`public/dice.js`, `src/dice.js`) that both games import, rather than having
-Marooned reach into another game's file.
+this game reach into another game's file.
 
 ### Files
 
 | File | What |
 | --- | --- |
-| `src/games/marooned.js` | The game: a small story runner that walks the scenes in the content file, plus the vote, the roll, and the outcome maths |
-| `content/marooned.json` | The whole story, the odds, the timers. Editable between games like every other content file |
-| `public/marooned-host.js` | The TV: the log page, and the island model with everything that happens on it |
-| `public/diorama.js` | The model-making kit lifted out of Bombard! (paint, parts, the table and its clutter, tweens, smoke and fire, the camera) so both games build from it |
-| `public/marooned-play.js` | The vote and roll screens for phones |
-| `public/marooned.css` | The look, scoped to this game |
+| `src/games/onepiece.js` | The game: a small story runner that walks the scenes in the content file, plus the vote, the roll, and the outcome maths |
+| `content/one-piece.json` | The whole story, the odds, the timers. Editable between games like every other content file |
+| `public/onepiece-host.js` | The TV: the log page |
+| `public/onepiece-world.js` | The TV: the island, the cast, the camera and everything that happens there |
+| `public/onepiece-sound.js` | The effects and the fourteen tunes |
+| `public/onepiece-play.js` | The vote and roll screens for phones |
+| `public/onepiece.css` | The look, scoped to this game |
 
 Small touches to shared files, following how Bombard! and Liar's Dice plug in:
 register the game in `src/engine.js`, the content file in `src/content.js`,
 the screens in `public/host.js` and `public/play.js`, the stylesheet in the two
 HTML files, a tune and effects in the sound files, teach `tools/bots.js` to
-vote and roll, and a row in the README. Two real changes to the engine: an
-option to read a line without the sign-off, and a flag so phones hide the
+vote and roll, and a row in the README. One real change to the engine: a flag so phones hide the
 doubloon counter in a co-op game.
 
-Bombard! and Liar's Dice are both being written in this folder right now and
-touch those same shared files. Start building this after they have landed.
 
 ### How the story is written down
 
-The full first draft of the script is in `content/marooned.json`. Nothing reads
+The full first draft of the script is in `content/one-piece.json`. Nothing reads
 that file yet, so it is safe to edit freely.
 
 Each scene has an entry, its options, and five outcome passages shared by all
@@ -459,8 +498,8 @@ rest of this section is only needed for changing how the story branches.
 | `{player}` | One random crew member, the same one all the way through a scene |
 | `{star}`, `{ship}` | The guest of honour, and the ship named after her |
 
-Lines are written to be read aloud by the narrator: no straight quotes, and
-commas where the voice should breathe.
+Lines are written to be read at a glance from across a room: short, with no
+straight quotes.
 
 A throwaway checker confirmed the draft holds together: every scene can be
 reached, every "next" exists, every option has an outcome for all five results,
@@ -482,31 +521,18 @@ is exactly eight rolls.
 
 ### Order of work
 
-1. Story runner and a skeleton story with placeholder text, played on the
-   pack's existing plain screens. Bots can play it end to end. This proves the
-   vote, the roll, the outcome maths, kit and woes, and the fight gauge.
-2. The roll: shared dice, tap to roll, the brass rule, the seal. Flat on the
-   plain screens first; the thrown 3D dice come with the table in step 4.
-3. The full script, in the content file. (First draft done.)
-4. The table. First lift the model-making kit out of Bombard! into
-   `public/diorama.js` and check Bombard! still looks identical. Then the log
-   page, the island blocked out in plain shapes with the camera moves and fog,
-   the pegs and the dice, and last the cast: Big Sandra, the pan, the monkey,
-   the volcano lid, the dragon.
-5. Sound: tunes, effects, narrator pacing.
-6. Playtest for length with bots and with real phones; tune timers and odds;
-   README.
+All six steps are done: the story runner, the roll, the script, the world,
+the sound, and a play-through with bots and on a phone-sized screen. What is
+left is a game with real people in the room, to tune the timers and the odds.
 
-## 7. Decisions for you
+## 7. Decisions
 
-1. **The name.** Marooned, or something of your own.
-2. **Log and island together.** Planned as the log page on the left and the
-   model on the right. The alternative is the island filling the whole screen
-   with the log as a caption along the bottom: bigger model, less logbook.
-3. **The monkey.** Planned as comedy, nothing gory: the "hung up on a cross"
-   moment is a very cross peg monkey tied to two sticks. Say if you want it
-   played harder or softer.
-4. **The script.** A full first draft is in `content/marooned.json`, about 4,500
-   words. It is meant to be argued with: change any line, joke or name.
-5. **Length.** Eight rolls, about 12 minutes. Dropping the beach or folding the
-   dragon to two exchanges brings it under 10.
+All settled on 14 November 2026.
+
+1. **The name.** Find the One Piece. The joke is that you don't.
+2. **Where the log goes.** The log page beside the island.
+3. **The monkey.** A real monkey who walks in from the woods. An ordinary
+   animal, played straight: no clothes, nothing explained.
+4. **The script.** A full first draft is in `content/one-piece.json`, about
+   4,600 words. It is meant to be argued with: change any line, joke or name.
+5. **Length.** Eight rolls, about 12 minutes.

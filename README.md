@@ -4,7 +4,7 @@ A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the
 same wifi. Nothing to install on the phones.
 
-Six original games:
+Seven original games:
 
 | Game | What it is | Players |
 | --- | --- | --- |
@@ -14,6 +14,7 @@ Six original games:
 | 🗺️ **Dead Reckoning** | Clues (and optionally a photo) appear on the TV. Drop an X on the treasure map on your phone. Closest wins the most doubloons. | 1–12 |
 | 💣 **Bombard!** | A drinking game. The crew is split into Pirates and Navy, each with a fleet hidden in fog. Pick a tile, fire: miss and you take a swig, sink a ship and the other side drinks. Then everyone joins forces against the Kraken. The TV shows the battle as a 3D tabletop diorama. | 2–12 |
 | 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. The TV shows the table as a 3D diorama: leather cups, the bid chalked on the baize, and the dice that count hopping onto the chalk marks. | 2–12 |
+| 🏝️ **Find the One Piece** | A choose-your-own captain’s log, played as one crew with no scores. The log writes itself beside a model island; the crew votes on what to do, then everybody rolls one die and the total decides how it goes, from Perfect down to Diabolical. Beach, jungle, New Oldham, a monkey, a volcano, a dragon, and five endings. About ten minutes. | 2–12 |
 
 ## Running it
 
@@ -62,6 +63,7 @@ restarting.
 | `content/colours.json` | Flying Colours: drawing ideas, spare ship names, timers, how many flags and names each |
 | `content/bombard.json` | Bombard!: the round timer, what everyone is drinking, and the names of the ships |
 | `content/liars-dice.json` | LiAARRRRGH’s Dice: the turn timer, dice each, wild ones, and what the loser drinks |
+| `content/one-piece.json` | Find the One Piece: the whole story (every entry, option and outcome), the odds, the timers, and which tune each scene plays |
 | `content/dead-reckoning.json` | Locations: name, coordinates, clues, fun fact, optional photo |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
@@ -166,6 +168,48 @@ A bid is a claim about the dice, not a bet: nobody stakes any doubloons.
 - `wildOnes`: `true` makes 1s count as any number.
 - `drink`: what the loser of each round takes a swig of. Use `""` for no drinking.
 
+**Find the One Piece: how it works, and rewriting it**
+
+Each scene is a page of the log: an entry, two to four options to vote on, and
+a roll. Everybody rolls one die; the total lands in one of five results
+(diabolical, bad, neutral, good, perfect), and the matching outcome is written
+in. The cut-offs are worked out from the real odds for however many dice are
+being rolled, so a crew of three and a crew of twelve get the same chances:
+by default 10% / 20% / 40% / 20% / 10%, set by `odds`.
+
+- Each option is marked **canny** (never diabolical, but never perfect),
+  **bold** (whatever the dice say) or **daft** (the odds shift against the
+  crew, but it is the only way to that scene's special prize).
+- Outcomes hand out **kit** (the stick, the rum, the Big Pan…) and **woes**
+  (soggy, bitten, singed…). A scene's `tilts` says which of them shift the odds
+  there, and which way. They show at the foot of the log page.
+- The last three scenes are the dragon fight. Each result moves a marker along
+  a gauge, and where it rests after the third picks one of the five endings.
+- Nobody is knocked out and there are no doubloons. After the ending, a muster
+  page says who rolled what.
+
+To change a line, find it in `content/one-piece.json` and retype it. In the
+text, `{star}` is the guest of honour, `{ship}` is her ship, `{player}` is a
+random pirate (the same one all through a scene), and in outcomes `{hero}` and
+`{jonah}` are whoever rolled highest and lowest. To change how the story
+branches:
+
+| In the file | Means |
+| --- | --- |
+| `header` | The ruled top of the page: day, wind, course, remarks. Purely for jokes |
+| `entry`, `ask` | What the log says, then the line that leads into the vote |
+| `also` | Extra sentences added only `if` the crew has something, or `unless` they have it. They can hand out or take away kit too |
+| `options` | `text` goes on the button and `lead` opens the outcome. `needs` hides an option unless the crew has that kit, `unless` hides it if they do, `spends` uses the kit up, `tilt` shifts the odds for that option alone. An option can have `outcomes` of its own, which replace the scene's |
+| `outcomes` | One for each of the five results. `gain` hands out kit, `woe` a woe, `next` sends the story to a different scene |
+| `note` | Something the log remembers without showing it, for a later `also` to test |
+| `set`, `music` | Which part of the island the scene is acted out on, and which tune plays (the tunes are in `public/onepiece-sound.js`) |
+
+Nothing in this game is read aloud (`narrator: false` in
+`src/games/onepiece.js`): the page writes itself to the scratch of a quill, at
+a pace set by `INK` in that file, and each part of the story has its own tune
+instead. If the story no longer holds together after an edit (a `next` that
+goes nowhere, an option with no outcome), the big screen says where.
+
 **The narrator**
 
 On a Mac, the server renders each narrator line with one of macOS's own voices
@@ -231,6 +275,7 @@ npm run bots -- 4 scuttlebutt   # they also start the game themselves
 npm run bots -- 5 colours       # they scribble flags too (badly)
 npm run bots -- 6 bombard       # three a side, firing more or less at random
 npm run bots -- 4 liars         # they bid, bluff a bit, and call each other out
+npm run bots -- 5 onepiece      # they vote for whatever, and roll
 ```
 
 Join on your own phone as well and you can play a real game against them.
@@ -251,6 +296,7 @@ public/flag.js       The flag drawing format, shared by the phones, the TV and t
 public/sound.js      Sound effects, chiptune shanties and narrator playback
 public/bombard-*.js  Bombard!: the 3D diorama on the TV (-host), the flat board on phones (-play), its sounds (-sound)
 public/liars-*.js    LiAARRRRGH’s Dice: the 3D dice table on the TV (-host), your dice and the bid buttons on phones (-play), its sounds and tavern band (-sound)
+public/onepiece-*.js Find the One Piece: the log page on the TV (-host), the island it sits beside (-world), the vote and the die on phones (-play), its sounds and tunes (-sound)
 public/vendor/       three.js, which draws the diorama (copied from node_modules, so no internet is needed)
 tools/bots.js        Robot players
 tools/build-assets.js  Regenerates the map data and fonts (already done; rarely needed)

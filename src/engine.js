@@ -20,8 +20,9 @@ import * as reckoning from './games/reckoning.js';
 import * as colours from './games/colours.js';
 import * as bombard from './games/bombard.js';
 import * as liars from './games/liars.js';
+import * as onepiece from './games/onepiece.js';
 
-export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars];
+export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars, onepiece];
 
 const AVATARS = ['🦜', '🐙', '🦀', '🦈', '🐬', '🐢', '🦑', '🐡', '🦞', '🐳', '🐒', '🦩'];
 const COLORS = ['#e4572e', '#17bebb', '#ffc914', '#76b041', '#b388eb', '#f78fb3', '#4ea8de', '#ff9f1c', '#2ec4b6', '#e56b6f', '#9bc53d', '#c9ada7'];
@@ -294,7 +295,7 @@ export class Room {
     if (!ctx.players.includes(player)) {
       return { ...base, screen: 'wait', key: 'spectator', icon: '🔭', text: `${def.meta.name} is under way. You'll be dealt in for the next game!` };
     }
-    const view = { ...base, game: def.meta.id, gameName: def.meta.name, endsAt: ctx.endsAt, paused: ctx.paused, ...ctx.current.player(player) };
+    const view = { ...base, game: def.meta.id, gameName: def.meta.name, coop: def.meta.coop === true, endsAt: ctx.endsAt, paused: ctx.paused, ...ctx.current.player(player) };
     view.key ??= view.screen;
     return view;
   }
