@@ -87,9 +87,18 @@ function headPart({ seg }) {
     <ellipse cx="${cx - 26}" cy="${cy - 34}" rx="34" ry="22" fill="#fff" opacity=".12"/>${spots}${eye(-36)}${eye(36)}`;
 }
 
+function knobPart() {
+  // The Kraken's bonus knob: a warty lump with a shiny golden tip.
+  return `<circle cx="50" cy="50" r="34" fill="${KRAKEN.skin}" stroke="${KRAKEN.dark}" stroke-width="3.5"/>
+    <circle cx="50" cy="50" r="16" fill="${KRAKEN.eye}" stroke="${KRAKEN.dark}" stroke-width="2.5"/>
+    <ellipse cx="45" cy="44" rx="6" ry="4" fill="#fff" opacity=".55"/>
+    ${[[28, 36, 4], [70, 34, 3.5], [66, 70, 4.5], [32, 68, 3]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${KRAKEN.dark}" opacity=".6"/>`).join('')}`;
+}
+
 /** One revealed piece of something, in its tile. */
 export function partSvg(part, sideId, name) {
   if (part.kind === 'head') return headPart(part);
+  if (part.kind === 'knob') return knobPart();
   const inner = part.kind === 'arm' ? armPart(part) : shipPart(part, LIVERY[liveryFor(sideId, name)]);
   return `<g transform="rotate(${part.dir * 90} 50 50)">${inner}</g>`;
 }

@@ -409,8 +409,9 @@ const screens = {
       const crew = s.crew
         .map((id) => `<span class="bb-hand ${ready.has(id) ? 'ready' : ''} ${s.lost.includes(id) ? 'lost' : ''}">${chip(id, { label: s.crew.length <= 4 })}</span>`)
         .join('');
-      const afloat = s.board.pieces.filter((p) => !p.sunk).length;
-      const what = s.id === 'kraken' ? `${afloat} of ${s.board.pieces.length} pieces left` : `${afloat} afloat`;
+      const vital = s.board.pieces.filter((p) => p.kind !== 'knob'); // the knob is a bonus, not a piece you must sink
+      const afloat = vital.filter((p) => !p.sunk).length;
+      const what = s.id === 'kraken' ? `${afloat} of ${vital.length} pieces left` : `${afloat} afloat`;
       return `<div class="bb-side s${i} ${v.winner === s.id ? 'won' : ''}" data-side="${s.id}"${anim(`side${s.id}`, i ? 'from-right' : 'from-left', 0, 600)}>
           <h2><span>${s.icon}</span> ${esc(s.name)} <small>${what}</small></h2>
           <div class="bb-crew">${crew}</div>

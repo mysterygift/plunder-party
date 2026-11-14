@@ -28,6 +28,8 @@ const CENTRE = [-5.2, 5.2]; // where the two boards sit, left and right
 const TRAY = { w: 20.6, d: 10.6 }; // the tray of sea they share
 const IMPACT = 0.72; // how far through a shot's time the ball lands (the server uses the same number)
 const KRAKEN = { skin: 0xb23f92, dark: 0x6a2358, spot: 0xf7b7d2, eye: 0xf7d154 };
+/** Is this piece part of the Kraken (head, tentacle or its bonus knob) rather than a ship? */
+const isKraken = (kind) => kind === 'head' || kind === 'arm' || kind === 'knob';
 
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -647,6 +649,17 @@ function krakenPart(piece) {
     }
     return g;
   }
+  if (piece.kind === 'knob') {
+    // The bonus tile: a fat, warty knob with a glossy golden tip, so it reads as something special.
+    const S = shapes();
+    const skin = paint(KRAKEN.skin, { rough: 0.4 });
+    const dark = paint(KRAKEN.dark, { rough: 0.5 });
+    part(S.round, skin, { at: [0, 0.12, 0], size: [0.7, 0.32, 0.7], into: g });
+    part(S.round, skin, { at: [0, 0.42, 0], size: [0.36, 0.5, 0.36], into: g });
+    part(S.round, paint(KRAKEN.eye, { glow: 0.45, rough: 0.25 }), { at: [0, 0.72, 0], size: 0.24, into: g });
+    for (const [x, y, z] of [[0.22, 0.2, 0.12], [-0.18, 0.24, -0.16], [0.05, 0.5, 0.18]]) part(S.ball, dark, { at: [x, y, z], size: 0.07, shadow: false, into: g });
+    return g;
+  }
   // An arm: a hump of tentacle rising out of the water and going back in. The tip curls up instead.
   const u = piece.seg / piece.len;
   const thick = 0.25 - 0.11 * u;
@@ -747,7 +760,7 @@ function flutter(t) {
 class Board {
   constructor(index, side) {
     const { cols, rows, open } = side.board;
-    Object.assign(this, { index, id: side.id, cols, rows, open });
+    Object.assign(this, { index, id: side.id, cols, rows, open, wave: side.board.wave ?? 0 });
     this.tile = Math.min(BOARD / cols, BOARD / rows);
     this.cx = CENTRE[index];
     this.group = new THREE.Group();
@@ -808,17 +821,17 @@ class Board {
   place(tile, piece, { pop = false } = {}) {
     if (this.parts.has(tile)) return this.parts.get(tile);
     let g;
-    if (piece.kind === 'head' || piece.kind === 'arm') {
+    if (isKraken(piece.kind)) {
       g = krakenPart(piece);
     } else {
       const where = piece.seg === 0 ? 'bow' : piece.seg === piece.len - 1 ? 'stern' : 'mid';
       g = shipPart(where, liveryFor(this.id, this.names.get(piece.id)));
     }
     g.position.copy(this.pos(tile));
-    g.rotation.y = piece.kind === 'head' ? 0 : (-piece.dir * Math.PI) / 2;
+    g.rotation.y = piece.kind === 'head' || piece.kind === 'knob' ? 0 : (-piece.dir * Math.PI) / 2;
     g.scale.setScalar(this.tile);
     g.userData.piece = piece.id;
-    g.userData.kraken = piece.kind === 'head' || piece.kind === 'arm';
+    g.userData.kraken = isKraken(piece.kind);
     this.group.add(g);
     this.parts.set(tile, g);
 
@@ -881,7 +894,7 @@ class Board {
     this.clearFog(tile, quiet);
     if (hit && piece) {
       this.place(tile, piece, { pop: !quiet && !this.open });
-      if (piece.kind !== 'head' && piece.kind !== 'arm') this.setAlight(tile);
+      if (!isKraken(piece.kind)) this.setAlight(tile);
     }
     this.mark(tile, hit, { pop: !quiet });
     return true;
@@ -891,7 +904,7 @@ class Board {
   sink(piece, quiet) {
     if (this.sunk.has(piece.id)) return;
     this.sunk.add(piece.id);
-    const isKraken = piece.kind === 'head' || piece.kind === 'arm';
+    const kraken = isKraken(piece.kind);
     const lean = pick([-1, 1]) * rand(0.35, 0.6);
     piece.cells.forEach((tile, n) => {
       const g = this.parts.get(tile);
@@ -905,7 +918,7 @@ class Board {
       const y0 = g.position.y;
       const size = g.scale.x;
       const settle = (k) => {
-        if (isKraken) {
+        if (kraken) {
           g.position.y = y0 - k * 0.5 * this.tile;
           g.scale.setScalar(size * (1 - 0.45 * k));
         } else {
@@ -921,7 +934,7 @@ class Board {
       }, { delay: n * 0.12, ease: easeInOut });
       for (let i = 0; i < 3; i++) setTimeout(() => splash(this.pos(tile).add(new THREE.Vector3(rand(-0.3, 0.3), 0, rand(-0.3, 0.3))), 0.5), 300 + n * 120 + i * 450);
     });
-    if (isKraken) {
+    if (kraken) {
       // A slick of ink where it went down.
       for (const tile of piece.cells) {
         const ink = part(shapes().disc, new THREE.MeshBasicMaterial({ color: 0x1c0a22, transparent: true, opacity: 0.5, depthWrite: false }), { at: this.pos(tile, 0.08).toArray(), size: [this.tile * 0.5, 0.01, this.tile * 0.5], shadow: false, into: this.group });
@@ -1142,7 +1155,7 @@ function land(event, board, target, quiet) {
 
   const above = target.clone().setY(0.9);
   const who = event.by ? chipHtml(event.by) : '';
-  const kraken = event.part?.kind === 'head' || event.part?.kind === 'arm';
+  const kraken = isKraken(event.part?.kind);
   sound.play('bbFog', { level: 0.6 });
 
   if (!event.hit) {
@@ -1162,7 +1175,8 @@ function land(event, board, target, quiet) {
     sound.play(event.sunk ? 'bbSever' : 'bbScreech');
     sound.play('bbSplash', { level: 0.5 });
     for (let i = 0; i < 6; i++) puff(above.clone().setY(0.3), { colour: 0x2a1030, size: rand(0.2, 0.4), rise: rand(0.5, 1.2), life: rand(0.8, 1.4) }); // ink
-    callout(above, `${who}<span class="what">💥 ${event.sunk ? (event.sunk.kind === 'head' ? 'smashes its head!' : 'severs a tentacle!') : 'hits the Kraken!'}</span>`, 'good');
+    const what = event.sunk?.kind === 'knob' ? '🎯 hits its knob! Bonus!' : event.sunk ? (event.sunk.kind === 'head' ? '💥 smashes its head!' : '💥 severs a tentacle!') : '💥 hits the Kraken!';
+    callout(above, `${who}<span class="what">${what}</span>`, 'good');
   } else {
     if (event.type !== 'strike') sound.play('bbHit');
     setTimeout(() => sound.play('bbCrackle', { level: 0.7 }), 350);
@@ -1353,6 +1367,52 @@ function krakenRises() {
   }, 9300);
 }
 
+/** The Kraken's great wave: a wall of water rolls right across its lair, and the fog comes back behind it. */
+function greatWave() {
+  const lair = boards[1];
+  if (!lair) return;
+  const w = lair.cols * lair.tile;
+  const d = lair.rows * lair.tile;
+  const wall = new THREE.Group();
+  const sea = paint(0x2b8da0, { rough: 0.2 });
+  const foam = paint(0xeef8fa, { rough: 0.6 });
+  part(shapes().round, sea, { at: [0, 0, 0], size: [0.9, 2.3, d * 0.62], into: wall });
+  part(shapes().round, sea, { at: [0.45, 1.6, 0], size: [0.7, 0.8, d * 0.6], into: wall }); // the lip, curling forward
+  for (let z = -d / 2; z <= d / 2; z += 0.55) part(shapes().ball, foam, { at: [0.8, 1.75 + rand(-0.15, 0.15), z], size: rand(0.22, 0.36), shadow: false, into: wall });
+  const x0 = lair.cx - w / 2 - 1.4;
+  const x1 = lair.cx + w / 2 + 1.4;
+  wall.position.set(x0, -2.6, 0);
+  scene.add(wall);
+  cast.push(wall);
+
+  sound.play('bbRoar', { level: 0.8 });
+  sound.play('bbRumble');
+  setTimeout(() => sound.play('bbGust', { level: 0.9 }), 300);
+  lightning();
+  const dur = 2.4;
+  let life = 0;
+  let spray = 0;
+  actors.add({
+    update(dt) {
+      life += dt;
+      const k = Math.min(1, life / dur);
+      wall.position.x = x0 + (x1 - x0) * easeInOut(k);
+      wall.position.y = -2.6 + 2.7 * Math.pow(Math.sin(Math.PI * k), 0.4); // up out of the sea, across, and down again
+      shake = Math.max(shake, 0.12 * Math.sin(Math.PI * k));
+      spray -= dt;
+      if (spray <= 0 && k > 0.05 && k < 0.95) {
+        spray = 0.12;
+        splash(new THREE.Vector3(wall.position.x + 0.5, 0, rand(-d / 2, d / 2)), rand(0.6, 1.1));
+      }
+      if (k >= 1) {
+        scene.remove(wall);
+        sound.play('bbSplash');
+      }
+      return k < 1;
+    },
+  });
+}
+
 function victory() {
   clearCast();
   const lair = boards[1];
@@ -1518,6 +1578,14 @@ export function show(view, playerMap) {
     volley = null;
     boards = view.sides.map((side, i) => new Board(i, side));
     buildFlags(view.phase);
+  } else {
+    // After the Kraken's great wave its board has been wiped and everything moved: start it afresh under new fog.
+    view.sides.forEach((side, i) => {
+      if ((side.board.wave ?? 0) === boards[i].wave) return;
+      boards[i].dispose();
+      boards[i] = new Board(i, side);
+      boards[i].rollIn(0.1);
+    });
   }
   view.sides.forEach((side, i) => boards[i].catchUp(side.board, true));
   mood.target = view.phase === 2 ? (view.mode === 'victory' ? 0.15 : 1) : 0;
@@ -1540,6 +1608,7 @@ export function show(view, playerMap) {
     if (view.mode !== 'volley') bannerEl.hidden = true;
     if (view.mode === 'sides' && fresh) boards.forEach((b, i) => b.rollIn(1.2 + i * 0.5));
     if (view.mode === 'rise' && fresh) krakenRises();
+    if (view.mode === 'wave' && !first) greatWave();
     if (view.mode === 'aim') {
       // If a set piece was cut short (someone pressed Skip), clear it away and make sure the fog is in.
       clearCast();

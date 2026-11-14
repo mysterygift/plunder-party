@@ -132,11 +132,19 @@ the left of the TV) and Navy (to the right). Each side has a fleet of frigates
   misses. Crewmates can see each other's picks, so no two aim at the same tile.
 - **Miss:** you take a swig. **Hit:** nothing happens. **Sink a ship:** the
   whole enemy side drinks.
-- When one fleet is gone, the Kraken turns up and everyone is on the same side,
-  firing into the fog to find its head and tentacles. Missing now costs nothing,
-  but after each volley the Kraken hits back at the fleet. **It hits a ship:**
-  everyone takes a swig. **It sinks a ship:** somebody at random goes down with
-  it and is out. Kill every piece of the Kraken to win; lose every ship and it wins.
+- The battle ends the moment a fleet's last ship goes down, even if some guns
+  in that volley haven't fired yet.
+- Then the Kraken turns up and everyone is on the same side, firing into the
+  fog to find its head (a 2×2 block) and its tentacles (1 or 2 tiles each,
+  scattered well apart). Missing now costs nothing, but after each volley the
+  Kraken hits back at the fleet. **It hits a ship:** everyone takes a swig.
+  **It sinks a ship:** somebody at random goes down with it and is out. Kill
+  every piece of the Kraken to win; lose every ship and it wins.
+- Somewhere in the lair is the Kraken's **knob**, a single tile. Hitting it pays
+  bonus doubloons, but you don't need it to win.
+- When the Kraken is down to its last two pieces it whips up **a great wave**
+  (once a game): what's left of it, knob included, swims off to new hiding
+  places, its wounds heal, and the fog covers the whole lair again.
 
 With an odd number of players the smaller side gets a spare gun each round
 (someone picks two tiles), so both sides always fire the same number of shots.

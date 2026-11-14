@@ -58,24 +58,28 @@ export const BATTLES = {
 
 /**
  * Part two, by the number of players. `arms` are tentacle lengths (the head is
- * always there too); `strikes` is how many times the Kraken lashes out per
- * round; `cunning` is how often it goes back for a ship it has already hurt.
- * These were tuned by playing thousands of pretend games, so that the crew
- * wins about two times in three. More strikes makes it much nastier.
+ * always there too, and so is the bonus knob); they're short and kept well
+ * apart, so the Kraken is scattered all over its lair. `strikes` is how many
+ * times it lashes out per round; `cunning` is how often it goes back for a ship
+ * it has already hurt. Tuned with pretend games (great wave included) so the
+ * crew wins a bit more often than not, in about nine rounds or fewer.
  */
 export const HUNTS = {
-  2: { lair: [4, 4], arms: [2, 2], sea: [5, 5], fleet: [B, S, S], strikes: 2, cunning: 0.5 },
-  3: { lair: [5, 5], arms: [3, 2], sea: [5, 5], fleet: [B, S, S], strikes: 2, cunning: 0.7 },
-  4: { lair: [7, 6], arms: [3, 3, 2], sea: [5, 5], fleet: [F, B, S], strikes: 2, cunning: 0.7 },
-  5: { lair: [7, 6], arms: [4, 3, 2], sea: [5, 5], fleet: [F, B, S], strikes: 3, cunning: 0.6 },
-  6: { lair: [7, 7], arms: [4, 3, 3, 2], sea: [6, 6], fleet: [F, B, B, S], strikes: 4, cunning: 0.6 },
-  7: { lair: [8, 7], arms: [4, 4, 3, 2], sea: [6, 6], fleet: [F, B, B, S], strikes: 4, cunning: 0.7 },
-  8: { lair: [8, 8], arms: [4, 3, 3, 2, 2], sea: [6, 6], fleet: [F, B, B, S], strikes: 4, cunning: 0.7 },
-  9: { lair: [8, 8], arms: [4, 4, 3, 3, 2], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 5, cunning: 0.7 },
-  10: { lair: [9, 8], arms: [4, 4, 3, 3, 2], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 5, cunning: 0.7 },
-  11: { lair: [9, 8], arms: [4, 4, 3, 3, 2, 2], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 5, cunning: 0.8 },
-  12: { lair: [9, 8], arms: [4, 4, 3, 3, 2, 2], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 6, cunning: 0.6 },
+  2: { lair: [4, 4], arms: [2, 1], sea: [5, 5], fleet: [B, S, S], strikes: 2, cunning: 0.2 },
+  3: { lair: [5, 5], arms: [2, 1], sea: [5, 5], fleet: [B, S, S], strikes: 2, cunning: 0.2 },
+  4: { lair: [6, 5], arms: [2, 2, 1], sea: [5, 5], fleet: [F, B, S], strikes: 2, cunning: 0.55 },
+  5: { lair: [6, 6], arms: [2, 2, 1, 1], sea: [5, 5], fleet: [F, B, S], strikes: 2, cunning: 0.6 },
+  6: { lair: [7, 6], arms: [2, 2, 1, 1], sea: [6, 6], fleet: [F, B, B, S], strikes: 3, cunning: 0.45 },
+  7: { lair: [7, 7], arms: [2, 2, 2, 1, 1], sea: [6, 6], fleet: [F, B, B, S], strikes: 3, cunning: 0.45 },
+  8: { lair: [7, 7], arms: [2, 2, 2, 1, 1, 1], sea: [6, 6], fleet: [F, B, B, S], strikes: 3, cunning: 0.7 },
+  9: { lair: [8, 7], arms: [2, 2, 2, 1, 1, 1], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 3, cunning: 0.7 },
+  10: { lair: [7, 7], arms: [2, 2, 2, 1, 1, 1], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 4, cunning: 0.7 },
+  11: { lair: [8, 7], arms: [2, 2, 2, 2, 1, 1, 1], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 4, cunning: 0.8 },
+  12: { lair: [8, 7], arms: [2, 2, 2, 2, 1, 1, 1], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 5, cunning: 0.45 },
 };
+
+/** How many clear tiles the bits of Kraken try to keep between them, so it's scattered all over its lair. */
+const KRAKEN_SPREAD = 2;
 
 const POINTS = { hit: 100, sink: 200, victory: 300, krakenHit: 150, sever: 250, knob: 400, slain: 500 };
 
@@ -94,15 +98,18 @@ const DEFAULT_NAMES = {
 
 const STEP = [[1, 0], [0, 1], [-1, 0], [0, -1]]; // which way a piece runs from its first tile: east, south, west, north
 
-/** Try to fit every piece onto the grid. Returns the tiles for each, or null. */
-function arrange(cols, rows, specs, apart) {
+/**
+ * Try to fit every piece onto the grid. Returns the tiles for each, or null.
+ * `gap` is how many empty tiles must lie between pieces (0 lets them touch).
+ */
+function arrange(cols, rows, specs, gap) {
   const taken = new Set();
   const placed = [];
   const free = (x, y) => {
     if (x < 0 || y < 0 || x >= cols || y >= rows) return false;
-    if (!apart) return !taken.has(y * cols + x);
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
+    if (!gap) return !taken.has(y * cols + x);
+    for (let dy = -gap; dy <= gap; dy++) {
+      for (let dx = -gap; dx <= gap; dx++) {
         const nx = x + dx;
         const ny = y + dy;
         if (nx >= 0 && ny >= 0 && nx < cols && ny < rows && taken.has(ny * cols + nx)) return false;
@@ -135,21 +142,57 @@ function arrange(cols, rows, specs, apart) {
 }
 
 /**
- * Build a board with the given pieces scattered at random.
- *   specs: [{ kind, size, name }]
- *   open:  true if everybody can see what is on it (the fleet in part two)
+ * Scatter pieces at random. Tries for `spread` empty tiles between them, then
+ * settles for one, then (if the sea is just too crowded) lets them touch.
  */
-export function makeBoard(cols, rows, specs, { open = false } = {}) {
+function scatter(cols, rows, specs, spread) {
   const order = [...specs].sort((a, b) => b.size - a.size); // big ones first: they are the hardest to fit
-  let placed = null;
-  // Keep pieces from touching if we can; give up on that if the sea is too crowded.
-  for (let attempt = 0; attempt < 400 && !placed; attempt++) placed = arrange(cols, rows, order, attempt < 300);
-  if (!placed) throw new Error(`Could not fit ${specs.length} pieces on a ${cols}x${rows} board.`);
+  const gaps = [...new Set([spread, Math.min(spread, 1), 0])];
+  for (const gap of gaps) {
+    for (let attempt = 0; attempt < 150; attempt++) {
+      const placed = arrange(cols, rows, order, gap);
+      if (placed) return placed;
+    }
+  }
+  throw new Error(`Could not fit ${specs.length} pieces on a ${cols}x${rows} board.`);
+}
 
+const index = (board) => {
+  board.at = new Map();
+  for (const piece of board.pieces) for (const c of piece.cells) board.at.set(c, piece);
+};
+
+/**
+ * Build a board with the given pieces scattered at random.
+ *   specs:  [{ kind, size, name }]
+ *   open:   true if everybody can see what is on it (the fleet in part two)
+ *   spread: how many empty tiles to try to leave between pieces
+ */
+export function makeBoard(cols, rows, specs, { open = false, spread = 1 } = {}) {
+  const placed = scatter(cols, rows, specs, spread);
   const pieces = placed.map((p, id) => ({ id, kind: p.kind, name: p.name ?? null, cells: p.cells, dir: p.dir, hits: new Set(), sunk: false }));
-  const at = new Map();
-  for (const piece of pieces) for (const c of piece.cells) at.set(c, piece);
-  return { cols, rows, open, pieces, at, shots: new Map() };
+  const board = { cols, rows, open, pieces, shots: new Map(), wave: 0 };
+  index(board);
+  return board;
+}
+
+/**
+ * The great wave: everything still afloat swims off somewhere new, its wounds
+ * healed, and the whole board goes back under the fog. What was sunk stays gone.
+ */
+export function rehide(board, spread = 1) {
+  const alive = board.pieces.filter((p) => !p.sunk);
+  const placed = scatter(board.cols, board.rows, alive.map((p) => ({ kind: p.kind, size: p.cells.length, id: p.id })), spread);
+  for (const spot of placed) {
+    const piece = board.pieces[spot.id];
+    piece.cells = spot.cells;
+    piece.dir = spot.dir;
+    piece.hits = new Set();
+  }
+  for (const piece of board.pieces) if (piece.sunk) piece.cells = [];
+  board.shots = new Map();
+  board.wave++;
+  index(board);
 }
 
 const partOf = (piece, tile) => ({ id: piece.id, kind: piece.kind, seg: piece.cells.indexOf(tile), len: piece.cells.length, dir: piece.dir });
@@ -178,6 +221,7 @@ function boardView(board) {
     cols: board.cols,
     rows: board.rows,
     open: board.open,
+    wave: board.wave, // goes up each time the board is wiped and hidden again
     tiles: [...board.shots].map(([i, shot]) => (shot.hit ? { i, hit: true, part: partOf(board.at.get(i), i) } : { i, hit: false })),
     pieces: board.pieces.map((p) => ({
       id: p.id,
@@ -611,7 +655,7 @@ async function krakenHunt(game) {
       { kind: 'head', size: 4, name: 'head' },
       ...plan.arms.map((size) => ({ kind: 'arm', size, name: 'tentacle' })),
       { kind: 'knob', size: 1, name: 'knob' },
-    ]),
+    ], { spread: KRAKEN_SPREAD }),
   };
   const sides = [fleet, beast];
   game.sides = sides;
@@ -631,6 +675,7 @@ async function krakenHunt(game) {
   await ctx.wait(9000);
 
   let quiet = 0;
+  let waved = false; // the great wave only comes once
   for (let round = 1; ; round++) {
     const gunners = active().map((player) => ({ player, side: 0, target: 1, guns: 1 }));
     const orders = await takeAim(game, 2, sides, round, gunners, { headline: `Kraken · round ${round}` });
@@ -752,7 +797,31 @@ async function krakenHunt(game) {
     });
     await ctx.wait(over ? 1500 : 3000);
     if (over) return slain;
+
+    // Down to its last couple of pieces, it throws up a great wave and hides all over again.
+    if (!waved && armsLeft <= 2) {
+      waved = true;
+      await greatWave(game, sides);
+    }
   }
+}
+
+async function greatWave(game, sides) {
+  const { ctx } = game;
+  const [fleet, beast] = sides;
+  const left = vitals(beast.board).length;
+  const headline = 'A great wave!';
+  const sub = `The Kraken’s last ${left === 1 ? 'piece swims off and hides' : `${left} pieces swim off and hide`} in the fog again`;
+  const phone = (key) => (p) =>
+    fleet.lost.includes(p) ? spectatorView(game, sides, p) : { screen: 'wait', key, icon: '🌊', text: 'A great wave!', sub: 'It’s moved and hidden again. Find it!' };
+
+  // The wave rolls in over the board as it was...
+  ctx.screen({ host: () => ({ ...scene(game, 2, sides), key: 'bb-2-wave', mode: 'wave', headline, sub }), player: phone('bb-2-wave') });
+  await ctx.wait(2400);
+  // ...and when it has passed, everything left has moved, healed, and gone back under the fog.
+  rehide(beast.board, KRAKEN_SPREAD);
+  ctx.screen({ host: () => ({ ...scene(game, 2, sides), key: 'bb-2-hidden', mode: 'hidden', headline, sub }), player: phone('bb-2-wave') });
+  await ctx.wait(3600);
 }
 
 async function finale(game, slain) {
