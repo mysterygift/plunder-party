@@ -26,6 +26,7 @@
 // comes towards the camera. The sea is at y = 0.
 
 import * as THREE from './vendor/three.module.min.js';
+import { createLookPass } from './looks3d.js';
 import * as sound from './sound.js';
 import { serverNow, esc } from './common.js';
 import { PAINTS } from './knots-play.js';
@@ -49,6 +50,16 @@ const ordinal = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 's
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the canvas and the words drawn over it
+// Lighting styles (see looks3d.js). House style: dithered light, kept fine and
+// gentle like Parley's so everything still reads at a glance in a race.
+const LOOK_TUNING = {
+  knee: 1,
+  house: {
+    light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.75 },
+  },
+};
+let styler = null;
+
 let renderer, scene, camera, sun, sky, water;
 let ui = {}; // the bits of the HUD
 let running = false;
@@ -229,6 +240,7 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
+  styler = createLookPass(renderer, LOOK_TUNING);
   layer.prepend(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -1728,7 +1740,7 @@ function frame(now) {
   // A slow drift of the camera, plus whatever the guns have shaken loose.
   shake *= Math.max(0, 1 - dt * 5);
   aimCamera(Math.sin(time * 0.21) * 0.22 + rand(-1, 1) * shake, rand(-1, 1) * shake);
-  renderer.render(scene, camera);
+  styler.render(scene, camera);
 }
 
 // ---------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 // z comes towards the camera. The sea is at y = 0.
 
 import * as THREE from './vendor/three.module.min.js';
+import { createLookPass } from './looks3d.js';
 import * as sound from './sound.js';
 import { serverNow, esc } from './common.js';
 import { LIVERY, liveryFor } from './bombard-play.js';
@@ -44,6 +45,21 @@ const linear = (k) => k;
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the canvas and the labels drawn over it
+// Lighting styles (see looks3d.js). House style: dithered light under a sea-chart
+// palette that goes a sickly green when the storm (and the Kraken) comes, and
+// opens up for a moment whenever a gun flashes or lightning strikes.
+const SEA_RAMP = [0x101820, 0x2c4a5a, 0x5f8f8f, 0xc9c09a, 0xfbf1d8].map((h) => new THREE.Color(h));
+const KRAKEN_RAMP = [0x07120c, 0x1f3d26, 0x4f7a3a, 0x9fc06a, 0xe4f2b8].map((h) => new THREE.Color(h));
+const LOOK_TUNING = {
+  knee: 1,
+  house: {
+    light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.7 },
+    post: { palette: { colours: SEA_RAMP.map((c) => c.clone()), amount: 0.5 } },
+  },
+};
+let styler = null;
+let flare = 0; // a gun going off: the palette lets go for a moment
+
 let renderer, scene, camera, sun, sky, water, callouts, bannerEl;
 let boards = []; // [left, right]
 let boardsKey = null;
@@ -193,6 +209,7 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
+  styler = createLookPass(renderer, LOOK_TUNING);
   layer.prepend(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -987,6 +1004,7 @@ function puff(at, { colour = 0xd9d4cc, size = 0.3, rise = 0.8, life = 1.1, drift
 
 /** A flare of light that dies away (a gun going off inside the fog, a fire catching). */
 function glow(at, colour, seconds, strength = 30) {
+  flare = Math.min(1, flare + strength / 40);
   const lamp = new THREE.PointLight(colour, strength, 7, 1.6);
   lamp.position.copy(at).setY(at.y + 0.5);
   scene.add(lamp);
@@ -1508,6 +1526,11 @@ function frame(now) {
 
   // The weather drifts towards whatever the story calls for.
   mood.storm += (mood.target - mood.storm) * Math.min(1, dt * 0.7);
+  // House style: the palette sours with the storm and lets go when a gun flashes.
+  flare = Math.max(0, flare - dt * 2.5);
+  const pal = LOOK_TUNING.house.post.palette;
+  pal.colours.forEach((c, i) => c.lerpColors(SEA_RAMP[i], KRAKEN_RAMP[i], mood.storm));
+  pal.amount = 0.5 * (1 - Math.min(1, flare + bolt / 9));
   sky.intensity = 1.25 - mood.storm * 0.75;
   sky.color.setRGB(1 - mood.storm * 0.45, 0.945 - mood.storm * 0.35, 0.85 - mood.storm * 0.05);
   sun.intensity = sunLevel() + bolt;
@@ -1543,7 +1566,7 @@ function frame(now) {
   // A slow drift of the camera, plus whatever the guns have shaken loose.
   shake *= Math.max(0, 1 - dt * 5);
   aimCamera(Math.sin(clock * 0.21) * 0.25 + rand(-1, 1) * shake, rand(-1, 1) * shake);
-  renderer.render(scene, camera);
+  styler.render(scene, camera);
 }
 
 // ---------------------------------------------------------------------------

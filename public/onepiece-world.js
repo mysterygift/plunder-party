@@ -22,6 +22,7 @@
 // comes towards the camera. The sea is at y = 0.
 
 import * as THREE from './vendor/three.module.min.js';
+import { createLookPass } from './looks3d.js';
 import * as sound from './sound.js';
 import { LIVERY } from './bombard-play.js';
 
@@ -97,6 +98,17 @@ const MOODS = {
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the sky, the canvas and the sheets laid over it
+// Lighting styles (see looks3d.js). House style: a storybook printed in halftone,
+// on paper, with a palette drawn from the haze, so it turns with the story's mood.
+const LOOK_TUNING = {
+  knee: 1,
+  house: {
+    light: { pattern: 'halftone', bands: 4, cell: 2, spread: 1, amount: 0.5 },
+    post: { palette: { colours: [new THREE.Color(0x1d1410), new THREE.Color(), new THREE.Color(), new THREE.Color(0xfff6e4)], amount: 0.35 }, paper: 0.15 },
+  },
+};
+let styler = null;
+
 let renderer, scene, camera, sun, air, sea, skies, wash;
 let running = false;
 let paused = false;
@@ -247,6 +259,7 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
+  styler = createLookPass(renderer, LOOK_TUNING);
   skies[1].after(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -1648,7 +1661,11 @@ function frame(t) {
   cam.round += cam.spin * dt;
   shake *= Math.max(0, 1 - real * 4);
   aimCamera(rand(-1, 1) * shake, rand(-1, 1) * shake);
-  renderer.render(scene, camera);
+  // House style: the palette's middle tones come from the haze, so it turns with the mood.
+  const ramp = LOOK_TUNING.house.post.palette.colours;
+  ramp[1].copy(light.haze).multiplyScalar(0.42);
+  ramp[2].copy(light.haze);
+  styler.render(scene, camera);
 }
 
 // ---------------------------------------------------------------------------

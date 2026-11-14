@@ -10,7 +10,7 @@ let musicBus = null; // music + sea, switched by the Music setting
 let duck = null; // turns the music down while the narrator is talking
 let noiseLoop = null; // one shared buffer of hiss, used for drums, waves and whooshes
 
-export const settings = { sound: true, music: true, narrator: true, voice: null };
+export const settings = { sound: true, music: true, narrator: false, voice: null }; // the narrator is opt-in (host.js)
 
 /** Browsers only allow sound after a click, so the host screen calls this on first click. */
 export function unlock() {

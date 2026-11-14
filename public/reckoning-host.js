@@ -23,6 +23,7 @@
 // three times side by side, so the map carries on past its own edges.
 
 import * as THREE from './vendor/three.module.min.js';
+import { createLookPass } from './looks3d.js';
 import * as sound from './sound.js';
 import { esc, fmt } from './common.js';
 
@@ -63,6 +64,18 @@ const spot = (lat, lng, y = 0) => new THREE.Vector3(lng * DEG, y, -(clamp(lat, L
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the canvas and the name tags drawn over it
+// Lighting styles (see looks3d.js). House style: kept very subtle so the map
+// stays crisp: a faint fine dither only where the light changes, and soft ink
+// round the carved coastlines and everything on the table.
+const LOOK_TUNING = {
+  knee: 1,
+  house: {
+    light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.3, amount: 0.35 },
+    post: { outline: { strength: 0.55, width: 1.2, colour: 0x2a1a0e, crease: 0.6 } },
+  },
+};
+let styler = null;
+
 let tagsEl, renderer, scene, camera, sun, water;
 let running = false;
 let lastFrame = 0;
@@ -156,6 +169,7 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
+  styler = createLookPass(renderer, LOOK_TUNING);
   layer.prepend(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -1005,7 +1019,7 @@ function frame(now) {
   }
   placeTags(s, dt);
 
-  renderer.render(scene, camera);
+  styler.render(scene, camera);
 }
 
 // ---------------------------------------------------------------------------

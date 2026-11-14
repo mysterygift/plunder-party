@@ -4,7 +4,7 @@
 import { esc, fmt, connect, post, startTimers, ask, dismissQuestion } from './common.js';
 import * as sound from './sound.js';
 import { flagTag } from './flag.js';
-import { nextLook, lookName } from './looks.js';
+import { LOOKS, look, setLook, nextLook, lookName } from './looks.js';
 import * as diorama from './bombard-host.js';
 import * as diceTable from './liars-host.js';
 import * as captainsLog from './onepiece-host.js';
@@ -581,14 +581,19 @@ screenEl.addEventListener('click', async (e) => {
   hostAction({ type: act, game, id });
 });
 
+// The narrator (spoken TTS) starts switched off in every game; 🗣️ or N turns it on.
+// Settings saved before v2 always held narrator: true (everything got saved on the
+// first click), so those don't count as anyone having chosen it.
+const AUDIO_VERSION = 2;
 const saved = JSON.parse(localStorage.getItem('plunder-audio') ?? '{}');
-Object.assign(sound.settings, { sound: saved.sound ?? true, music: saved.music ?? true, narrator: saved.narrator ?? true });
+Object.assign(sound.settings, { sound: saved.sound ?? true, music: saved.music ?? true, narrator: saved.v >= AUDIO_VERSION ? !!saved.narrator : false });
 
 function refreshControls() {
   for (const key of ['sound', 'music', 'narrator']) {
     document.querySelector(`[data-ctl="${key}"]`).classList.toggle('off', !sound.settings[key]);
   }
-  localStorage.setItem('plunder-audio', JSON.stringify(sound.settings));
+  const { sound: fx, music, narrator } = sound.settings;
+  localStorage.setItem('plunder-audio', JSON.stringify({ v: AUDIO_VERSION, sound: fx, music, narrator }));
   sound.applySettings();
 }
 
@@ -609,27 +614,46 @@ function control(name) {
       sound.settings[name] = !sound.settings[name];
       return refreshControls();
     case 'look':
+      return toggleLookMenu();
+    case 'lookNext':
       nextLook();
       return showLook();
   }
 }
 
-// Which lighting style the 3D scenes use (looks.js). Say so for a moment when it changes.
+// Which lighting style the 3D scenes use (looks.js): a menu off the 💡 button,
+// and L to step through them. Say which for a moment when it changes.
 let lookTimer = 0;
-function showLook() {
+function showLook(note = true) {
   $('lookNote').textContent = `💡 ${lookName()}`;
-  $('lookNote').hidden = false;
+  $('lookNote').hidden = !note || !$('lookMenu').hidden;
   document.querySelector('[data-ctl="look"]').title = `Lighting style: ${lookName()} (L)`;
+  for (const b of $('lookMenu').querySelectorAll('[data-look]')) b.classList.toggle('on', b.dataset.look === look());
   clearTimeout(lookTimer);
   lookTimer = setTimeout(() => ($('lookNote').hidden = true), 1600);
 }
+function toggleLookMenu(open = $('lookMenu').hidden) {
+  $('lookMenu').hidden = !open;
+  if (open) showLook();
+}
+$('lookMenu').innerHTML = `<h4>Lighting style</h4>${LOOKS.map((l) => `<button data-look="${l.id}">${esc(l.name)}${l.hint ? `<small>${esc(l.hint)}</small>` : ''}</button>`).join('')}`;
+$('lookMenu').addEventListener('click', (e) => {
+  const button = e.target.closest('[data-look]');
+  if (!button) return;
+  setLook(button.dataset.look);
+  showLook();
+});
+document.addEventListener('pointerdown', (e) => {
+  if (!$('lookMenu').hidden && !e.target.closest('#lookMenu, [data-ctl="look"]')) toggleLookMenu(false);
+});
+showLook(false);
 
 $('controls').addEventListener('click', (e) => {
   const button = e.target.closest('[data-ctl]');
   if (button) control(button.dataset.ctl);
 });
 
-const KEYS = { ' ': 'skip', p: 'pause', Escape: 'end', f: 'fullscreen', s: 'sound', m: 'music', n: 'narrator', l: 'look' };
+const KEYS = { ' ': 'skip', p: 'pause', Escape: 'end', f: 'fullscreen', s: 'sound', m: 'music', n: 'narrator', l: 'lookNext' };
 document.addEventListener('keydown', (e) => {
   const name = KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (!name || e.metaKey || e.ctrlKey || e.altKey) return;

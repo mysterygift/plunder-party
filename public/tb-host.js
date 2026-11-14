@@ -22,6 +22,7 @@
 // negative), y is up, and the ship points along -z. The sea is at y = 0.
 
 import * as THREE from './vendor/three.module.min.js';
+import { createLookPass } from './looks3d.js';
 import { esc } from './common.js';
 import { signalFlag } from './tb-play.js';
 import './tb-sound.js';
@@ -58,6 +59,19 @@ function seeded(text) {
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the canvas and the signs drawn over it
+// Lighting styles (see looks3d.js). House style: near-monochrome, with the
+// light and the fog dithered. Red is the only colour left: the port light, the
+// red buoys, and whatever else is red when it matters.
+const LOOK_TUNING = {
+  knee: 1,
+  house: {
+    light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.7 },
+    fog: { bands: 6, cell: 2 },
+    post: { palette: { colours: [0x0d1215, 0x2f3b42, 0x6e7d84, 0xb9c3c4, 0xeef0ea], amount: 0.85, keepRed: 1 } },
+  },
+};
+let styler = null;
+
 let marksEl, renderer, scene, camera, boat, sea, dome, hemi, sun, sunGlow, bell;
 let running = false;
 let lastFrame = 0;
@@ -167,6 +181,7 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
+  styler = createLookPass(renderer, LOOK_TUNING);
   layer.prepend(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -928,7 +943,7 @@ function frame(now) {
   boat.updateMatrixWorld(true);
 
   placeMarks();
-  renderer.render(scene, camera);
+  styler.render(scene, camera);
 }
 
 // ---------------------------------------------------------------------------

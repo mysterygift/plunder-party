@@ -561,7 +561,22 @@ function buildTrinkets(scene) {
 }
 
 function init() {
-  stage = createStage({ id: 'slLayer', background: 0x140c07, exposure: 1.05, fov: 30, overlay: '<div class="sl-vignette"></div>' });
+  stage = createStage({
+    id: 'slLayer',
+    background: 0x140c07,
+    exposure: 1.05,
+    fov: 30,
+    overlay: '<div class="sl-vignette"></div>',
+    // Lighting styles (see looks3d.js). House style: sepia cross-hatching on paper,
+    // like an engraved law book; the candlelight steps between hatch densities.
+    looks: {
+      knee: 1,
+      house: {
+        light: { pattern: 'cross', bands: 4, cell: 2, spread: 1, amount: 0.7 },
+        post: { palette: { colours: [0x1e140c, 0x4e3620, 0x93734c, 0xd9c49b, 0xf5ead2], amount: 0.65 }, paper: 0.2 },
+      },
+    },
+  });
   const { scene } = stage;
 
   scene.add(new THREE.HemisphereLight(0xffe2b8, 0x2a1a10, 0.55));

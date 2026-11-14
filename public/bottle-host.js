@@ -160,7 +160,19 @@ function makeGull() {
 }
 
 function init() {
-  stage = createStage({ id: 'mbLayer', background: 0x8fd0ee, exposure: 1.05, fov: 30, overlay: '<div class="mb-vignette"></div>' });
+  stage = createStage({
+    id: 'mbLayer',
+    background: 0x8fd0ee,
+    exposure: 1.05,
+    fov: 30,
+    overlay: '<div class="mb-vignette"></div>',
+    // Lighting styles (see looks3d.js). House style: fine, gentle dithered
+    // sunlight across the lagoon, the same as Parley's firelight.
+    looks: {
+      knee: 1,
+      house: { light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.7 } },
+    },
+  });
   const { scene } = stage;
   scene.fog = new THREE.Fog(0x9fd8ef, 80, 220);
   scene.add(new THREE.HemisphereLight(0xcfeeff, 0x2a6f80, 0.9));

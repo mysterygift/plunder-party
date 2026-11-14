@@ -18,6 +18,7 @@
 // comes towards the camera. The baize is at y = 0.
 
 import * as THREE from './vendor/three.module.min.js';
+import { createLookPass, keepPlain } from './looks3d.js';
 import { esc } from './common.js';
 import { dieBack, bidTag } from './liars-play.js';
 import './liars-sound.js';
@@ -39,6 +40,17 @@ const linear = (k) => k;
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the canvas and the name plates drawn over it
+// Lighting styles (see looks3d.js). House style: dithered lamplight in a warm
+// four-colour lantern palette. The dice keep plain light so they stay easy to read.
+const LOOK_TUNING = {
+  knee: 1,
+  house: {
+    light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.75 },
+    post: { palette: { colours: [0x1c100a, 0x5c3118, 0xc27a35, 0xffe2a8], amount: 0.5 } },
+  },
+};
+let styler = null;
+
 let labelsEl, renderer, scene, camera, sun, candleFlame, candleLight, ring, turnLamp, flash;
 let running = false;
 let lastFrame = 0;
@@ -187,7 +199,7 @@ function skin(kind, value) {
     diceSkins.set(key, SIDES.map((n) => {
       const top = n === value;
       const colour = kind === 'hit' ? (top ? 0xffffff : 0xd9b46a) : top ? 0xcfc6b2 : 0x8f8674;
-      return new THREE.MeshStandardMaterial({ map: faceTexture(n), roughness: 0.5, color: colour, emissive: kind === 'hit' ? 0xffa21f : 0x000000, emissiveIntensity: kind === 'hit' ? (top ? 0.22 : 0.4) : 0 });
+      return keepPlain(new THREE.MeshStandardMaterial({ map: faceTexture(n), roughness: 0.5, color: colour, emissive: kind === 'hit' ? 0xffa21f : 0x000000, emissiveIntensity: kind === 'hit' ? (top ? 0.22 : 0.4) : 0 })); // plain light, easy to read
     }));
   }
   return diceSkins.get(key);
@@ -251,6 +263,7 @@ function init() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
+  styler = createLookPass(renderer, LOOK_TUNING);
   layer.prepend(renderer.domElement);
 
   scene = new THREE.Scene();
@@ -768,7 +781,7 @@ function frame(now) {
   shake *= Math.max(0, 1 - dt * 5);
   aimCamera(Math.sin(clock * 0.21) * 0.22 + rand(-1, 1) * shake, rand(-1, 1) * shake);
   placeLabels();
-  renderer.render(scene, camera);
+  styler.render(scene, camera);
 }
 
 // ---------------------------------------------------------------------------
