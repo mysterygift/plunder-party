@@ -168,8 +168,29 @@ async function runBot(name, index) {
         // Each bot has its own pace and its own idea of the right answer, so the fleet spreads out.
         const skill = { time: 2600 + (index % 5) * 650, right: 0.58 + (index % 4) * 0.09 };
         const answered = new Set();
+        let firedAt = null;
         while (latest.screen === 'kn-race' && latest.key === view.key) {
           const deal = latest.phase === 'go' ? latest.hand.find((d) => !answered.has(d.id)) : null;
+          // Off the helm: do the chore instead. Bots are keen but not superhuman.
+          const job = latest.phase === 'go' && !deal ? latest.chore : null;
+          if (job) {
+            const target = latest.targets?.length ? pick(latest.targets).id : null;
+            if (latest.fire && firedAt !== latest.fire.by + latest.fire.left) {
+              firedAt = latest.fire.by + latest.fire.left;
+              await pause(500, 2500);
+              await act({ type: 'kn-fire', key: view.key });
+            } else if (job.kind === 'junk' && job.item && target) {
+              await pause(1200, 4000);
+              await act({ type: 'kn-drop', key: view.key, to: target });
+            } else if (job.kind === 'bail') {
+              await pause(250, 400);
+              await act({ type: 'kn-bail', key: view.key, taps: 3 });
+            } else if (job.kind === 'taunt' && target) {
+              await pause(2000, 6000);
+              if (latest.chore?.kind === 'taunt') await act({ type: 'kn-taunt', key: view.key, to: target });
+            } else await new Promise((r) => setTimeout(r, 200));
+            continue;
+          }
           if (!deal) {
             await new Promise((r) => setTimeout(r, 200));
             continue;

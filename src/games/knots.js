@@ -9,6 +9,12 @@
 // gold "powder" question, and a right answer to that fires a cannon at the
 // ship one place ahead.
 //
+// In a crew only one sailor answers each wave: the helm, which passes round
+// the crew wave by wave. Everyone else gets a chore that messes with the
+// other ships: chucking junk in their way, bailing water, heckling, and
+// firing the cannon when the helm loads it. Anyone not answering (a helm
+// who has finished, or everyone in the breather) can heckle.
+//
 //   1. The Scramble: 45 seconds, everyone alone in a rowing boat. It teaches the
 //      game and ranks the room.
 //   2. Crews are picked from that ranking, fastest with slowest.
@@ -43,6 +49,18 @@ const PAINTS = 6; // paint schemes for ships (see public/knots-host.js)
 
 const DEFAULT_SHIPS = ['The Wet Sock', 'The Soggy Biscuit', 'Rum for Improvement', 'The Angry Haddock', 'Plank You Very Much', 'Sea You Later', 'The Crusty Barnacle', 'HMS Oops'];
 
+// What a deckhand on junk duty finds in the hold, and what the punters on board shout.
+const JUNK = [
+  ['🛢️', 'barrel'], ['📦', 'crate'], ['⚓', 'spare anchor'], ['🦆', 'rubber duck'], ['🪼', 'jellyfish'], ['🧀', 'wheel of cheese'],
+  ['🛒', 'shopping trolley'], ['🚽', 'toilet'], ['🪑', 'deckchair'], ['🐙', 'octopus'], ['🥾', 'soggy boot'], ['🍍', 'pineapple'],
+];
+const TAUNTS = [
+  'Call that sailing?', 'My nan rows faster!', 'Absolute shambles!', 'Bottled it!', 'Is that a pedalo?', 'Row, you muppets!',
+  'Taxi for that lot!', 'Have a word with yourselves!', 'Shocking!', 'Put the kettle on, you’re not winning', 'Sink! Sink! Sink!', 'Going home in a rowing boat!',
+];
+const CHORES = [['junk', 3], ['bail', 2], ['taunt', 2]]; // and how often each comes up
+
+const nameList = (list) => (list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : (list[0] ?? ''));
 const ordinal = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th')}`;
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const round = (n, places = 2) => Math.round(n * 10 ** places) / 10 ** places;
@@ -55,6 +73,7 @@ function settings(raw = {}) {
   const p = raw.powder ?? {};
   const s = raw.seconds ?? {};
   const wv = raw.waves ?? {};
+  const ch = raw.chores ?? {};
   return {
     races: Math.round(num(raw.races, 3, 1, 9)),
     laps: Math.round(num(raw.laps, 3, 1, 20)),
@@ -69,6 +88,17 @@ function settings(raw = {}) {
     waveSeconds: num(wv.seconds, 16, 3, 120),
     breather: num(wv.breather, 5, 0, 30),
     scrambleWaves: wv.scramble === true,
+    chores: ch.on !== false, // false: everyone in a crew answers at once, as before
+    fireSeconds: num(ch.fireSeconds, 5, 1, 30),
+    dropWind: num(ch.dropWind, 0.3, 0, 1),
+    dropSafe: num(ch.dropSafe, 4, 0, 60),
+    grabSeconds: num(ch.grabSeconds, 3, 0, 60),
+    bailTaps: Math.round(num(ch.bailTaps, 15, 1, 200)),
+    bailWind: num(ch.bailWind, 0.4, 0, 5),
+    tauntWind: num(ch.tauntWind, 0, 0, 1),
+    heckleSeconds: num(ch.heckleSeconds, 1.2, 0, 10), // how long a heckle covers the helm's question
+    heckleSafe: num(ch.heckleSafe, 3, 0, 60), // and how long before the same sailor can be put off again
+    tauntGap: num(ch.tauntGap, 1.5, 0.2, 30),
     motion: {
       lap: num(w.lap, MOTION.lap, 10),
       drift: num(w.drift, MOTION.drift, 0.05),
@@ -167,7 +197,7 @@ export async function run(ctx) {
   const sailors = new Map(
     ctx.players.map((p) => [
       p,
-      { p, id: p.id, deal: dealerFor(p), out: [], quota: Infinity, nextId: 1, streak: 0, best: 0, right: 0, wrong: 0, times: [], hits: 0, nextOk: 0, powder: null, notice: null, boat: null, rowed: 0 },
+      { p, id: p.id, deal: dealerFor(p), out: [], quota: Infinity, nextId: 1, streak: 0, best: 0, right: 0, wrong: 0, times: [], hits: 0, nextOk: 0, powder: null, notice: null, boat: null, rowed: 0, chore: null, lastChore: null, tauntAt: -99, heckle: null, heckleSafeUntil: -1, bailAt: 0, dropped: 0, bailed: 0, fired: 0 },
     ]),
   );
   const tell = (s, text, tone = '') => (s.notice = { id: ++noticeId, text, tone });
@@ -187,7 +217,7 @@ export async function run(ctx) {
 
   let R = null; // the race in progress
 
-  const vessel = (id, name, paint, crew) => ({ id, name, paint, crew, pos: 0, head: 0, wind: 0, holedUntil: -1, safeUntil: -1, nextPowder: 0, done: null, place: null, answers: 0, holes: 0, holesAll: 0, points: 0, last: 0 });
+  const vessel = (id, name, paint, crew) => ({ id, name, paint, crew, pos: 0, head: 0, wind: 0, holedUntil: -1, safeUntil: -1, nextPowder: 0, done: null, place: null, answers: 0, holes: 0, holesAll: 0, points: 0, last: 0, helm: null, turn: 0, loaded: null, junkSafeUntil: -1 });
 
   function event(type, more = {}) {
     R.events.push({ id: ++R.eventId, t: round(R.clock), type, ...more });
@@ -211,6 +241,15 @@ export async function run(ctx) {
     tell(s, `FIRE! Aiming at ${target.name}`, 'good');
   }
 
+  /** A right answer to a powder question. In a crew it only loads the gun: a deckhand has to fire it. */
+  function load(v, s) {
+    const gunners = v.crew.filter((c) => c !== s && c.chore && !c.p.away);
+    if (gunners.length === 0) return fire(v, s);
+    v.loaded = { by: s, until: R.clock + S.fireSeconds };
+    event('loaded', { ship: v.id, by: s.id });
+    tell(s, `Loaded! ${nameList(gunners.map((g) => g.p.name))}: FIRE!`, 'good');
+  }
+
   function landBall(ball) {
     const { to, from, by } = ball;
     if (to.done != null || R.clock < to.safeUntil) return event('miss', { to: to.id, from: from.id });
@@ -224,19 +263,79 @@ export async function run(ctx) {
     for (const s of from.crew) tell(s, s === by ? `Direct hit on ${to.name}!` : `${by.p.name} holed ${to.name}!`, 'good');
   }
 
-  /** Somebody tapped an answer. The phone has already shown them right or wrong; this is where it counts. */
-  function onAnswer(p, msg) {
-    if (!R || msg.type !== 'kn-answer' || msg.key !== R.key || R.phase !== 'go') return;
+  /** Every tap from a phone in a race: answers, and the chores. */
+  function onAction(p, msg) {
+    if (!R || msg.key !== R.key || R.phase !== 'go') return;
     const s = sailors.get(p);
     const v = s?.boat;
     if (!v || v.done != null) return;
+    if (msg.type === 'kn-answer') return onAnswer(s, v, msg);
+    const chore = choreOf(s);
+    if (!chore) return;
+    const target = R.vessels.find((t) => t.id === msg.to && t !== v && t.done == null);
+
+    if (msg.type === 'kn-fire' && v.loaded && s !== v.loaded.by) {
+      v.loaded = null;
+      s.fired++;
+      fire(v, s);
+    } else if (msg.type === 'kn-drop' && chore.kind === 'junk' && chore.item && target) {
+      const [emoji, thing] = chore.item;
+      chore.item = null;
+      chore.grabAt = R.clock + S.grabSeconds;
+      if (R.clock < target.junkSafeUntil) {
+        event('drop', { from: v.id, to: target.id, by: s.id, item: emoji, thing, miss: true });
+        tell(s, `The ${thing} bobbed straight past them.`, 'bad');
+      } else {
+        target.wind *= 1 - S.dropWind;
+        target.junkSafeUntil = R.clock + S.dropSafe;
+        s.dropped++;
+        event('drop', { from: v.id, to: target.id, by: s.id, item: emoji, thing });
+        tell(s, `${emoji} Right in front of ${target.name}!`, 'good');
+        for (const c of target.crew) tell(c, `${emoji} ${s.p.name} chucked a ${thing} at you!`, 'bad');
+      }
+    } else if (msg.type === 'kn-bail' && chore.kind === 'bail') {
+      // Taps come in little batches. Cap them, so a script can't bail faster than a thumb.
+      const now = Date.now();
+      const taps = Math.min(Math.floor(Number(msg.taps) || 0), 6, Math.ceil(((now - s.bailAt) / 1000) * 16 * SPEED));
+      s.bailAt = now;
+      if (taps <= 0) return;
+      chore.taps += taps;
+      while (chore.taps >= S.bailTaps) {
+        chore.taps -= S.bailTaps;
+        s.bailed++;
+        if (R.clock < v.holedUntil) {
+          v.holedUntil = R.clock;
+          event('patch', { ship: v.id, by: s.id });
+          for (const c of v.crew) tell(c, c === s ? 'Hole patched!' : `${s.p.name} patched the hole!`, 'good');
+        } else {
+          v.wind = Math.min(M.max, v.wind + S.bailWind);
+        }
+      }
+    } else if (msg.type === 'kn-taunt' && target && R.clock - s.tauntAt >= S.tauntGap) {
+      s.tauntAt = R.clock;
+      const text = sample(TAUNTS);
+      target.wind *= 1 - S.tauntWind;
+      // It lands on the phones of whoever over there is answering, and puts them off for a moment.
+      const putOff = target.crew.filter((c) => !c.chore && c.out.length && R.clock >= c.heckleSafeUntil);
+      for (const c of putOff) {
+        c.heckle = { id: ++noticeId, by: s.p.name, text, ms: Math.round((S.heckleSeconds * 1000) / SPEED) };
+        c.heckleSafeUntil = R.clock + S.heckleSafe;
+        c.nextOk = Math.max(c.nextOk, Date.now() + c.heckle.ms);
+      }
+      event('taunt', { from: v.id, to: target.id, by: s.id, text, landed: putOff.length > 0 });
+    } else return;
+    R.dirty = true;
+  }
+
+  /** Somebody tapped an answer. The phone has already shown them right or wrong; this is where it counts. */
+  function onAnswer(s, v, msg) {
     const index = s.out.findIndex((d) => d.id === msg.deal);
     if (index < 0 || Date.now() < s.nextOk) return;
     const [deal] = s.out.splice(index, 1);
     s.out = s.out.filter((d) => d.id > deal.id - HAND); // anything much older was lost on the way; forget it
 
     const right = msg.pick === deal.r;
-    const share = S.gust / awake(v);
+    const share = S.gust / (v.helm ? 1 : awake(v)); // a lone helm fills the sails for the whole crew
     if (right) {
       s.streak++;
       s.best = Math.max(s.best, s.streak);
@@ -256,7 +355,7 @@ export async function run(ctx) {
     if (s.powder?.deal === deal.id) {
       if (msg.gold === true) {
         s.powder = null;
-        if (right) fire(v, s);
+        if (right) load(v, s);
         else fizzle(v, s, 'Misfire! Wrong answer.');
       } else if (msg.fizz === true) {
         s.powder = null;
@@ -281,6 +380,7 @@ export async function run(ctx) {
         v.place = ++R.home;
         if (v.place === 1) R.cutoffAt = R.clock + S.cutoff;
         for (const s of v.crew) s.powder = null;
+        v.loaded = null;
         event('finish', { ship: v.id, place: v.place });
       }
     }
@@ -288,6 +388,20 @@ export async function run(ctx) {
 
     for (let i = R.balls.length - 1; i >= 0; i--) {
       if (R.clock >= R.balls[i].land) landBall(R.balls.splice(i, 1)[0]);
+    }
+
+    for (const v of R.vessels) {
+      if (v.loaded && R.clock >= v.loaded.until) {
+        event('fizzle', { ship: v.id, by: v.loaded.by.id });
+        for (const c of v.crew) tell(c, 'Too slow! Nobody fired the cannon.', 'bad');
+        v.loaded = null;
+      }
+      for (const c of v.crew) {
+        if (c.chore?.kind === 'junk' && !c.chore.item && R.clock >= c.chore.grabAt) {
+          c.chore.item = sample(JUNK);
+          R.dirty = true;
+        }
+      }
     }
 
     if (R.waves) {
@@ -300,7 +414,7 @@ export async function run(ctx) {
     if (R.cannons) {
       order.forEach((v, place) => {
         if (place === 0 || v.done != null || R.clock < v.nextPowder || order[place - 1].done != null) return;
-        if (v.crew.some((s) => s.powder)) return;
+        if (v.loaded || v.crew.some((s) => s.powder)) return;
         const hands = v.crew.filter((s) => !s.p.away && s.out.length);
         if (hands.length === 0) return;
         const s = sample(hands);
@@ -335,13 +449,52 @@ export async function run(ctx) {
     w.n++;
     w.on = true;
     w.until = R.clock + S.waveSeconds;
+    for (const v of R.vessels) handOut(v);
     for (const s of sailors.values()) {
       s.out = [];
-      s.quota = R.waves || Infinity;
+      s.quota = s.chore ? 0 : R.waves || Infinity;
       topUp(s);
     }
     if (w.n > 1) event('wave', { n: w.n });
     R.dirty = true;
+  }
+
+  /** Does this race split crews into a helm and deckhands? */
+  const crewed = (v) => R.kind === 'race' && R.waves > 0 && S.chores && v.crew.length > 1;
+  /** Who takes the helm next wave: the crew take turns, skipping anyone who's wandered off. */
+  const nextHelm = (v) => {
+    const here = v.crew.filter((s) => !s.p.away);
+    const pool = here.length ? here : v.crew;
+    return pool[v.turn % pool.length];
+  };
+
+  /** Give a ship its helm for this wave, and everyone else a chore (never the same one twice running, nor the same as a crewmate's). */
+  function handOut(v) {
+    for (const s of v.crew) s.chore = null;
+    v.helm = null;
+    if (!crewed(v) || v.done != null) return;
+    v.helm = nextHelm(v);
+    v.turn++;
+    const taken = new Set();
+    for (const s of v.crew) {
+      if (s === v.helm) continue;
+      const options = CHORES.filter(([kind]) => kind !== s.lastChore && !taken.has(kind));
+      const pool = options.length ? options : CHORES;
+      let roll = Math.random() * pool.reduce((sum, [, weight]) => sum + weight, 0);
+      const [kind] = pool.find(([, weight]) => (roll -= weight) < 0) ?? pool[0];
+      taken.add(kind);
+      s.lastChore = kind;
+      s.chore = { kind, item: kind === 'junk' ? sample(JUNK) : null, grabAt: 0, taps: 0 };
+    }
+  }
+
+  /** What this sailor can do right now instead of answering: their chore, or a heckle while they wait. */
+  function choreOf(s) {
+    const v = s.boat;
+    if (R.kind !== 'race' || !S.chores || R.phase !== 'go' || v.done != null || R.vessels.filter((t) => t.done == null).length < 2) return null;
+    if (s.chore) return s.chore;
+    const resting = R.waves > 0 && (!R.wave.on || s.out.length === 0);
+    return resting ? { kind: 'taunt' } : null;
   }
 
   /** Phones down, eyes up: a few seconds of just sailing before the next wave. */
@@ -358,7 +511,8 @@ export async function run(ctx) {
     if (R.phase === 'over') return;
     R.phase = 'over';
     inOrder(R.vessels).forEach((v, i) => (v.place ??= i + 1));
-    for (const s of sailors.values()) s.powder = null;
+    for (const s of sailors.values()) Object.assign(s, { powder: null, chore: null });
+    for (const v of R.vessels) Object.assign(v, { loaded: null, helm: null });
     R.dirty = true;
   }
 
@@ -421,6 +575,8 @@ export async function run(ctx) {
         right: v.answers,
         roll: v.crew.some(rolling),
         asking: R.waves > 0 && R.wave.on && R.phase === 'go' && v.crew.some(stillGoing),
+        helm: v.helm?.id ?? null,
+        loaded: !!v.loaded,
       })),
       breather: R.waves > 0 && !R.wave.on && R.phase === 'go',
       events: R.events,
@@ -437,6 +593,7 @@ export async function run(ctx) {
     const holder = v.crew.find((c) => c !== s && c.powder);
     // Between waves, or done with this one: the phone says to watch the telly.
     const rest = R.waves && R.phase === 'go' && v.done == null ? (!R.wave.on ? 'breather' : s.out.length ? null : 'done') : null;
+    const chore = choreOf(s);
     return {
       screen: 'kn-race',
       key: R.key,
@@ -446,6 +603,19 @@ export async function run(ctx) {
       phase: R.phase,
       count: R.count,
       hand: R.phase === 'go' && v.done == null && !rest ? s.out : [],
+      chore: chore
+        ? {
+            kind: chore.kind,
+            item: chore.item ? { e: chore.item[0], name: chore.item[1] } : null,
+            wait: chore.kind === 'junk' && !chore.item ? round(Math.max(0, chore.grabAt - R.clock), 1) : 0,
+            taps: S.bailTaps,
+            gap: S.tauntGap,
+          }
+        : null,
+      helm: v.helm && v.helm !== s ? v.helm.p.name : null,
+      upNext: R.waves > 0 && !R.wave.on && crewed(v) && nextHelm(v) === s,
+      fire: chore && v.loaded && v.loaded.by !== s ? { by: v.loaded.by.p.name, left: round(v.loaded.until - R.clock, 1) } : null,
+      targets: chore ? order.filter((t) => t !== v && t.done == null).map((t) => ({ id: t.id, name: t.name, paint: t.paint, place: order.indexOf(t) + 1 })) : null,
       wave: R.wave.n,
       rest,
       still: rest === 'done' ? [...sailors.values()].filter(stillGoing).map((c) => c.p.name) : null,
@@ -463,6 +633,7 @@ export async function run(ctx) {
       roll: rolling(s),
       holed: R.clock < v.holedUntil,
       notice: s.notice,
+      heckle: s.heckle,
       lock: S.lock * 1000,
       fuse: S.fuse,
       done: v.done != null || R.phase === 'over' ? v.place : null,
@@ -474,9 +645,10 @@ export async function run(ctx) {
     R = { key: `kn-${kind}-${n}`, kind, n, phase: 'ready', count: 0, clock: 0, tickedAt: Date.now(), pushedAt: 0, dirty: false, vessels, cannons, goal, limit, light, cutoffAt: null, home: 0, balls: [], events: [], eventId: 0, leader: null, lastLap: false, waves: kind === 'scramble' && !S.scrambleWaves ? 0 : S.waveQuestions, wave: { n: 0, on: false, until: 0 } };
     for (const v of vessels) {
       Object.assign(v, { pos: v.head, wind: 0, holedUntil: -1, safeUntil: -1, done: null, place: null, holes: 0, nextPowder: rand(S.powderFirst[0], S.powderFirst[1] ?? S.powderFirst[0]) });
-      for (const s of v.crew) Object.assign(s, { boat: v, out: [], quota: 0, streak: 0, powder: null, notice: null });
+      Object.assign(v, { helm: null, turn: Math.floor(Math.random() * v.crew.length), loaded: null, junkSafeUntil: -1 });
+      for (const s of v.crew) Object.assign(s, { boat: v, out: [], quota: 0, streak: 0, powder: null, notice: null, chore: null, heckle: null, heckleSafeUntil: -1, tauntAt: -99 }); // race clocks start at 0, so clear anything timed on the last one
     }
-    ctx.screen({ host: hostRace, player: playerRace, onAction: onAnswer });
+    ctx.screen({ host: hostRace, player: playerRace, onAction });
     for (R.count = S.countdown; R.count > 0; R.count--) {
       ctx.update();
       await ctx.wait(1000);
@@ -511,9 +683,11 @@ export async function run(ctx) {
     S.waveQuestions ? 'Questions come to your phone in quick waves. Right answers fill your sails.' : 'Questions fire onto your phone non-stop. Right answers fill your sails.',
     'A wrong answer spills some wind and costs you a second.',
     'A gold question loads your cannon: get it right to fire at the ship in front.',
-    ...(S.waveQuestions ? ['Done your wave? Eyes on the telly till the next one.'] : []),
+    ...(S.waveQuestions && (alone || !S.chores) ? ['Done your wave? Eyes on the telly, and heckle the others.'] : []),
     ...(S.scramble ? [`First, the Scramble: ${Math.round(S.scrambleSeconds)} seconds${S.waveQuestions && !S.scrambleWaves ? ' non-stop' : ''}, every pirate for themselves.`] : []),
     (alone ? `Then ${races} round the island.` : `Then crews of ${crewOf}, for ${races} round the island.`) + double,
+    // The crews' rule comes after the crews are mentioned.
+    ...(S.waveQuestions && !alone && S.chores ? ['In a crew, take turns at the helm. Everyone else does chores: chuck junk, bail, fire the cannon, heckle the other helms.'] : []),
   ]);
 
   // ----- 1. the Scramble -----
@@ -622,6 +796,7 @@ export async function run(ctx) {
     award('Master Gunner', (s) => s.hits, (n) => `${n} hit${n === 1 ? '' : 's'}`),
     award('Longest Roll', (s) => s.best, (n) => `${n} in a row`),
     award('Loose Cannon', (s) => s.wrong, (n) => `${n} wrong`),
+    award('Rubbish Tip', (s) => s.dropped, (n) => `${n} thing${n === 1 ? '' : 's'} chucked`),
     sieve?.holesAll > 0 ? { label: 'The Colander', players: sieve.crew.map((s) => s.id).slice(0, 3), value: `holed ${sieve.holesAll} time${sieve.holesAll === 1 ? '' : 's'}` } : null,
     S.scramble ? award('First Oar', (s) => Math.round(s.rowed), (n) => `${n} leagues in the Scramble`) : null,
   ].filter(Boolean);

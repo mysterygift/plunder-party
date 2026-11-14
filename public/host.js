@@ -56,9 +56,34 @@ function tickCounters() {
   }
   requestAnimationFrame(tickCounters);
 }
+  followRules();
 
 function chip(id, { cls = '', label = true } = {}) {
   const p = players.get(id);
+// A long list of rules can run off the bottom of the telly. As each rule
+// appears, glide the intro up just far enough to keep it on screen. The shift
+// lives out here so a redraw (which rebuilds the intro) carries on smoothly.
+let introShift = 0;
+function followRules() {
+  const intro = screenEl.firstElementChild;
+  const items = intro?.querySelectorAll('.rules li[data-at]');
+  if (!items?.length) {
+    introShift = 0;
+    return;
+  }
+  let last = null;
+  for (const li of items) if (age(li.dataset.rule) >= Number(li.dataset.at)) last = li;
+  let target = 0;
+  if (last) {
+    const scale = stage.getBoundingClientRect().width / 1920;
+    const over = (last.getBoundingClientRect().bottom - screenEl.getBoundingClientRect().bottom) / scale;
+    target = Math.max(0, over + introShift + 40); // 40px of breathing room under the last rule
+  }
+  introShift += (target - introShift) * 0.1;
+  if (Math.abs(target - introShift) < 0.5) introShift = target;
+  intro.style.transform = introShift ? `translateY(${-introShift.toFixed(1)}px)` : '';
+}
+
   if (!p) return '';
   return `<span class="chip ${cls}" style="--c:${p.color}"><span class="face"><span>${p.avatar}</span></span>${label ? `<span class="nm">${esc(p.name)}</span>` : ''}</span>`;
 }
@@ -171,7 +196,7 @@ const screens = {
     let at = 1300 + v.name.length * 70;
     const rules = v.rules
       .map((rule, i) => {
-        const html = `<li${anim(`rule${i}`, 'rise', at, 500)}>${esc(rule)}</li>`;
+        const html = `<li data-rule="rule${i}" data-at="${at}"${anim(`rule${i}`, 'rise', at, 500)}>${esc(rule)}</li>`;
         at += rule.length * 62 + 300;
         return html;
       })

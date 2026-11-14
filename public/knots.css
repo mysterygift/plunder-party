@@ -99,6 +99,53 @@ body[data-screen='kn-race'] #me .score { display: none; }
 .kn-eyes { animation: kn-eyes 2.4s ease-in-out infinite; }
 @keyframes kn-eyes { 0%, 100% { translate: 0 0; } 25% { translate: -10px -4px; } 60% { translate: 10px -4px; } }
 
+/* --- a deckhand's chore, in place of the question --- */
+.kn-chore { grid-row: 2 / span 3; z-index: 2; min-height: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 4px 2px; text-align: center; }
+.kn-chore h2 { margin: 0; font: 400 40px/1.05 var(--display); color: var(--gold); text-shadow: 0 3px 0 #7a4e0c; }
+.kn-chore .kn-lead { margin: 0; font-size: 19px; line-height: 1.25; color: var(--foam); }
+.kn-role { margin: 0; font-size: 17px; color: var(--foam); }
+.kn-role b { font-family: var(--display); font-weight: 400; color: var(--gold); letter-spacing: 0.02em; }
+.kn-next { margin: 4px 0 0; padding: 6px 16px 8px; border-radius: 999px; background: var(--gold); color: var(--ink); font: 400 21px/1 var(--display); animation: kn-nudge 0.8s ease-in-out infinite alternate; }
+@keyframes kn-nudge { to { scale: 1.06; } }
+.kn-junk { font-size: 88px; line-height: 1; animation: kn-bob 1.6s ease-in-out infinite; }
+.kn-junk.kn-rummage { font-size: 64px; animation: kn-eyes 1.4s ease-in-out infinite; }
+@keyframes kn-bob { 50% { translate: 0 -8px; rotate: 7deg; } }
+.kn-targets { width: 100%; display: grid; gap: 8px; }
+.kn-target {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px 13px; border: 0; border-left: 12px solid var(--sail); border-radius: 14px;
+  background: var(--parchment); color: var(--ink); font: 400 23px/1.1 var(--display); text-align: left; box-shadow: 0 4px 0 #8a6a3a; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.kn-target b { flex: none; min-width: 2.1em; font-size: 0.8em; color: var(--red-dark); }
+.kn-target span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kn-target:active, .kn-target.hit { translate: 0 3px; box-shadow: 0 1px 0 #8a6a3a; }
+.kn-targets.cool .kn-target { opacity: 0.45; transition: opacity 0.15s; }
+.kn-push {
+  width: min(230px, 62vw, 34vh); aspect-ratio: 1; flex: none; border-radius: 50%; border: 6px solid rgba(255, 255, 255, 0.25); display: grid; place-content: center;
+  font: 400 42px/1 var(--display); color: #fff; text-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); box-shadow: 0 8px 0 rgba(0, 0, 0, 0.4); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.kn-push span { display: block; font-size: 62px; }
+.kn-push:active { translate: 0 5px; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4); }
+.kn-fire { background: radial-gradient(circle at 40% 35%, #ff8a5c, #c22d1c 70%); animation: kn-throb 0.45s ease-in-out infinite alternate; }
+.kn-fire.gone { animation: none; opacity: 0.4; }
+.kn-bail { background: radial-gradient(circle at 40% 35%, #6cbcf0, #1f5f96 70%); }
+.kn-bail.slosh { animation: kn-slosh 0.16s ease-out; }
+@keyframes kn-throb { to { scale: 1.07; } }
+@keyframes kn-slosh { 50% { scale: 0.93; } }
+.kn-meter { width: min(260px, 72vw); height: 14px; flex: none; border-radius: 7px; overflow: hidden; background: rgba(255, 255, 255, 0.13); }
+.kn-meter i { display: block; height: 100%; width: 0; border-radius: 7px; background: linear-gradient(90deg, #8fd3ff, #fff); transition: width 0.1s; }
+.kn-burn i { width: 100%; background: linear-gradient(90deg, var(--red), var(--gold)); transform-origin: left; animation: kn-burn linear forwards; }
+@keyframes kn-burn { to { transform: scaleX(0); } }
+/* A rival's heckle: over the question, which blurs till it's gone. */
+.kn-jeer { grid-row: 2 / span 3; z-index: 3; display: grid; place-items: center; border-radius: 18px; background: rgba(4, 14, 24, 0.3); }
+.kn-jeer p {
+  margin: 0; max-width: 92%; padding: 14px 22px 18px; border-radius: 24px; background: #fff; color: var(--ink); text-align: center;
+  font: 400 32px/1.1 var(--display); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55); rotate: -3deg; animation: kn-jeer 0.3s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.kn-jeer small { display: block; margin-bottom: 4px; font: italic 17px var(--body); color: var(--red-dark); }
+@keyframes kn-jeer { from { scale: 0.3; opacity: 0; } }
+.kn.heckled .kn-card, .kn.heckled .kn-answers { filter: blur(5px); }
+@media (max-height: 640px) { .kn-chore { gap: 6px; } .kn-chore h2 { font-size: 32px; } .kn-junk { font-size: 60px; } .kn-target { padding: 8px 12px 10px; font-size: 20px; } }
+
 /* ============ the big screen ============ */
 
 /* The model fills the whole window, behind the 1920x1080 stage (see knots-host.js). */
@@ -186,6 +233,11 @@ body[data-screen^='kn-'] #backdrop { display: none; }
 .kn-shipcard.first { border-color: var(--gold); border-top-color: var(--sail, var(--gold)); }
 .kn-shipcard.roll { box-shadow: 0 0 0.4em var(--gold), 0 0 2em rgba(247, 201, 72, 0.55); }
 .kn-shipcard.holed { background: rgba(110, 22, 16, 0.95); border-color: var(--red); }
+/* Whoever is on the helm this wave gets an anchor; the rest of the crew are doing chores. */
+.kn-shipcard .chip.helm { position: relative; }
+.kn-shipcard .chip.helm .face { box-shadow: 0 0 0 0.12em var(--gold), 0 0 0.5em rgba(247, 201, 72, 0.7); }
+.kn-shipcard .chip.helm::after { content: '⚓'; position: absolute; right: -0.4em; bottom: -0.3em; font-size: 0.6em; filter: drop-shadow(0 0.05em 0.1em #000); }
+.kn-shipcard.loaded { box-shadow: 0 0 0.4em var(--red), 0 0 1.6em rgba(210, 64, 47, 0.7); }
 .kn-shipcard.holed .kn-st { color: #fff; font-family: var(--display); }
 .kn-shipcard.holed .kn-bar i { background: var(--red); }
 .kn-shipcard.home .kn-bar { visibility: hidden; }
@@ -249,10 +301,12 @@ body[data-screen^='kn-'] #backdrop { display: none; }
 .kn-crews.solo .kn-fleet { flex: none; width: 760px; }
 
 .kn-col { flex: 1; min-width: 0; }
-.kn-col.narrow { flex: none; width: 600px; }
+.kn-col.narrow { flex: none; width: 660px; }
 .kn-result, .kn-row { margin: 0 0 10px; display: flex; align-items: center; gap: 18px; padding: 8px 20px 10px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.07); border-left: 16px solid var(--sail); font-size: 30px; }
 .kn-result b, .kn-row b { flex: none; width: 82px; font: 400 48px/1 var(--display); color: var(--gold); }
 .kn-row b { width: 40px; }
+/* The table column is narrow: let a long ship name take two lines rather than lose its end. */
+.kn-row .nm.nm { font-size: 36px; line-height: 1.05; white-space: normal; text-wrap: balance; }
 .kn-result .nm, .kn-row .nm { font: 40px/1.05 var(--display); letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .kn-result .who { display: flex; gap: 6px; font-size: 26px; }
 .kn-result .who .nm { display: none; }
@@ -268,5 +322,8 @@ body[data-screen^='kn-'] #backdrop { display: none; }
 .kn-champ > div { display: flex; justify-content: center; gap: 26px; margin-top: 6px; font-size: 40px; }
 .kn-awards { width: 1500px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 50px; padding-top: 20px; }
 .kn-award { margin: 0; display: flex; align-items: center; gap: 16px; font-size: 28px; min-height: 58px; }
+/* A shared award keeps its names side by side; if that leaves no room, the figure drops to the line below. */
+.kn-award { flex-wrap: wrap; row-gap: 0; }
+.kn-award > span { display: flex; flex-wrap: wrap; gap: 4px 16px; max-width: calc(100% - 266px); }
 .kn-award em { flex: none; width: 250px; font: normal 36px var(--display); color: var(--gold); }
 .kn-award b { margin-left: auto; font-weight: 400; font-style: italic; color: var(--foam); white-space: nowrap; }

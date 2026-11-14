@@ -22,6 +22,20 @@
     "scramble": false
   },
 
+  "chores": {
+    "on": true,
+    "fireSeconds": 5,
+    "dropWind": 0.3,
+    "dropSafe": 4,
+    "grabSeconds": 3,
+    "bailTaps": 15,
+    "bailWind": 0.4,
+    "tauntWind": 0,
+    "tauntGap": 1.5,
+    "heckleSeconds": 1.2,
+    "heckleSafe": 3
+  },
+
   "wind": {
     "lap": 100,
     "drift": 1.2,

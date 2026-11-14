@@ -1,6 +1,8 @@
 // Knot So Fast on the phones: one question, four big answers, and a thin strip
 // saying where you are in the race. Questions come in waves; between them the
-// phone covers up and tells you to watch the telly.
+// phone covers up and tells you to watch the telly. In a crew only the helm
+// answers; everyone else's phone shows their chore (chuck junk, bail, heckle,
+// and the big FIRE! button when the helm loads the cannon).
 //
 // This screen is built for speed, so it works differently from the others:
 //   * The server sends the next few questions ahead of time, with the right
@@ -44,6 +46,10 @@ const L = {
   noticeTimer: null,
   place: null,
   wave: 0, // which wave of questions the queue belongs to
+  bail: { count: 0, pending: 0, timer: null }, // buckets are counted here and posted in little batches
+  coolUntil: 0, // heckles have a short cooldown
+  heckleId: 0,
+  heckledUntil: 0, // a rival's heckle is over the question till then
 };
 
 const $ = (sel) => L.root?.querySelector(sel);
@@ -60,8 +66,10 @@ function build(el, v) {
     <p class="kn-mate" hidden></p>
     <div class="kn-answers">${[0, 1, 2, 3].map((i) => `<button class="kn-a" data-kn="${i}"><span></span></button>`).join('')}</div>
     <div class="kn-over" hidden></div>
+    <div class="kn-chore" hidden></div>
+    <div class="kn-jeer" hidden></div>
   </div>`;
-  Object.assign(L, { key: v.key, root: el.firstElementChild, queue: [], seen: 0, asked: null, locked: false, place: null, wave: v.wave ?? 0, noticeId: v.notice?.id ?? 0 });
+  Object.assign(L, { key: v.key, root: el.firstElementChild, bail: { count: 0, pending: 0, timer: null }, queue: [], seen: 0, asked: null, locked: false, place: null, wave: v.wave ?? 0, noticeId: v.notice?.id ?? 0, heckleId: v.heckle?.id ?? 0, heckledUntil: 0 });
   clearTimeout(L.fuse);
 }
 
@@ -122,7 +130,7 @@ async function post(message, tries = 0) {
 
 function answer(pick) {
   const d = L.asked;
-  if (!d || L.locked || L.view?.phase !== 'go') return;
+  if (!d || L.locked || L.view?.phase !== 'go' || performance.now() < L.heckledUntil) return;
   L.locked = true;
   L.asked = null;
   L.queue.shift();
@@ -174,11 +182,121 @@ function overlay(v) {
     const head = v.kind === 'scramble' ? 'Oars down!' : v.done === 1 ? 'You won!' : 'Home!';
     return `<div class="kn-flag">${v.done === 1 ? '🏆' : '🏁'}</div><h2>${head}</h2><p class="kn-lead">${ordinal(v.done)} of ${v.ships}${v.phase === 'over' ? '' : '. Shout at the others.'}</p>`;
   }
-  if (v.rest) {
+  if (v.rest && !v.chore) {
     const still = v.still?.length ? `Waiting on ${esc(names(v.still.slice(0, 3)))}${v.still.length > 3 ? ' and co' : ''}…` : 'Next wave in a moment…';
     return `<div class="kn-flag kn-eyes">👀</div><h2>Eyes on the telly!</h2><p class="kn-lead">${still}</p>`;
   }
   return null;
+}
+
+const shipButtons = (v, verb) =>
+  `<div class="kn-targets">${v.targets
+    .map((t) => `<button class="kn-target" data-kc="${verb}" data-to="${esc(t.id)}" style="--sail:${PAINTS[t.paint % PAINTS.length].sail}"><b>${ordinal(t.place)}</b><span>${esc(t.name)}</span></button>`)
+    .join('')}</div>`;
+
+/** A rival's heckle, slapped over the question for a moment. */
+function jeer(h) {
+  const el = $('.kn-jeer');
+  el.innerHTML = `<p><small>${esc(h.by)} shouts</small>“${esc(h.text)}”</p>`;
+  el.hidden = false;
+  L.heckledUntil = performance.now() + h.ms;
+  L.root.classList.add('heckled');
+  navigator.vibrate?.([40, 30, 40]);
+  clearTimeout(jeer.timer);
+  jeer.timer = setTimeout(() => {
+    if (!L.root) return;
+    el.hidden = true;
+    L.root.classList.remove('heckled');
+  }, h.ms);
+}
+
+/** The chore panel: what a deckhand (or anyone waiting) does instead of answering. */
+function chore(v) {
+  const c = v.chore;
+  const head = v.helm && v.rest !== 'breather' ? `<p class="kn-role">⚓ <b>${esc(v.helm)}</b> is on the helm</p>` : '<p class="kn-role">👀 Eyes on the telly!</p>';
+  const next = v.upNext ? '<p class="kn-next">Next wave, you’re on the helm!</p>' : '';
+  if (v.fire) {
+    return `<p class="kn-role">🧨 <b>${esc(v.fire.by)}</b> loaded the cannon</p><button class="kn-push kn-fire" data-kc="fire"><span>🔥</span>FIRE!</button><div class="kn-meter kn-burn"><i style="animation-duration:${v.fire.left}s"></i></div>`;
+  }
+  if (c.kind === 'junk') {
+    if (!c.item) return `${head}<h2>Rummaging…</h2><div class="kn-junk kn-rummage">🔍</div><p class="kn-lead">Looking for something to chuck</p>${next}`;
+    return `${head}<h2>Chuck it!</h2><div class="kn-junk">${c.item.e}</div><p class="kn-lead">You found a ${esc(c.item.name)}. Drop it in front of…</p>${shipButtons(v, 'drop')}${next}`;
+  }
+  if (c.kind === 'bail') {
+    return `${head}<h2>${v.holed ? 'You’re holed!' : 'Bail!'}</h2><button class="kn-push kn-bail" data-kc="bail"><span>🪣</span>BAIL!</button><div class="kn-meter kn-bucket"><i></i></div><p class="kn-lead">${v.holed ? 'Bail like mad to patch it' : 'Every bucketful puts wind in the sails'}</p>${next}`;
+  }
+  return `${head}<h2>Heckle!</h2><p class="kn-lead">Tap a ship to put their helm off</p>${shipButtons(v, 'taunt')}${next}`;
+}
+
+function showChore(v) {
+  const panel = $('.kn-chore');
+  const on = v.phase === 'go' && v.done == null && !!v.chore;
+  const c = v.chore;
+  const key = on ? JSON.stringify([c.kind, c.item?.e, !!v.fire, v.fire?.by, v.holed && c.kind === 'bail', v.helm, v.rest === 'breather', v.upNext, v.targets?.map((t) => t.id + t.place)]) : '';
+  if (panel.dataset.key !== key) {
+    panel.dataset.key = key;
+    panel.hidden = !on;
+    panel.innerHTML = on ? chore(v) : '';
+    if (on && c.kind === 'bail') fillBucket(v);
+    if (on && Date.now() < L.coolUntil) cool();
+  }
+  return on;
+}
+
+function fillBucket(v = L.view) {
+  const bar = $('.kn-bucket i');
+  if (bar) bar.style.width = `${((L.bail.count % (v?.chore?.taps || 15)) / (v?.chore?.taps || 15)) * 100}%`;
+}
+
+function cool() {
+  const list = $('.kn-targets');
+  if (!list) return;
+  list.classList.add('cool');
+  clearTimeout(cool.timer);
+  cool.timer = setTimeout(() => $('.kn-targets')?.classList.remove('cool'), Math.max(0, L.coolUntil - Date.now()));
+}
+
+/** A tap on the chore panel. */
+function choreTap(el) {
+  const v = L.view;
+  if (!v || v.phase !== 'go') return;
+  const kind = el.dataset.kc;
+  if (kind === 'fire') {
+    el.disabled = true;
+    el.classList.add('gone');
+    navigator.vibrate?.([60, 30, 120]);
+    post({ type: 'kn-fire', key: L.key });
+  } else if (kind === 'drop') {
+    $('.kn-targets')?.classList.add('cool');
+    el.classList.add('hit');
+    navigator.vibrate?.(30);
+    post({ type: 'kn-drop', key: L.key, to: el.dataset.to });
+  } else if (kind === 'taunt') {
+    if (Date.now() < L.coolUntil) return;
+    L.coolUntil = Date.now() + (v.chore?.gap ?? 1.5) * 1000;
+    el.classList.add('hit');
+    navigator.vibrate?.(15);
+    cool();
+    post({ type: 'kn-taunt', key: L.key, to: el.dataset.to });
+  } else if (kind === 'bail') {
+    L.bail.count++;
+    L.bail.pending++;
+    fillBucket();
+    el.classList.remove('slosh');
+    void el.offsetWidth;
+    el.classList.add('slosh');
+    if (L.bail.count % (v.chore?.taps || 15) === 0) navigator.vibrate?.(25);
+    L.bail.timer ??= setTimeout(flushBail, 250);
+  }
+}
+
+function flushBail() {
+  L.bail.timer = null;
+  if (!L.bail.pending || !L.key) return;
+  const taps = Math.min(L.bail.pending, 6);
+  L.bail.pending -= taps;
+  L.send?.({ type: 'kn-bail', key: L.key, taps });
+  if (L.bail.pending) L.bail.timer = setTimeout(flushBail, 250);
 }
 
 /**
@@ -218,6 +336,10 @@ export function knotsShown(v, el, send) {
     L.noticeId = v.notice.id;
     toast(v.notice);
   }
+  if (v.heckle && v.heckle.id !== L.heckleId) {
+    L.heckleId = v.heckle.id;
+    if (v.phase === 'go' && !v.chore) jeer(v.heckle);
+  }
   const mate = $('.kn-mate');
   mate.hidden = !v.mate;
   if (v.mate) mate.textContent = `🧨 ${v.mate} has the powder question. Help them!`;
@@ -239,8 +361,10 @@ export function knotsShown(v, el, send) {
     over.hidden = !cover;
     over.innerHTML = cover ?? '';
   }
-  L.root.classList.toggle('covered', !!cover);
-  if (cover) return true;
+  const busy = !cover && showChore(v);
+  if (cover) showChore({});
+  L.root.classList.toggle('covered', !!cover || busy);
+  if (cover || busy) return true;
 
   for (const d of v.hand) {
     if (d.id > L.seen) {
@@ -261,6 +385,11 @@ export function knotsShown(v, el, send) {
 
 // Answers are taken the moment a thumb touches the glass. (Keys 1 to 4 work too, for trying it on a laptop.)
 document.addEventListener('pointerdown', (e) => {
+  const job = L.root && e.target.closest?.('[data-kc]');
+  if (job && L.root.contains(job)) {
+    e.preventDefault();
+    return choreTap(job);
+  }
   const button = L.root && e.target.closest?.('[data-kn]');
   if (!button || !L.root.contains(button)) return;
   e.preventDefault();

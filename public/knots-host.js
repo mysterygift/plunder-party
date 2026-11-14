@@ -1401,6 +1401,28 @@ function act(e) {
     case 'breather':
       ticker('👀 Phones down, eyes up!');
       break;
+    // The deckhands' chores.
+    case 'loaded':
+      if (!ship) return;
+      callout(above(ship, ship.height), `🧨 ${chipHtml(e.by, true)} <span class="what">loaded the cannon!</span>`, 'gold');
+      sound.play('knBeep', { level: 0.5 });
+      break;
+    case 'drop':
+      if (!ship) return;
+      splash(above(ship, 0).add(new THREE.Vector3(rand(-0.25, 0.25), 0, rand(0.35, 0.65))), e.miss ? 0.45 : 0.8);
+      callout(above(ship, ship.height), e.miss ? `${esc(e.item)} <span class="what">bobs past</span>` : `${esc(e.item)} ${chipHtml(e.by, true)} <span class="what">chucked a ${esc(e.thing)}!</span>`, e.miss ? 'plain' : 'bad');
+      sound.play('knSplash', { level: 0.6 });
+      break;
+    case 'taunt':
+      // A busy room heckles a lot: one bubble per ship at a time.
+      if (!ship || time - (ship.tauntAt ?? -9) < 0.9) return;
+      ship.tauntAt = time;
+      callout(above(ship, ship.height), `${chipHtml(e.by, false)} <span class="what">“${esc(e.text)}”</span>`, 'plain');
+      break;
+    case 'patch':
+      if (!ship) return;
+      callout(above(ship, ship.height), `🔨 ${chipHtml(e.by, true)} <span class="what">patched the hole</span>`, 'gold');
+      break;
     case 'wave':
       sound.play('knBeep', { level: 0.5 });
       break;
@@ -1449,6 +1471,8 @@ function sync(v) {
     b.place = s.place;
     b.roll = s.roll;
     b.tag.classList.toggle('asking', !!s.asking); // this crew still has questions on their phones
+    b.card.querySelectorAll('.kn-who .chip').forEach((chip, i) => chip.classList.toggle('helm', b.crew[i] === s.helm)); // who's answering this wave
+    b.card.classList.toggle('loaded', !!s.loaded);
     if (s.right > b.right) {
       ticks += s.right - b.right;
       b.gust = 1;
