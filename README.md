@@ -1,4 +1,4 @@
-# 🏴‍☠️ Plunder Party
+# 🏴‍☠️ Plunda the Bunda
 
 A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the

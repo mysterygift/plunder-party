@@ -254,7 +254,7 @@ export class Room {
   hostView() {
     const base = {
       role: 'host',
-      title: this.party.title ?? 'Plunder Party',
+      title: this.party.title ?? 'Plunda the Bunda',
       tagline: this.party.tagline ?? '',
       players: this.players.map((p) => this.publicPlayer(p)),
       vip: this.vip()?.id ?? null,
@@ -272,7 +272,7 @@ export class Room {
   }
 
   playerView(player) {
-    const title = this.party.title ?? 'Plunder Party';
+    const title = this.party.title ?? 'Plunda the Bunda';
     if (!player) return { role: 'player', screen: 'join', key: 'join', title, inGame: !!this.game };
 
     const vip = this.vip();

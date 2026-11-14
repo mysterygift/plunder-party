@@ -15,7 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 // One cache folder per port, so two copies of the server never trip over each other.
-const CACHE_DIR = path.join(os.tmpdir(), `plunder-party-speech-${process.env.PORT || 3000}`);
+const CACHE_DIR = path.join(os.tmpdir(), `plunda-the-bunda-speech-${process.env.PORT || 3000}`);
 const MAX_JOBS = 400;
 
 export class Narrator {

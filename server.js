@@ -1,4 +1,4 @@
-// Plunder Party server.
+// Plunda the Bunda server.
 //
 //   npm start            -> starts the server and opens the TV screen
 //   http://<laptop>:3000 -> what guests open on their phones (same wifi)
@@ -221,7 +221,7 @@ server.listen(PORT, '0.0.0.0', () => {
   const hostUrl = `http://localhost:${PORT}/host`;
   const u = urls();
   console.log(`
-  🏴‍☠️  ${room.party.title ?? 'Plunder Party'} is afloat!
+  🏴‍☠️  ${room.party.title ?? 'Plunda the Bunda'} is afloat!
 
      Big screen (this laptop):  ${hostUrl}
      Phones (same wifi):        ${u.join}${u.alt ? `\n                                http://${u.alt}` : ''}
