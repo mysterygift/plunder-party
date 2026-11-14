@@ -46,8 +46,8 @@ const L = {
   noticeTimer: null,
   place: null,
   wave: 0, // which wave of questions the queue belongs to
-  bail: { count: 0, pending: 0, timer: null }, // buckets are counted here and posted in little batches
-  coolUntil: 0, // heckles have a short cooldown
+  bail: { count: 0, pending: 0, timer: null, restUntil: 0 }, // taps in this bucket, counted here and posted in little batches
+  coolUntil: 0, // heckles have a cooldown
   heckleId: 0,
   heckledUntil: 0, // a rival's heckle is over the question till then
 };
@@ -69,7 +69,7 @@ function build(el, v) {
     <div class="kn-chore" hidden></div>
     <div class="kn-jeer" hidden></div>
   </div>`;
-  Object.assign(L, { key: v.key, root: el.firstElementChild, bail: { count: 0, pending: 0, timer: null }, queue: [], seen: 0, asked: null, locked: false, place: null, wave: v.wave ?? 0, noticeId: v.notice?.id ?? 0, heckleId: v.heckle?.id ?? 0, heckledUntil: 0 });
+  Object.assign(L, { key: v.key, root: el.firstElementChild, bail: { count: 0, pending: 0, timer: null, restUntil: 0 }, queue: [], seen: 0, asked: null, locked: false, place: null, wave: v.wave ?? 0, noticeId: v.notice?.id ?? 0, heckleId: v.heckle?.id ?? 0, heckledUntil: 0 });
   clearTimeout(L.fuse);
 }
 
@@ -223,9 +223,9 @@ function chore(v) {
     return `${head}<h2>Chuck it!</h2><div class="kn-junk">${c.item.e}</div><p class="kn-lead">You found a ${esc(c.item.name)}. Drop it in front of…</p>${shipButtons(v, 'drop')}${next}`;
   }
   if (c.kind === 'bail') {
-    return `${head}<h2>${v.holed ? 'You’re holed!' : 'Bail!'}</h2><button class="kn-push kn-bail" data-kc="bail"><span>🪣</span>BAIL!</button><div class="kn-meter kn-bucket"><i></i></div><p class="kn-lead">${v.holed ? 'Bail like mad to patch it' : 'Every bucketful puts wind in the sails'}</p>${next}`;
+    return `${head}<h2>${v.holed ? 'You’re holed!' : 'Bail!'}</h2><button class="kn-push kn-bail" data-kc="bail"><span>🪣</span>BAIL!</button><div class="kn-meter kn-bucket"><i></i></div><p class="kn-lead" data-tired="Catch your breath…">${v.holed ? 'Bail like mad to patch it' : 'Every bucketful puts wind in the sails'}</p>${next}`;
   }
-  return `${head}<h2>Heckle!</h2><p class="kn-lead">Tap a ship to put their helm off</p>${shipButtons(v, 'taunt')}${next}`;
+  return `${head}<h2>Heckle!</h2><p class="kn-lead" data-tired="Clear your throat…">Tap a ship to put their helm off</p>${shipButtons(v, 'taunt')}<div class="kn-meter kn-reload" hidden><i></i></div>${next}`;
 }
 
 function showChore(v) {
@@ -238,22 +238,84 @@ function showChore(v) {
     panel.hidden = !on;
     panel.innerHTML = on ? chore(v) : '';
     if (on && c.kind === 'bail') fillBucket(v);
-    if (on && Date.now() < L.coolUntil) cool();
+    if (on && c.kind === 'bail' && Date.now() < L.bail.restUntil) rest();
+    if (on && c.kind === 'taunt' && Date.now() < L.coolUntil) cool();
+  }
+  // The server keeps the real cooldowns; if it says we're resting and this phone didn't know (a reconnect, a dropped tap), go along with it.
+  if (on && c.cool > 0) {
+    const until = Date.now() + c.cool * 1000;
+    if (c.kind === 'bail' && L.bail.restUntil < until - 300) {
+      L.bail.restUntil = until;
+      L.bail.count = 0;
+      rest();
+    } else if (c.kind === 'taunt' && L.coolUntil < until - 300) {
+      L.coolUntil = until;
+      cool();
+    }
   }
   return on;
 }
 
 function fillBucket(v = L.view) {
   const bar = $('.kn-bucket i');
-  if (bar) bar.style.width = `${((L.bail.count % (v?.chore?.taps || 15)) / (v?.chore?.taps || 15)) * 100}%`;
+  const taps = v?.chore?.taps || 15;
+  if (bar) bar.style.width = `${(Math.min(L.bail.count, taps) / taps) * 100}%`;
 }
 
+/** Run a draining bar for a cooldown, and swap the lead line for the tired one till it's done. */
+function drain(meter, until) {
+  const lead = $('.kn-lead');
+  const ms = Math.max(0, until - Date.now());
+  if (lead?.dataset.tired) {
+    lead.dataset.fresh ??= lead.textContent;
+    lead.textContent = lead.dataset.tired;
+  }
+  const bar = meter?.querySelector('i');
+  if (bar) {
+    bar.style.animation = 'none';
+    void bar.offsetWidth;
+    bar.style.animation = `kn-burn ${ms}ms linear forwards`;
+  }
+  return ms;
+}
+
+/** Heckled somebody: the ship buttons go dim, and a bar runs down till you can heckle again. */
 function cool() {
   const list = $('.kn-targets');
   if (!list) return;
   list.classList.add('cool');
+  const meter = $('.kn-reload');
+  if (meter) meter.hidden = false;
   clearTimeout(cool.timer);
-  cool.timer = setTimeout(() => $('.kn-targets')?.classList.remove('cool'), Math.max(0, L.coolUntil - Date.now()));
+  cool.timer = setTimeout(() => {
+    $('.kn-targets')?.classList.remove('cool');
+    const m = $('.kn-reload');
+    if (m) m.hidden = true;
+    const lead = $('.kn-lead');
+    if (lead?.dataset.fresh) lead.textContent = lead.dataset.fresh;
+  }, drain(meter, L.coolUntil));
+}
+
+/** A full bucket: the button goes slack and the bucket bar runs down till you can bail again. */
+function rest() {
+  const button = $('.kn-bail');
+  const meter = $('.kn-bucket');
+  if (!button || !meter) return;
+  button.classList.add('rest');
+  meter.classList.add('rest');
+  clearTimeout(rest.timer);
+  rest.timer = setTimeout(() => {
+    L.bail.restUntil = 0;
+    L.bail.count = L.view?.chore?.cool > 0 ? 0 : (L.view?.chore?.filled ?? 0); // start the next bucket where the server has it
+    $('.kn-bail')?.classList.remove('rest');
+    const m = $('.kn-bucket');
+    m?.classList.remove('rest');
+    const bar = m?.querySelector('i');
+    if (bar) bar.style.animation = '';
+    fillBucket();
+    const lead = $('.kn-lead');
+    if (lead?.dataset.fresh) lead.textContent = lead.dataset.fresh;
+  }, drain(meter, L.bail.restUntil));
 }
 
 /** A tap on the chore panel. */
@@ -273,20 +335,26 @@ function choreTap(el) {
     post({ type: 'kn-drop', key: L.key, to: el.dataset.to });
   } else if (kind === 'taunt') {
     if (Date.now() < L.coolUntil) return;
-    L.coolUntil = Date.now() + (v.chore?.gap ?? 1.5) * 1000;
+    L.coolUntil = Date.now() + (v.chore?.gap ?? 5) * 1000;
     el.classList.add('hit');
     navigator.vibrate?.(15);
     cool();
     post({ type: 'kn-taunt', key: L.key, to: el.dataset.to });
   } else if (kind === 'bail') {
+    if (Date.now() < L.bail.restUntil) return;
     L.bail.count++;
     L.bail.pending++;
     fillBucket();
     el.classList.remove('slosh');
     void el.offsetWidth;
     el.classList.add('slosh');
-    if (L.bail.count % (v.chore?.taps || 15) === 0) navigator.vibrate?.(25);
     L.bail.timer ??= setTimeout(flushBail, 250);
+    if (L.bail.count >= (v.chore?.taps || 15)) {
+      // A full bucket, then a breather before the next one. (A touch longer than the server's, as the last taps are still on their way.)
+      navigator.vibrate?.(25);
+      L.bail.restUntil = Date.now() + (v.chore?.rest ?? 4) * 1000 + 400;
+      rest();
+    }
   }
 }
 

@@ -149,14 +149,11 @@ function nest(v) {
   );
 }
 
-/** Everybody on deck: which way do we steer? */
+/** Everybody on deck but the lookouts: which way do we steer? */
 function helm(v) {
   const split = v.flags[0] !== v.flags[1];
   const flags = `<div class="tb-flags">${v.flags.map((f) => signalFlag(f)).join('')}</div>
     <p class="tiny">${split ? `${esc(v.lookouts)}: ${v.fog ? 'one is lying, or the fog fooled them.' : 'one of them is lying.'}` : `${esc(v.lookouts)} agree.`}</p>`;
-  const saw = !v.saw ? '' : v.fog
-    ? `<p class="tb-saw">🌫️ Through the fog, <b>${SIDE[v.saw].word.toLowerCase()}</b> looked safe. You could be wrong.</p>`
-    : `<p class="tb-saw">🔭 You saw it yourself: <b>${SIDE[v.saw].word.toLowerCase()}</b> is safe.</p>`;
   if (v.mine) {
     return page(v, `${flags}<p class="sub">You voted to steer</p><div class="tb-mine">${signalFlag(v.mine)}</div><p class="tiny">Keep arguing until the rest have voted.</p>`);
   }
@@ -165,7 +162,7 @@ function helm(v) {
   return page(
     v,
     `<p class="heading light">Which way do we steer?</p>
-     ${flags}${saw}
+     ${flags}
      <p class="prompt light">${split ? 'Argue it out, then vote:' : 'Trust them? Vote:'}</p>
      <div class="tb-two">${way('port')}${way('starboard')}</div>`,
   );

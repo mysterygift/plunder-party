@@ -129,6 +129,9 @@ body[data-screen='kn-race'] #me .score { display: none; }
 .kn-fire.gone { animation: none; opacity: 0.4; }
 .kn-bail { background: radial-gradient(circle at 40% 35%, #6cbcf0, #1f5f96 70%); }
 .kn-bail.slosh { animation: kn-slosh 0.16s ease-out; }
+.kn-bail.rest { filter: grayscale(0.8) brightness(0.7); box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4); translate: 0 5px; animation: none; }
+.kn-bucket.rest i, .kn-reload i { width: 100%; transition: none; background: linear-gradient(90deg, #8a96a3, #d8e0e8); transform-origin: left; }
+.kn-reload { margin-top: 4px; }
 @keyframes kn-throb { to { scale: 1.07; } }
 @keyframes kn-slosh { 50% { scale: 0.93; } }
 .kn-meter { width: min(260px, 72vw); height: 14px; flex: none; border-radius: 7px; overflow: hidden; background: rgba(255, 255, 255, 0.13); }

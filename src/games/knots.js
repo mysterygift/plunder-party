@@ -95,10 +95,11 @@ function settings(raw = {}) {
     grabSeconds: num(ch.grabSeconds, 3, 0, 60),
     bailTaps: Math.round(num(ch.bailTaps, 15, 1, 200)),
     bailWind: num(ch.bailWind, 0.4, 0, 5),
+    bailRest: num(ch.bailRest, 4, 0, 60), // after a full bucket, how long before the next one
     tauntWind: num(ch.tauntWind, 0, 0, 1),
     heckleSeconds: num(ch.heckleSeconds, 1.2, 0, 10), // how long a heckle covers the helm's question
     heckleSafe: num(ch.heckleSafe, 3, 0, 60), // and how long before the same sailor can be put off again
-    tauntGap: num(ch.tauntGap, 1.5, 0.2, 30),
+    tauntGap: num(ch.tauntGap, 5, 0.2, 60), // how long between one sailor's heckles
     motion: {
       lap: num(w.lap, MOTION.lap, 10),
       drift: num(w.drift, MOTION.drift, 0.05),
@@ -294,14 +295,16 @@ export async function run(ctx) {
         for (const c of target.crew) tell(c, `${emoji} ${s.p.name} chucked a ${thing} at you!`, 'bad');
       }
     } else if (msg.type === 'kn-bail' && chore.kind === 'bail') {
+      if (R.clock < chore.restUntil) return; // catching their breath after the last bucket: taps go nowhere
       // Taps come in little batches. Cap them, so a script can't bail faster than a thumb.
       const now = Date.now();
-      const taps = Math.min(Math.floor(Number(msg.taps) || 0), 6, Math.ceil(((now - s.bailAt) / 1000) * 16 * SPEED));
+      const taps = Math.min(Math.floor(Number(msg.taps) || 0), 6, Math.ceil(((now - s.bailAt) / 1000) * 16 * SPEED), S.bailTaps - chore.taps);
       s.bailAt = now;
       if (taps <= 0) return;
       chore.taps += taps;
-      while (chore.taps >= S.bailTaps) {
-        chore.taps -= S.bailTaps;
+      if (chore.taps >= S.bailTaps) {
+        chore.taps = 0;
+        chore.restUntil = R.clock + S.bailRest;
         s.bailed++;
         if (R.clock < v.holedUntil) {
           v.holedUntil = R.clock;
@@ -484,7 +487,7 @@ export async function run(ctx) {
       const [kind] = pool.find(([, weight]) => (roll -= weight) < 0) ?? pool[0];
       taken.add(kind);
       s.lastChore = kind;
-      s.chore = { kind, item: kind === 'junk' ? sample(JUNK) : null, grabAt: 0, taps: 0 };
+      s.chore = { kind, item: kind === 'junk' ? sample(JUNK) : null, grabAt: 0, taps: 0, restUntil: -1 };
     }
   }
 
@@ -609,7 +612,10 @@ export async function run(ctx) {
             item: chore.item ? { e: chore.item[0], name: chore.item[1] } : null,
             wait: chore.kind === 'junk' && !chore.item ? round(Math.max(0, chore.grabAt - R.clock), 1) : 0,
             taps: S.bailTaps,
-            gap: S.tauntGap,
+            filled: chore.taps ?? 0,
+            rest: round(S.bailRest / SPEED, 2), // these three in real seconds, for the phone's own timers
+            gap: round(S.tauntGap / SPEED, 2),
+            cool: round(Math.max(0, chore.kind === 'bail' ? chore.restUntil - R.clock : chore.kind === 'taunt' ? s.tauntAt + S.tauntGap - R.clock : 0) / SPEED, 2),
           }
         : null,
       helm: v.helm && v.helm !== s ? v.helm.p.name : null,

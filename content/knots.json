@@ -30,8 +30,9 @@
     "grabSeconds": 3,
     "bailTaps": 15,
     "bailWind": 0.4,
+    "bailRest": 4,
     "tauntWind": 0,
-    "tauntGap": 1.5,
+    "tauntGap": 5,
     "heckleSeconds": 1.2,
     "heckleSafe": 3
   },

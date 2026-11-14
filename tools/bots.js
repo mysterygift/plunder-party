@@ -254,8 +254,7 @@ async function runBot(name, index) {
         await pause(2500, 14000);
         const agreed = split ? null : view.flags[0];
         let side;
-        if (view.role !== 'mutineer') side = view.saw ?? agreed ?? pick(view.flags);
-        else if (view.saw) side = otherSide(view.saw);
+        if (view.role !== 'mutineer') side = agreed ?? pick(view.flags);
         else if (agreed) side = lookouts.every((l) => view.mates.includes(l)) && view.hull === 1 ? agreed : otherSide(agreed); // two mates both lying for the kill: back them
         else side = pick(view.flags); // a split, and no telling which flag is the lie
         await act({ type: 'tb-steer', key: view.key, side });

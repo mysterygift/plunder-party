@@ -10,7 +10,9 @@
 //             red for port, green for starboard.
 //   3. HELM:  the TV shows the two flags, but not who raised which. If they
 //             disagree, one of the lookouts is lying. The crew argues it out
-//             (out loud, in the room) and votes on the heading.
+//             (out loud, in the room) and votes on the heading. The two
+//             lookouts have had their say with their flags, so they sit this
+//             vote out.
 //   4. The ship goes where the vote says. The wrong side holes the hull.
 //   5. BRIG:  the crew votes somebody into the brig, or nobody. A prisoner can
 //             still heckle, but cannot vote, climb the nest or be captain. The
@@ -95,7 +97,7 @@ export async function run(ctx) {
   await ctx.intro([
     `${WORDS[traitors] ?? traitors} of you are secretly mutineers. Your phone will tell you.`,
     'Each leg, two pirates climb the crow’s nest and flag the safe way past the reef.',
-    'If their flags disagree, one is lying. Argue it out, then vote on the heading.',
+    'If their flags disagree, one is lying. Argue it out, then everyone else votes on the heading.',
     ...(fogChance > 0 ? ['Some legs are foggy, and in fog a spyglass can be wrong.'] : []),
     `Then vote somebody into the brig. Strike the reef ${strikes} and she sinks.`,
   ]);
@@ -250,12 +252,13 @@ export async function run(ctx) {
 
           case 'helm':
             if (jailed) return wait('⛓️', 'You’re in the brig.', 'No vote for you. Shout advice through the bars.');
+            // A lookout has had their say with their flag. They still know what they saw, so they can argue their case.
+            if (st.nest.includes(p)) return wait('🔭', 'Lookouts don’t vote on the heading.', `Your spyglass showed ${sight.get(p)}${fog ? ' (if the fog didn’t fool it)' : ''}. Talk them round.`);
             return {
               screen: 'tb-helm',
               key: `${key}-helm`,
               flags: st.flags,
               mine: votes.get(p) ?? null,
-              saw: st.nest.includes(p) ? sight.get(p) : null, // a lookout knows what they saw, whatever they hoisted (in fog it may be wrong)
               lookouts,
               ...common,
             };
@@ -344,18 +347,19 @@ export async function run(ctx) {
       });
       await ctx.wait(split ? 5000 : 4000);
 
-      // --- 4. argue, then vote on the heading ---
+      // --- 4. argue, then vote on the heading (everyone on deck but the lookouts) ---
       st.phase = 'helm';
+      const helmsmen = () => free().filter((p) => !pair.includes(p));
       ctx.screen({
         host: hostView,
         player: phone,
         onAction: (p, msg) => {
-          if (brig.includes(p) || msg.type !== 'tb-steer' || msg.key !== `${key}-helm` || votes.has(p) || !SIDES.includes(msg.side)) return;
+          if (!helmsmen().includes(p) || msg.type !== 'tb-steer' || msg.key !== `${key}-helm` || votes.has(p) || !SIDES.includes(msg.side)) return;
           votes.set(p, msg.side);
           st.voted.add(p);
         },
       });
-      await ctx.wait(ctx.seconds(split ? 'argue' : 'agree', split ? 75 : 30), { timer: true, until: () => free().every((p) => votes.has(p) || ctx.away(p)) });
+      await ctx.wait(ctx.seconds(split ? 'argue' : 'agree', split ? 75 : 30), { timer: true, until: () => helmsmen().every((p) => votes.has(p) || ctx.away(p)) });
 
       const tally = { port: 0, starboard: 0 };
       for (const side of votes.values()) tally[side]++;

@@ -1056,7 +1056,7 @@ export function brigScreens({ anim, chip, player }) {
       case 'flags':
         return [`${names(v.nest)} signal…`, flags, split ? (v.fog ? 'They disagree. A liar, or the fog?' : 'They disagree. One of them is lying!') : `Both say ${v.flags[0]}.`];
       case 'helm':
-        return [`${names(v.nest)} signal…`, flags, `${split ? (v.fog ? 'A liar, or the fog? Argue it out, then vote on your phone' : 'One of them is lying. Argue it out, then vote on your phone') : 'Do you trust them? Vote on your phone'} ${count(v.voted.length, onDeck)}`];
+        return [`${names(v.nest)} signal…`, flags, `${split ? (v.fog ? 'A liar, or the fog? Argue it out, then vote on your phone' : 'One of them is lying. Argue it out, then vote on your phone') : 'Do you trust them? Vote on your phone'} ${count(v.voted.length, onDeck - v.nest.length)}`];
       case 'steer':
         return [
           r.tie ? `Dead heat! Captain ${name(v.captain)} has the wheel` : 'The crew has voted',

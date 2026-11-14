@@ -258,8 +258,6 @@ body.play .tb.jailed { background: repeating-linear-gradient(90deg, transparent 
 .tb-sight span { font-size: 17px; font-style: italic; }
 /* In fog the colour of the sighting is washed out, as if seen through the murk. */
 .tb-sight.fog { border-style: dashed; filter: saturate(0.45) brightness(0.92); box-shadow: inset 0 0 26px 6px rgba(225, 230, 236, 0.55); }
-.tb-saw { padding: 8px 12px; border-radius: 12px; font-size: 17px; color: var(--parchment); background: rgba(4, 16, 28, 0.6); }
-.tb-saw b { font: 400 1.15em var(--display); color: var(--gold); }
 
 body.play .tb-flags { display: flex; justify-content: center; gap: 12px; font-size: 30px; }
 .tb-mine { font-size: 40px; color: var(--parchment); }
