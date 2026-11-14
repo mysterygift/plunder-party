@@ -136,11 +136,14 @@ const screens = {
       cta = `<p class="blurb">${esc(chosen.blurb)}</p><button class="btn big" data-act="start">Set sail!</button>`;
     }
 
+    // Once anyone has banked doubloons, the crew lines up richest first: the overall leaderboard.
+    const best = Math.max(0, ...v.players.map((p) => p.total));
+    const roster = best ? [...v.players].sort((a, b) => b.total - a.total) : v.players;
     const crew = v.players.length
-      ? v.players
+      ? roster
           .map(
-            (p) => `<span class="crew-slot ${p.away ? 'away' : ''}" data-act="kick" data-id="${p.id}" title="Click to remove ${esc(p.name)}"${anim(`p${p.id}`, 'pop')}>
-              ${chip(p.id)}${p.id === v.vip ? '<span class="badge">Captain</span>' : ''}${p.wins ? `<span class="badge gold">🏆 ${p.wins}</span>` : ''}
+            (p) => `<span class="crew-slot ${p.away ? 'away' : ''} ${best && p.total === best ? 'lead' : ''}" data-act="kick" data-id="${p.id}" title="Click to remove ${esc(p.name)}"${anim(`p${p.id}`, 'pop')}>
+              ${chip(p.id)}${best ? `<span class="tally">💰 ${p.total.toLocaleString('en')}</span>` : ''}${p.id === v.vip ? '<span class="badge">Captain</span>' : ''}${p.wins ? `<span class="badge gold">🏆 ${p.wins}</span>` : ''}
             </span>`,
           )
           .join('')

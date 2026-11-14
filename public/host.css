@@ -97,22 +97,26 @@ body:not(.in-game) #screen { top: 0; }
 @keyframes a-grow { from { width: 0; } }
 
 /* ============ lobby ============ */
-.lobby { width: 100%; height: 100%; padding: 56px 70px 40px; display: grid; grid-template-columns: 1fr 480px; grid-template-rows: 1fr auto; gap: 30px 60px; }
+.lobby { width: 100%; height: 100%; padding: 40px 70px 30px; display: grid; grid-template-columns: 1fr 480px; grid-template-rows: minmax(0, 1fr) auto; gap: 18px 60px; }
+.lobby .title.huge { font-size: 120px; }
+.lobby .tagline { margin-top: 6px; font-size: 37px; }
 .lobby-main { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 /* Three games across and as many rows as it takes; each card has its icon on the left. */
-.games { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 22px; margin-top: 36px; }
+.games { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 22px; margin-top: 20px; }
 .game {
-  min-width: 0; display: grid; grid-template-columns: auto 1fr; align-content: center; align-items: center; column-gap: 16px; row-gap: 2px; padding: 14px 16px 16px 14px; text-align: left;
+  min-width: 0; display: grid; grid-template-columns: auto 1fr; align-content: center; align-items: center; column-gap: 16px; row-gap: 1px; padding: 6px 16px 8px 12px; text-align: left;
   background: rgba(4, 16, 28, 0.62); border: 4px solid rgba(201, 239, 230, 0.28); border-radius: 22px; color: var(--parchment);
   transition: transform 0.2s, border-color 0.2s, background 0.2s;
 }
 .game.on { border-color: var(--gold); background: rgba(60, 40, 6, 0.75); transform: translateY(-8px); box-shadow: 0 0 46px rgba(247, 201, 72, 0.4); }
-.game-icon { grid-row: 1 / 4; font-size: 72px; line-height: 1.1; }
-.game-name { font: 43px/1.05 var(--display); color: var(--gold); white-space: nowrap; }
-.game-tag { font-size: 24px; line-height: 1.15; font-style: italic; }
-.game-min { font-size: 19px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--foam); opacity: 0.85; }
-.cta { margin-top: 34px; min-height: 190px; display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
-.cta .blurb { margin: 0; font-size: 36px; max-width: 1150px; }
+.game-icon { grid-row: 1 / 4; font-size: 62px; line-height: 1.1; }
+.game-name { font: 39px/1 var(--display); color: var(--gold); white-space: nowrap; }
+.game-tag { font-size: 23px; line-height: 1.12; font-style: italic; }
+.game-min { font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--foam); opacity: 0.85; }
+/* One row (blurb, then the button) so the crew below still fits on the screen. */
+.cta { margin-top: 22px; min-height: 115px; display: flex; align-items: center; gap: 40px; }
+.cta .blurb { margin: 0; flex: 1 1 auto; font-size: 33px; }
+.cta .btn { flex: none; }
 .cta .hint { text-align: left; }
 
 .join { align-self: center; padding: 30px 34px 28px; text-align: center; transform: rotate(1.5deg); }
@@ -123,12 +127,14 @@ body:not(.in-game) #screen { top: 0; }
 .join .url { font: 700 36px ui-monospace, Menlo, monospace; color: var(--red-dark); letter-spacing: -0.03em; white-space: nowrap; }
 .join .small { font-size: 25px; font-style: italic; }
 
-.crew { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 16px 18px; align-items: center; min-height: 84px; }
+.crew { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; min-height: 62px; }
 .crew-slot {
-  display: inline-flex; align-items: center; gap: 12px; padding: 8px 22px 8px 8px; font-size: 36px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 10px; padding: 5px 18px 5px 5px; font-size: 28px; cursor: pointer;
   background: rgba(4, 16, 28, 0.7); border-radius: 60px; border: 2px solid rgba(201, 239, 230, 0.25);
 }
 .crew-slot.away { opacity: 0.45; }
+.crew-slot.lead { border-color: var(--gold); box-shadow: 0 0 26px rgba(247, 201, 72, 0.45); }
+.tally { font: 700 24px var(--os-font); color: var(--gold); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .badge { font-size: 20px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 12px; border-radius: 20px; background: var(--red); color: #fff; font-family: var(--os-font); font-weight: 700; }
 .badge.gold { background: var(--gold); color: var(--ink); }
 

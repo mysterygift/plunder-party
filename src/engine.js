@@ -127,6 +127,7 @@ export class Room {
       avatar: AVATARS.find((a) => !this.players.some((p) => p.avatar === a)),
       color: COLORS.find((c) => !this.players.some((p) => p.color === c)),
       score: 0,
+      total: 0, // doubloons from every finished game tonight
       wins: 0,
       conns: 0,
       away: false,
@@ -247,7 +248,7 @@ export class Room {
   // ----- views -----
 
   publicPlayer(p) {
-    return { id: p.id, name: p.name, avatar: p.avatar, color: p.color, score: p.score, wins: p.wins, away: p.away };
+    return { id: p.id, name: p.name, avatar: p.avatar, color: p.color, score: p.score, total: p.total, wins: p.wins, away: p.away };
   }
 
   gameList() {
@@ -528,6 +529,7 @@ class GameContext {
     const rows = this.standings();
     const winners = this.players.filter((p) => p.score === rows[0].score);
     for (const p of winners) p.wins++;
+    for (const p of this.players) p.total += p.score;
     const names = winners.map((p) => p.name).join(' and ');
     let done = false;
     this.screen({
