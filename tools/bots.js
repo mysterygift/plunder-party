@@ -139,6 +139,16 @@ async function runBot(name, index) {
         }
         break;
       }
+      case 'ld-hand': {
+        // LiAARRRRGH's Dice: wait for our turn (the same view comes round again when it is).
+        if (!view.myTurn) {
+          handled.delete(id);
+          break;
+        }
+        await pause(1500, 7000);
+        await act(liarsMove(view));
+        break;
+      }
       case 'map':
         if (view.locked) break;
         await pause(4000, 20000);

@@ -10,7 +10,12 @@ import { addEffects, SONGS } from './sound.js';
 
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
-addEffects(({ tone, noise, voice, FX }) => ({
+let kit = null; // the building blocks from sound.js (tone, noise, voice), kept for the band further down
+
+addEffects((blocks) => {
+  kit = blocks;
+  const { tone, noise, voice, FX } = blocks;
+  return {
   /** Dice rattling round a cup, then the cup slammed down on the barrel. */
   ldShake(t) {
     for (let when = 0; when < 1.25; when += rand(0.03, 0.075)) {
@@ -70,28 +75,74 @@ addEffects(({ tone, noise, voice, FX }) => ({
     FX.splash(t + 0.5);
     FX.bubbles(t + 1.1);
   },
-}));
+  };
+});
 
-// An original reel in A minor that keeps looking over its shoulder, for bidding.
+// ---------------------------------------------------------------------------
+// Music: a tavern band, not the usual bleeps
+// ---------------------------------------------------------------------------
+//
+// The tune is written in the same text format as the songs in sound.js, but
+// this song brings its own players (the `band` below): a fiddle on the melody,
+// a squeezebox vamping underneath, a plucked bass, and a bodhrán and tambourine
+// keeping time. Each player reads the track with the same name.
+
+/** The band. Each player is handed (pitch in Hz, when, how long, where to send the sound). */
+const band = {
+  /** The fiddle: a bright, slightly wobbly bowed string, with a little scratch as the bow bites. */
+  lead(hz, at, seconds, out) {
+    kit.voice(at, seconds + 0.04, { type: 'sawtooth', freq: hz, gain: 0.05, attack: 0.035, release: 0.07, vibrato: { rate: 5.7, depth: hz * 0.006 }, filter: { type: 'lowpass', from: 3000, to: 2100, q: 1.2 }, bus: out });
+    kit.voice(at, seconds + 0.04, { type: 'square', freq: hz * 1.003, gain: 0.012, attack: 0.05, release: 0.07, vibrato: { rate: 5.7, depth: hz * 0.006 }, filter: { type: 'lowpass', from: 1800, q: 0.8 }, bus: out });
+    kit.noise(at, 0.05, { gain: 0.012, from: 3200, type: 'bandpass', q: 2, attack: 0.008, bus: out });
+  },
+
+  /** The squeezebox: two reeds a hair out of tune with each other, playing the note and the fifth above it. */
+  box(hz, at, seconds, out) {
+    for (const pitch of [hz, hz * 1.5]) {
+      for (const detune of [0.996, 1.004]) {
+        kit.voice(at, seconds * 0.8, { type: 'square', freq: pitch * detune, gain: 0.011, attack: 0.03, release: 0.06, filter: { type: 'lowpass', from: 1500, q: 0.7 }, bus: out });
+      }
+    }
+  },
+
+  /** The bass: one fat plucked string. */
+  bass(hz, at, seconds, out) {
+    kit.tone(hz, at, Math.max(0.4, seconds * 1.3), { type: 'triangle', gain: 0.2, bus: out });
+    kit.tone(hz * 2, at, 0.16, { type: 'sawtooth', gain: 0.025, bus: out });
+  },
+
+  /** k = the bodhrán, struck in the middle; h = a tap near its rim; s = a tambourine. */
+  drums(token, at, out) {
+    if (token === 'k') {
+      kit.tone(105, at, 0.2, { gain: 0.26, slideTo: 58, bus: out });
+      kit.noise(at, 0.05, { gain: 0.05, from: 500, attack: 0.002, bus: out });
+    } else if (token === 'h') {
+      kit.tone(190, at, 0.07, { type: 'triangle', gain: 0.07, slideTo: 120, bus: out });
+      kit.noise(at, 0.03, { gain: 0.025, from: 1400, type: 'bandpass', q: 1.5, attack: 0.002, bus: out });
+    } else if (token === 's') {
+      kit.noise(at, 0.12, { gain: 0.05, from: 7000, type: 'highpass', attack: 0.004, bus: out });
+      kit.tone(190, at, 0.07, { type: 'triangle', gain: 0.05, slideTo: 120, bus: out });
+    }
+  },
+};
+
+// An original jig in A minor (six steps to the bar: ONE two three FOUR five six).
 SONGS.liars = {
-  title: 'The Bluffer’s Reel',
-  step: 0.17,
-  bar: 8,
-  lead: `A4 - C5 - E5 - C5 -   | D5 - B4 - G4 - B4 -
-       | A4 - C5 - E5 - A5 -   | G5 - E5 - E5 - - .
-       | A4 - C5 - E5 - C5 -   | D5 - F5 - E5 - D5 -
-       | C5 - B4 - A4 - G#4 -  | A4 - - - A4 - - .
-       | C5 - C5 E5 G5 - E5 -  | D5 - D5 F5 A5 - F5 -
-       | E5 - E5 G#5 B5 - G#5 - | A5 - G5 - E5 - - .
-       | A5 - E5 - C5 - A4 -   | F5 - D5 - B4 - G4 -
-       | E5 - D5 C5 B4 - G#4 - | A4 - - - - - . .`,
-  bass: `A2 - . E3 A2 - . E3 | G2 - . D3 G2 - . D3
-       | A2 - . E3 A2 - . E3 | E2 - . B2 E2 - . B2
-       | A2 - . E3 A2 - . E3 | D2 - . A2 D2 - . A2
-       | E2 - . B2 E2 - . B2 | A2 - . E3 A2 - . .
-       | C3 - . G2 C3 - . G2 | D3 - . A2 D3 - . A2
-       | E3 - . B2 E3 - . B2 | A2 - . E3 A2 - . E3
-       | A2 - . E3 A2 - . E3 | D2 - . A2 G2 - . D3
-       | E2 - . B2 E2 - . B2 | A2 - . . A2 - . .`,
-  drums: 'k . h . s . h h',
+  title: 'The Bluffer’s Jig',
+  step: 0.168,
+  bar: 6,
+  band,
+  lead: `A4 - B4 C5 - A4 | B4 - G4 E4 - G4 | A4 - B4 C5 - E5 | D5 - B4 G4 - B4
+       | A4 - B4 C5 - A4 | B4 - G4 E4 - G4 | A4 B4 C5 D5 E5 G5 | E5 D5 B4 A4 - .
+       | A5 - G5 E5 - C5 | D5 - E5 G5 - E5 | A5 - G5 E5 - C5 | D5 E5 D5 B4 - G4
+       | C5 - E5 G5 - E5 | D5 - B4 G4 - B4 | A4 B4 C5 D5 B4 G4 | A4 - - A4 - .`,
+  box: `. A3 A3 . A3 A3 | . G3 G3 . G3 G3 | . A3 A3 . A3 A3 | . G3 G3 . G3 G3
+      | . A3 A3 . A3 A3 | . G3 G3 . G3 G3 | . A3 A3 . A3 A3 | . E3 E3 . A3 A3
+      | . A3 A3 . A3 A3 | . G3 G3 . G3 G3 | . A3 A3 . A3 A3 | . G3 G3 . G3 G3
+      | . C4 C4 . C4 C4 | . G3 G3 . G3 G3 | . A3 A3 . G3 G3 | . A3 A3 . A3 .`,
+  bass: `A2 - . E3 - . | G2 - . D3 - . | A2 - . E3 - . | G2 - . D3 - .
+       | A2 - . E3 - . | G2 - . D3 - . | A2 - . E3 - . | E2 - . A2 - .
+       | A2 - . E3 - . | G2 - . D3 - . | A2 - . E3 - . | G2 - . D3 - .
+       | C3 - . G2 - . | G2 - . D3 - . | A2 - . G2 - . | A2 - . A2 - .`,
+  drums: 'k h h s h h k h h s h k',
 };

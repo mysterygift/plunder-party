@@ -13,7 +13,7 @@ Six original games:
 | 🏴‍☠️ **Flying Colours** | Draw pirate flags on your phone, then invent ship names. Everyone is dealt a haul of other people’s flags and names (no two hands share anything) and pairs one of each to launch a ship. The ships parade across the TV and the crew votes for the finest. | 3–12 |
 | 🗺️ **Dead Reckoning** | Clues (and optionally a photo) appear on the TV. Drop an X on the treasure map on your phone. Closest wins the most doubloons. | 1–12 |
 | 💣 **Bombard!** | A drinking game. The crew is split into Pirates and Navy, each with a fleet hidden in fog. Pick a tile, fire: miss and you take a swig, sink a ship and the other side drinks. Then everyone joins forces against the Kraken. The TV shows the battle as a 3D tabletop diorama. | 2–12 |
-| 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. | 2–12 |
+| 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. The TV shows the table as a 3D diorama: leather cups, the bid chalked on the baize, and the dice that count hopping onto the chalk marks. | 2–12 |
 
 ## Running it
 
@@ -137,7 +137,9 @@ per round; one more makes it a lot harder).
 
 Everyone rolls their dice in secret; yours show on your own phone (there is a
 "Hide my dice" button for when the pirate next to you gets curious). The TV
-shows the crew sat in a ring, which is the order the turns go in.
+shows the crew sat round an oval table, which is the order the turns go in
+(clockwise). The plate by each cup shows how many dice that pirate has left.
+A bid is a claim about the dice, not a bet: nobody stakes any doubloons.
 
 - On your turn, either **bid** or **call it**. A bid says "there are at least
   four 5s", counting every die under every cup, yours included. Each bid must
@@ -149,6 +151,10 @@ shows the crew sat in a ring, which is the order the turns go in.
   The last pirate holding a die wins.
 - Run out of time and the ship's parrot takes your turn. It plays the odds and
   never bluffs.
+- The narrator keeps quiet in this game (`narrator: false` at the top of
+  `src/games/liars.js`); the table and the sound effects carry it.
+- Doubloons are only the scoreboard: 100 for winning a call, 300 every time
+  somebody else runs out of dice, 1,000 for being the last one in.
 
 `content/liars-dice.json` has the settings:
 
@@ -207,7 +213,11 @@ rest). `lobby` plays in the lobby; `broadside`, `scuttlebutt`, `colours` and
 and friends) are in `public/bombard-sound.js`. Edit the notes, change `step` to
 alter the tempo, or paste in a tune of your own. LiAARRRRGH’s Dice keeps its
 tune (`liars`) and sounds (`sfx('ldShake')`, `sfx('ldLiar')` and friends) in
-`public/liars-sound.js`.
+`public/liars-sound.js`. That tune is played by a tavern band rather than
+bleeps: a song can carry a `band` of its own instruments (there it is a
+fiddle, a squeezebox, a plucked bass, a bodhrán and a tambourine), one per
+track, each a few lines you can retune. It plays all game and stops dead
+while the cups come up.
 
 If a content file has a typo, the big screen shows a red message telling you
 which file and where.
@@ -240,7 +250,7 @@ public/map.js        The pan-and-zoom treasure map (plain SVG)
 public/flag.js       The flag drawing format, shared by the phones, the TV and the server
 public/sound.js      Sound effects, chiptune shanties and narrator playback
 public/bombard-*.js  Bombard!: the 3D diorama on the TV (-host), the flat board on phones (-play), its sounds (-sound)
-public/liars-*.js    LiAARRRRGH’s Dice: the ring of players on the TV (-host), your dice and the bid buttons on phones (-play), its sounds (-sound)
+public/liars-*.js    LiAARRRRGH’s Dice: the 3D dice table on the TV (-host), your dice and the bid buttons on phones (-play), its sounds and tavern band (-sound)
 public/vendor/       three.js, which draws the diorama (copied from node_modules, so no internet is needed)
 tools/bots.js        Robot players
 tools/build-assets.js  Regenerates the map data and fonts (already done; rarely needed)

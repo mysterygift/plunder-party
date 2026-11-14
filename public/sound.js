@@ -644,7 +644,12 @@ function startSong(name) {
   if (!song || !audio || playing?.name === name) return;
   stopSong();
 
-  const tracks = { lead: parseTrack(song.lead), bass: parseTrack(song.bass), drums: parseTrack(song.drums) };
+  // A song can bring its own band instead of the chiptune voices (see liars-sound.js):
+  //   band: { lead(freq, at, seconds, out), bass(...), drums(token, at, out), fiddle(...), ... }
+  // Each player in the band reads the track of the same name. Parts with no player get the usual bleeps.
+  const band = song.band ?? {};
+  const tracks = {};
+  for (const part of new Set(['lead', 'bass', 'drums', ...Object.keys(band)])) if (song[part]) tracks[part] = parseTrack(song[part]);
   const length = tracks.lead.length;
   const out = audio.createGain();
   out.connect(musicBus);
@@ -657,13 +662,14 @@ function startSong(name) {
       const token = tokens[i % tokens.length];
       if (token === '-' || token === '.') continue;
       if (voice === 'drums') {
-        drum(token, at, out);
+        (band.drums ?? drum)(token, at, out);
         continue;
       }
       let held = 1;
       while (held < tokens.length && tokens[(i + held) % tokens.length] === '-') held++;
       const seconds = held * song.step * 0.92;
-      if (voice === 'lead') chip(noteFrequency(token), at, seconds, 'square', song.leadGain ?? 0.045, out);
+      if (band[voice]) band[voice](noteFrequency(token), at, seconds, out);
+      else if (voice === 'lead') chip(noteFrequency(token), at, seconds, 'square', song.leadGain ?? 0.045, out);
       else chip(noteFrequency(token), at, seconds, 'triangle', 0.13, out);
     }
   };

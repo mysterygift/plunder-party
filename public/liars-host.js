@@ -26,7 +26,7 @@ const TRAY = { a: 7.6, b: 4.7 }; // the oval tray: half its width, half its dept
 const CUPS = 0.77; // how far out from the middle the cups sit (1 = the rail)
 const NAMES = 1.23; // ...and the name plates
 const TABLE = -0.45; // the height of the tavern table the tray sits on
-const DIE = 0.64; // a die, at its biggest
+const DIE = 0.8; // a die, at its biggest
 
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const easeOut = (k) => 1 - (1 - k) ** 3;
@@ -47,7 +47,7 @@ let shake = 0;
 let players = new Map();
 
 const tweens = new Set();
-const cam = { target: new THREE.Vector3(0, 0, 0.2), dist: 30, elevation: 0.93 };
+const cam = { target: new THREE.Vector3(0, 0, 0.2), dist: 30, elevation: 1.0 };
 
 // What is on the table right now.
 let roundKey = null;
@@ -119,6 +119,13 @@ function decal(draw, size = 256) {
 /** A point on the oval, `k` of the way out from the middle. Angle 0 is the far side; it runs clockwise as the TV sees it. */
 const onOval = (angle, k = 1, y = 0) => new THREE.Vector3(Math.sin(angle) * TRAY.a * k, y, -Math.cos(angle) * TRAY.b * k);
 
+/** Where a seat's name plate goes: outside the rail, and a little further back on the far side, where the table is foreshortened. */
+function nameSpot(angle) {
+  const p = onOval(angle, NAMES);
+  if (p.z < 0) p.z *= 1.14;
+  return p;
+}
+
 // ----- dice -----
 
 // Where the spots go on each face (the same layout as the dice on the phones).
@@ -168,25 +175,27 @@ const SIDES = [2, 5, 1, 6, 3, 4];
 // How to turn the die so that each number is on top.
 const TOP = { 1: [0, 0, 0], 6: [Math.PI, 0, 0], 2: [0, 0, Math.PI / 2], 5: [0, 0, -Math.PI / 2], 3: [-Math.PI / 2, 0, 0], 4: [Math.PI / 2, 0, 0] };
 
-const diceSkins = {};
-/** The six painted sides of a die: 'plain', 'hit' (it counts, so it glows) or 'dim' (it doesn't). */
-function skin(kind) {
-  diceSkins[kind] ??= SIDES.map(
-    (n) =>
-      new THREE.MeshStandardMaterial({
-        map: faceTexture(n),
-        roughness: 0.5,
-        color: kind === 'dim' ? 0x7d766a : 0xffffff,
-        emissive: kind === 'hit' ? 0xff9a1a : 0x000000,
-        emissiveIntensity: kind === 'hit' ? 0.42 : 0,
-      }),
-  );
-  return diceSkins[kind];
+const diceSkins = new Map();
+/**
+ * The six painted sides of a die showing `value`: 'hit' (it counts, so it glows)
+ * or 'dim' (it doesn't). The side that is face up is painted brighter than the
+ * rest, so the number that matters is the one you read from across the room.
+ */
+function skin(kind, value) {
+  const key = `${kind}:${value}`;
+  if (!diceSkins.has(key)) {
+    diceSkins.set(key, SIDES.map((n) => {
+      const top = n === value;
+      const colour = kind === 'hit' ? (top ? 0xffffff : 0xd9b46a) : top ? 0xcfc6b2 : 0x8f8674;
+      return new THREE.MeshStandardMaterial({ map: faceTexture(n), roughness: 0.5, color: colour, emissive: kind === 'hit' ? 0xffa21f : 0x000000, emissiveIntensity: kind === 'hit' ? (top ? 0.22 : 0.4) : 0 });
+    }));
+  }
+  return diceSkins.get(key);
 }
 
 const UP = new THREE.Vector3(0, 1, 0);
-function makeDie(value, kind = 'plain') {
-  const mesh = new THREE.Mesh(shapes().box, skin(kind));
+function makeDie(value, kind) {
+  const mesh = new THREE.Mesh(shapes().box, skin(kind, value));
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   mesh.userData.top = new THREE.Quaternion().setFromEuler(new THREE.Euler(...TOP[value]));
@@ -344,6 +353,7 @@ function tankard(x, z, turn = 0) {
   part(S.ball, froth, { at: [0, 3, 0], size: 0.7, into: g });
   g.position.set(x, TABLE, z);
   g.rotation.y = turn;
+  g.scale.setScalar(0.62); // a tankard, next to cups that hold five dice
   scene.add(g);
 }
 
@@ -362,7 +372,7 @@ function candle(x, z) {
   part(S.disc, paint(0xb8862f, { rough: 0.4 }), { at: [x, TABLE + 0.08, z], size: [0.75, 0.16, 0.75], into: scene }); // a brass dish
   part(S.disc, paint(0xf3e6c4, { rough: 0.9 }), { at: [x, TABLE + 0.75, z], size: [0.3, 1.3, 0.3], into: scene });
   part(S.ball, paint(0xf3e6c4, { rough: 0.9 }), { at: [x + 0.2, TABLE + 1.2, z + 0.12], size: [0.12, 0.22, 0.12], into: scene }); // a run of wax
-  candleFlame = part(S.cone, paint(0xffc24a, { glow: 2.2 }), { at: [x, TABLE + 1.68, z], size: [0.14, 0.5, 0.14], shadow: false, into: scene });
+  candleFlame = part(S.cone, paint(0xffc24a, { glow: 2.2 }), { at: [x, TABLE + 1.72, z], size: [0.17, 0.6, 0.17], shadow: false, into: scene });
   candleLight = new THREE.PointLight(0xffa64a, 40, 16, 1.7);
   candleLight.position.set(x, TABLE + 2.1, z);
   scene.add(candleLight);
@@ -370,11 +380,11 @@ function candle(x, z) {
 
 function buildProps() {
   candle(-9.9, -5.4);
-  tankard(11.4, -4.6, 2.4);
-  tankard(-11.6, 4.9, 0.5);
-  doubloons(10.4, 5.6, { stack: 6, loose: 5, spread: 1.1 });
-  doubloons(11.6, 4.4, { stack: 3 });
-  doubloons(-9.4, 6.2, { loose: 3, spread: 0.9 });
+  tankard(10.6, -5.2, 2.4);
+  tankard(-10.4, 4.6, 0.5);
+  doubloons(10.2, 5.2, { stack: 6, loose: 5, spread: 1.1 });
+  doubloons(11.3, 4.1, { stack: 3 });
+  doubloons(-8.6, 5.9, { loose: 4, spread: 0.9 });
 }
 
 // ----- fitting the picture into the window -----
@@ -394,10 +404,10 @@ function fit() {
   // Keep the ring of name plates inside that box, below the bid along the top.
   const fx = (1920 * unit) / w;
   const fy = (1080 * unit) / h;
-  const top = fy * (1 - (2 * 262) / 1080);
-  const bottom = -fy * (1 - (2 * 72) / 1080);
+  const top = fy * (1 - (2 * 282) / 1080);
+  const bottom = -fy * (1 - (2 * 94) / 1080);
   const sideLimit = fx * 0.855;
-  const rim = Array.from({ length: 16 }, (_, i) => onOval((i / 16) * Math.PI * 2, NAMES));
+  const rim = Array.from({ length: 16 }, (_, i) => nameSpot((i / 16) * Math.PI * 2));
   const v = new THREE.Vector3();
   cam.dist = 30;
   cam.target.set(0, 0, 0.2);
@@ -493,7 +503,7 @@ function deal(view, withShake) {
         id: s.id,
         index,
         pos: onOval(angle, CUPS),
-        name: onOval(angle, NAMES),
+        name: nameSpot(angle),
         tangent: new THREE.Vector3(Math.cos(angle) * TRAY.a, 0, Math.sin(angle) * TRAY.b).normalize(),
         cup: null,
         dice: [],
@@ -562,10 +572,12 @@ function chalk(q, f, n) {
   }
   marks = [];
   // A grid in the middle of the tray, wider than it is deep, that shrinks to fit a big bid.
-  const cols = Math.min(Math.max(q, 1), Math.max(3, Math.ceil(Math.sqrt(q * 2.6))));
+  // (Dice found over and above the bid carry on along the row, so there are always at least three columns.)
+  const cols = Math.max(3, Math.ceil(Math.sqrt(q * 2.6)));
   const rows = Math.ceil(Math.max(q, 1) / cols);
-  const pitch = Math.min(1.02, 6.6 / cols, 3.3 / (rows + 0.4));
-  const spot = (i) => new THREE.Vector3(((i % cols) - (cols - 1) / 2) * pitch, 0, (Math.floor(i / cols) - (rows - 1) / 2) * pitch + 0.15);
+  const across = Math.min(Math.max(q, 1), cols); // how many marks are in the first row, which is the one to centre
+  const pitch = Math.min(1.4, 6.6 / cols, 3.3 / (rows + 0.4));
+  const spot = (i) => new THREE.Vector3(((i % cols) - (across - 1) / 2) * pitch, 0, (Math.floor(i / cols) - (rows - 1) / 2) * pitch + 0.15);
   claim = { q, f, n, size: pitch * 0.8, spot, found: 0 };
   for (let i = 0; i < q; i++) {
     const mark = new THREE.Mesh(shapes().flat, new THREE.MeshBasicMaterial({ map: chalkTexture(f), transparent: true, opacity: 0.8, depthWrite: false }));
@@ -696,9 +708,11 @@ function labels(view) {
     const out = s.out || s.count === 0;
     const turn = view.phase === 'bid' && view.thinking && view.turn === s.id;
     // How many dice they have left: public knowledge, even while the dice themselves are under the cup.
-    const count = out ? '<span class="ld-gone">💀 in the locker</span>' : `<span class="ld-left">${dieBack().repeat(s.count)}</span>`;
+    const left = s.count - (r?.loser === s.id ? 1 : 0); // the loser's plate is one short as soon as the verdict is in
+    const count = out || left === 0 ? '<span class="ld-gone">💀 in the locker</span>' : `<span class="ld-left">${dieBack().repeat(left)}</span>`;
     const html = `${tag}${chipHtml(s.id)}${count}`;
-    const cls = `ld-label ${out ? 'out' : ''} ${turn ? 'turn' : ''} ${players.get(s.id)?.away ? 'away' : ''}`;
+    // On the far side of the table the tag hangs below the plate, clear of the words along the top.
+    const cls = `ld-label ${out ? 'out' : ''} ${turn ? 'turn' : ''} ${seat.name.z < -1 ? 'far' : ''} ${players.get(s.id)?.away ? 'away' : ''}`;
     if (seat.sig !== html + cls) {
       seat.sig = html + cls;
       seat.label.className = cls;
@@ -738,7 +752,7 @@ function frame(now) {
 
   const flicker = 0.85 + 0.15 * Math.sin(clock * 13) * Math.sin(clock * 7.3);
   candleLight.intensity = 40 * flicker;
-  candleFlame.scale.y = 0.5 * flicker;
+  candleFlame.scale.y = 0.6 * flicker;
 
   // The glow slides round to whoever's turn it is.
   const lit = turnSeat ? 1 : 0;
@@ -847,29 +861,27 @@ export function liarsScreens({ anim, chip, player }) {
   function table(v) {
     const b = v.bid;
     const r = v.result;
-    const kicker = `<p class="ld-kicker">Round ${v.round} · ${v.total} dice in play${v.wild ? ' · 1s are wild' : ''}</p>`;
     let top;
     let extra = '';
 
     if (v.phase === 'roll') {
-      top = `${kicker}<p class="ld-main"${anim('shake', 'slam', 0, 450)}>Shake ’em!</p><p class="ld-sub">${chip(v.turn)} opens the bidding</p>`;
+      top = `<p class="ld-main"${anim('shake', 'slam', 0, 450)}>Shake ’em!</p><p class="ld-sub">${chip(v.turn)} opens the bidding</p>`;
     } else if (v.phase === 'bid') {
       const next = v.thinking ? `<p class="ld-sub ld-next">${chip(v.turn)} ${b ? 'raise it, or call it!' : 'opens the bidding'}</p>` : `<p class="ld-sub">🦜 The parrot bid for ${name(b.by)}</p>`;
       top = b
-        ? `${kicker}<p class="ld-main"${anim(`bid${b.n}`, 'pop', 0, 380)}>${chip(b.by)}${b.auto ? '<i>’s parrot</i>' : ''} <i>says at least</i> ${bidTag(b.q, b.f)}</p>${next}`
-        : `${kicker}<p class="ld-main">No bid yet</p>${next}`;
+        ? `<p class="ld-main"${anim(`bid${b.n}`, 'pop', 0, 380)}>${chip(b.by)}${b.auto ? '<i>’s parrot</i>' : ''} <i>says at least</i> ${bidTag(b.q, b.f)}</p>${next}`
+        : `<p class="ld-main">No bid yet</p>${next}`;
     } else if (v.phase === 'sunk') {
-      top = `${kicker}<p class="ld-main">💀 ${name(r.loser)} is out of dice</p><p class="ld-sub">Off to Davy Jones’ locker</p>`;
+      top = `<p class="ld-main">💀 ${name(r.loser)} is out of dice</p><p class="ld-sub">Off to Davy Jones’ locker</p>`;
     } else {
-      // The showdown: who called whom, and the count as the cups come up.
-      const found = v.phase === 'call' ? '' : `<span class="ld-found ${r ? (r.good ? 'good' : 'bad') : ''}"${anim(`tally${v.tally}`, 'pop', 0, 350)}>${v.tally}</span> <i>${r ? 'found' : 'so far'}</i>`;
-      top = `<p class="ld-kicker">${name(v.caller)} calls ${name(b.by)} a liar!</p>
-        <p class="ld-main"><i>The bid: at least</i> ${bidTag(b.q, b.f)}${found ? `<span class="ld-gap"></span>${found}` : ''}</p>`;
+      // The showdown: who called whom, the count as the cups come up, and then who pays for it.
+      const found = v.phase === 'call' ? '' : `<span class="ld-gap"></span><span class="ld-found ${r ? (r.good ? 'good' : 'bad') : ''}"${anim(`tally${v.tally}`, 'pop', 0, 350)}>${v.tally}</span> <i>${r ? 'found' : 'so far'}</i>`;
+      const head = r ? `<p class="ld-kicker ${r.good ? 'good' : ''}">${r.good ? 'The bid was good!' : `${name(b.by)} was lying!`}</p>` : `<p class="ld-kicker">${name(v.caller)} calls ${name(b.by)} a liar!</p>`;
+      const foot = r ? `<p class="ld-sub"${anim('loser', 'rise', 1400, 450)}>${chip(r.loser)} loses a die${r.drink ? ` <i>and takes a swig of ${esc(r.drink)}</i>` : ''}</p>` : '';
+      top = `${head}<p class="ld-main"><i>The bid: at least</i> ${bidTag(b.q, b.f)}${found}</p>${foot}`;
       if (v.phase === 'call') extra = `<div class="stamp"${anim('shout', 'slam', 0, 500)}>LiAARRRRGH!</div>`;
-      if (r) {
-        extra = `<div class="ld-stamp ${r.good ? 'good' : ''}"${anim('stamp', 'slam', 500, 450)}>${r.good ? 'Honest!' : 'Liar!'}</div>
-          <p class="ld-foot parch"${anim('loser', 'rise', 1500, 450)}>${chip(r.loser)} loses a die${r.drink ? `<i>and takes a swig of ${esc(r.drink)}</i>` : ''}</p>`;
-      }
+      // The verdict is stamped across the table, then gets out of the way of the dice.
+      if (r) extra = `<div class="ld-stamp ${r.good ? 'good' : ''}"${anim('stamp', 'ld-stamp', 400, 2600)}>${r.good ? 'Honest!' : 'Liar!'}</div>`;
     }
 
     return `<div class="ld" data-phase="${esc(v.phase)}">

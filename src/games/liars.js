@@ -132,7 +132,7 @@ export async function run(ctx) {
     const hostView = () => ({
       screen: 'ld-table',
       key,
-      music: phase === 'bid' ? 'liars' : null, // the bidding tune (public/liars-sound.js)
+      music: phase === 'call' || phase === 'lift' ? null : 'liars', // the tavern band (public/liars-sound.js) stops dead for the showdown
       round,
       phase,
       wild,
