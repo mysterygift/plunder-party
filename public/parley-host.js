@@ -10,7 +10,7 @@
 // host.js draws the words (the question, who saw it coming); this file owns
 // the beach and everything on it, using the kit in kit3d.js.
 
-import { THREE, createStage, shapes, paint, part, decal, palm, rand, easeOut, easeIn, backOut, linear, chipHtml } from './kit3d.js';
+import { THREE, createStage, shapes, paint, dithered, part, decal, palm, rand, easeOut, easeIn, backOut, linear, chipHtml } from './kit3d.js';
 import { esc, fmt } from './common.js';
 import * as sound from './sound.js';
 import { createAmbience } from './ambience.js';
@@ -73,10 +73,10 @@ function buildSand(scene) {
   }, 512);
   sand.wrapS = sand.wrapT = THREE.RepeatWrapping;
   sand.repeat.set(10, 6);
-  const beach = part(shapes().flat, new THREE.MeshStandardMaterial({ map: sand, roughness: 1 }), { at: [0, 0, 6], size: [160, 1, 60], into: scene });
+  const beach = part(shapes().flat, dithered(new THREE.MeshStandardMaterial({ map: sand, roughness: 1 })), { at: [0, 0, 6], size: [160, 1, 60], into: scene });
   beach.castShadow = false;
   // Wet sand where the waves reach, darker and shinier.
-  const wet = part(shapes().flat, new THREE.MeshStandardMaterial({ color: 0x6f5636, roughness: 0.35, metalness: 0.1 }), { at: [0, 0.005, -21], size: [160, 1, 8], into: scene });
+  const wet = part(shapes().flat, dithered(new THREE.MeshStandardMaterial({ color: 0x6f5636, roughness: 0.35, metalness: 0.1 })), { at: [0, 0.005, -21], size: [160, 1, 8], into: scene });
   wet.castShadow = false;
 }
 
@@ -84,7 +84,7 @@ function buildSea(scene) {
   const geo = new THREE.PlaneGeometry(220, 90, 110, 36).rotateX(-Math.PI / 2);
   geo.translate(0, -0.25, -68);
   const base = Float32Array.from(geo.attributes.position.array);
-  const mat = new THREE.MeshStandardMaterial({ color: 0x0f2c48, roughness: 0.28, metalness: 0.25, flatShading: true });
+  const mat = dithered(new THREE.MeshStandardMaterial({ color: 0x0f2c48, roughness: 0.28, metalness: 0.25, flatShading: true }));
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = false;
   scene.add(mesh);
@@ -268,7 +268,18 @@ function tricorn() {
 const S = () => shapes();
 
 function init() {
-  stage = createStage({ id: 'paLayer', background: 0x081324, exposure: 1.15, fov: 30, overlay: '<div class="pa-vignette"></div><div class="pa-dividers"></div><div class="pa-flash"></div>' });
+  stage = createStage({
+    id: 'paLayer',
+    background: 0x081324,
+    exposure: 1.15,
+    fov: 30,
+    overlay: '<div class="pa-vignette"></div><div class="pa-dividers"></div><div class="pa-flash"></div>',
+    // With "Dithered lighting" on: rings of firelight that stipple at their edges.
+    // The knee is high because the fire is bright (and roars to over twice that when
+    // a coin lands), so the crew's faces still sit between bands in a close-up.
+    // Tune it live from the big screen's console: dither({ amount: 0.5, cell: 3 }).
+    looks: { dither: { bands: 6, cell: 2, knee: 4, spread: 0.45, amount: 0.75 } },
+  });
   const { scene } = stage;
   scene.fog = new THREE.Fog(0x081324, 70, 210);
   scene.add(new THREE.HemisphereLight(0x5a7cb8, 0x2a1c10, 0.55));
@@ -288,6 +299,7 @@ function init() {
   stage.onFrame = frame;
   stage.onFit = fit;
   // Try one from the big screen's console while Parley is on: antic('guitar'), antic('musket')...
+  window.dither = (tweaks = {}) => Object.assign(stage.looks.dither, tweaks);
   window.antic = (kind) => {
     if (!ANTICS[kind]) return Object.keys(ANTICS);
     stopAntic();

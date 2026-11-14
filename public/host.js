@@ -4,6 +4,7 @@
 import { esc, fmt, connect, post, startTimers, ask, dismissQuestion } from './common.js';
 import * as sound from './sound.js';
 import { flagTag } from './flag.js';
+import { nextLook, lookName } from './looks.js';
 import * as diorama from './bombard-host.js';
 import * as diceTable from './liars-host.js';
 import * as captainsLog from './onepiece-host.js';
@@ -607,7 +608,20 @@ function control(name) {
     case 'narrator':
       sound.settings[name] = !sound.settings[name];
       return refreshControls();
+    case 'look':
+      nextLook();
+      return showLook();
   }
+}
+
+// Which lighting style the 3D scenes use (looks.js). Say so for a moment when it changes.
+let lookTimer = 0;
+function showLook() {
+  $('lookNote').textContent = `💡 ${lookName()}`;
+  $('lookNote').hidden = false;
+  document.querySelector('[data-ctl="look"]').title = `Lighting style: ${lookName()} (L)`;
+  clearTimeout(lookTimer);
+  lookTimer = setTimeout(() => ($('lookNote').hidden = true), 1600);
 }
 
 $('controls').addEventListener('click', (e) => {
@@ -615,7 +629,7 @@ $('controls').addEventListener('click', (e) => {
   if (button) control(button.dataset.ctl);
 });
 
-const KEYS = { ' ': 'skip', p: 'pause', Escape: 'end', f: 'fullscreen', s: 'sound', m: 'music', n: 'narrator' };
+const KEYS = { ' ': 'skip', p: 'pause', Escape: 'end', f: 'fullscreen', s: 'sound', m: 'music', n: 'narrator', l: 'look' };
 document.addEventListener('keydown', (e) => {
   const name = KEYS[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (!name || e.metaKey || e.ctrlKey || e.altKey) return;

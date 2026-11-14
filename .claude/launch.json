@@ -138,6 +138,17 @@
         "server.js"
       ],
       "port": 3911
+    },
+    {
+      "name": "looks-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=3960",
+        "SPEED=3",
+        "node",
+        "server.js"
+      ],
+      "port": 3960
     }
   ]
 }

@@ -12,6 +12,7 @@
 // World units are roughly "a hand's width"; y is up, z comes towards the camera.
 
 import * as THREE from './vendor/three.module.min.js';
+import { look } from './looks.js';
 
 export { THREE };
 
@@ -38,12 +39,90 @@ export function shapes() {
   return SHAPES;
 }
 
+// ---------------------------------------------------------------------------
+// Dithered lighting. The light falling on a surface (not its paint) is cut into
+// a few solid bands, and the seams between bands are stippled with a 4x4 Bayer
+// pattern, like an old printed engraving. Glow is left alone, so flames and
+// lamps stay smooth and bright. It is off unless the host picks "Dithered
+// lighting" (see looks.js); a stage can tune it with createStage({ looks }).
+// The settings live in shared uniforms, set by whichever stage is drawing.
+// ---------------------------------------------------------------------------
+const DITHER_DEFAULTS = { bands: 6, cell: 2, knee: 1, spread: 0.45, amount: 0.75 };
+const DITHER = {
+  uDitherBands: { value: 0 }, // 0 = off
+  uDitherCell: { value: 3 }, // size of one pattern dot, in device pixels
+  uDitherKnee: { value: 1 }, // light this bright sits halfway up the bands
+  uDitherSpread: { value: 0.5 }, // 1 = stipple everywhere, smaller = solid bands with stippled seams
+  uDitherAmount: { value: 1 }, // 1 = fully banded, smaller blends back toward the smooth light
+};
+const DITHER_GLSL = /* glsl */ `
+uniform float uDitherBands;
+uniform float uDitherCell;
+uniform float uDitherKnee;
+uniform float uDitherSpread;
+uniform float uDitherAmount;
+float kitBayer(vec2 p) {
+  const float m[16] = float[16](0., 8., 2., 10., 12., 4., 14., 6., 3., 11., 1., 9., 15., 7., 13., 5.);
+  ivec2 i = ivec2(mod(floor(p), 4.0));
+  return (m[i.x + i.y * 4] + 0.5) / 16.0;
+}
+// How much to scale light of brightness l by, to land it on a band.
+float kitBand(float l, float t) {
+  if (l <= 1e-5) return 1.0;
+  // Squeeze the HDR light into 0..bands, with more bands in the dark (the sqrt),
+  // so moonlight and the far edge of a lamp's reach don't round down to black.
+  float x = sqrt(l / (l + uDitherKnee)) * uDitherBands;
+  float f = clamp((fract(x) - 0.5) / max(uDitherSpread, 0.01) + 0.5, 0.0, 1.0);
+  // The top band can't be "infinitely bright" (where the squeeze ends), so it
+  // stops half a band short; otherwise a roaring fire blows out to flat colour.
+  float q = min(floor(x) + step(t, f), uDitherBands - 0.5) / uDitherBands;
+  q *= q;
+  return (uDitherKnee * q / (1.0 - q)) / l;
+}
+void kitDither(inout ReflectedLight r) {
+  if (uDitherBands < 1.0) return;
+  const vec3 LUMA = vec3(0.299, 0.587, 0.114);
+  float t = kitBayer(gl_FragCoord.xy / uDitherCell);
+  // Lamps, moon and sky together, so moonlit and shadowed ground band too...
+  // (uDitherAmount < 1 blends back toward the smooth light, for a gentler look.)
+  float k = mix(1.0, kitBand(dot(r.directDiffuse + r.indirectDiffuse, LUMA), t), uDitherAmount);
+  r.directDiffuse *= k;
+  r.indirectDiffuse *= k;
+  // ...and shine (the moon's glint on the sea) bands on its own.
+  r.directSpecular *= mix(1.0, kitBand(dot(r.directSpecular, LUMA), t), uDitherAmount);
+}
+`;
+function ditherHook(shader) {
+  Object.assign(shader.uniforms, DITHER);
+  shader.fragmentShader = shader.fragmentShader
+    .replace('void main() {', `${DITHER_GLSL}\nvoid main() {`)
+    .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n\tkitDither( reflectedLight );');
+}
+/** Let a lit material take part in a stage's dithered lighting (paint() does this already). */
+export function dithered(material) {
+  material.onBeforeCompile = ditherHook;
+  return material;
+}
+/** Set the shared style uniforms for the stage about to draw. */
+function applyLook(tuning, renderer, unit) {
+  const style = look();
+  DITHER.uDitherBands.value = 0;
+  if (style === 'dither') {
+    const d = { ...DITHER_DEFAULTS, ...tuning?.dither };
+    DITHER.uDitherBands.value = d.bands;
+    DITHER.uDitherCell.value = Math.max(1, Math.round(d.cell * unit * renderer.getPixelRatio()));
+    DITHER.uDitherKnee.value = d.knee;
+    DITHER.uDitherSpread.value = d.spread;
+    DITHER.uDitherAmount.value = d.amount;
+  }
+}
+
 const paints = new Map();
 /** A pot of paint. `glow` makes it light itself (flames, lamps, moonlight). */
 export function paint(color, { glow = 0, rough = 0.75, metal = 0.02 } = {}) {
   const key = `${color}:${glow}:${rough}:${metal}`;
   if (!paints.has(key)) {
-    paints.set(key, new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: rough, metalness: metal, emissive: glow ? color : 0x000000, emissiveIntensity: glow }));
+    paints.set(key, dithered(new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: rough, metalness: metal, emissive: glow ? color : 0x000000, emissiveIntensity: glow })));
   }
   return paints.get(key);
 }
@@ -125,8 +204,10 @@ export function planks(tones = ['#573b24', '#4b321e', '#5d4129', '#523722'], siz
  *   id          the layer's element id (style it in the game's CSS)
  *   background  the colour behind everything
  *   overlay     extra HTML laid over the canvas (a vignette, say)
+ *   looks       this scene's tuning for the optional lighting styles in looks.js,
+ *               e.g. { dither: { bands, cell, knee, spread } } (cell in TV pixels)
  */
-export function createStage({ id, background = 0x101010, exposure = 1.1, fov = 30, overlay = '' }) {
+export function createStage({ id, background = 0x101010, exposure = 1.1, fov = 30, overlay = '', looks = null }) {
   shapes();
   const layer = document.createElement('div');
   layer.id = id;
@@ -157,6 +238,7 @@ export function createStage({ id, background = 0x101010, exposure = 1.1, fov = 3
     clock: 0,
     unit: 1,
     running: false,
+    looks, // change it live, e.g. stage.looks.dither.bands = 3
     onFrame: null, // (dt, clock) => {}
     onFit: null, // () => {} after the window changes size
 
@@ -244,6 +326,7 @@ export function createStage({ id, background = 0x101010, exposure = 1.1, fov = 3
       }
     }
     stage.onFrame?.(dt, stage.clock);
+    applyLook(stage.looks, renderer, stage.unit);
     if (!stage.views) {
       renderer.render(scene, camera);
       return;
