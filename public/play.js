@@ -6,6 +6,7 @@ import { createMap } from './map.js';
 import { bombardScreens, bombardTap, bombardShown } from './bombard-play.js';
 import { liarsScreens, liarsTap, liarsShown } from './liars-play.js';
 import { onePieceScreens, onePieceTap, onePieceShown } from './onepiece-play.js';
+import { knotsShown } from './knots-play.js';
 import { FLAG_W, FLAG_H, CLOTHS, INKS, WIDTHS, ERASER, MAX_STROKES, MAX_POINTS, strokePath, strokesSvg, inkColor, flagTag } from './flag.js';
 
 const $ = (id) => document.getElementById(id);
@@ -373,6 +374,9 @@ function render(v) {
 
   // The map screen only needs a full redraw when the round or lock state changes.
   if (v.screen === 'map' && previous?.screen === 'map' && previous.key === v.key && previous.locked === v.locked) return;
+
+  // Knot So Fast builds its race screen once and then only changes what moves (see knots-play.js).
+  if (knotsShown(v, screenEl, send)) return;
 
   const typing = screenEl.querySelector('input, textarea');
   bombardShown(v);

@@ -3,7 +3,7 @@
 //   npm run bots                  -> 4 bots join the lobby and play along
 //   npm run bots -- 6             -> 6 bots
 //   npm run bots -- 4 scuttlebutt -> 4 bots, and they start that game themselves
-//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece)
+//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots)
 //
 // Start the server first (npm start). You can join on your own phone too:
 // the bots answer and vote, you play for real.
@@ -160,6 +160,26 @@ async function runBot(name, index) {
         await pause(800, 6000);
         await act({ type: 'op-roll', key: view.key });
         break;
+      case 'kn-race': {
+        // Knot So Fast: answer whatever is at the front of the hand, over and over, until the race is done.
+        // Each bot has its own pace and its own idea of the right answer, so the fleet spreads out.
+        const skill = { time: 2600 + (index % 5) * 650, right: 0.58 + (index % 4) * 0.09 };
+        const answered = new Set();
+        while (latest.screen === 'kn-race' && latest.key === view.key) {
+          const deal = latest.phase === 'go' ? latest.hand.find((d) => !answered.has(d.id)) : null;
+          if (!deal) {
+            await new Promise((r) => setTimeout(r, 200));
+            continue;
+          }
+          const began = Date.now();
+          await pause(skill.time * 0.6, skill.time * 1.6);
+          const right = Math.random() < skill.right;
+          answered.add(deal.id);
+          await act({ type: 'kn-answer', key: view.key, deal: deal.id, pick: right ? deal.r : (deal.r + 1 + Math.floor(Math.random() * 3)) % 4, ms: Date.now() - began, gold: latest.powder === deal.id });
+          if (!right) await pause(1000, 1100);
+        }
+        break;
+      }
       case 'op-end':
         if (autoGame && view.canContinue) {
           await pause(8000, 9000);

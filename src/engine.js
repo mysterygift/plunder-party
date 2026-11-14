@@ -21,8 +21,9 @@ import * as colours from './games/colours.js';
 import * as bombard from './games/bombard.js';
 import * as liars from './games/liars.js';
 import * as onepiece from './games/onepiece.js';
+import * as knots from './games/knots.js';
 
-export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars, onepiece];
+export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars, onepiece, knots];
 
 const AVATARS = ['🦜', '🐙', '🦀', '🦈', '🐬', '🐢', '🦑', '🐡', '🦞', '🐳', '🐒', '🦩'];
 const COLORS = ['#e4572e', '#17bebb', '#ffc914', '#76b041', '#b388eb', '#f78fb3', '#4ea8de', '#ff9f1c', '#2ec4b6', '#e56b6f', '#9bc53d', '#c9ada7'];

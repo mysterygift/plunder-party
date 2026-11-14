@@ -26,6 +26,18 @@
       "port": 3421
     },
     {
+      "name": "knots-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3520", "node", "server.js"],
+      "port": 3520
+    },
+    {
+      "name": "knots-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3521", "SPEED=6", "node", "server.js"],
+      "port": 3521
+    },
+    {
       "name": "onepiece-test",
       "runtimeExecutable": "env",
       "runtimeArgs": ["PORT=3420", "node", "server.js"],

@@ -18,6 +18,8 @@ const FILES = {
   bombard: 'bombard.json',
   liars: 'liars-dice.json',
   onepiece: 'one-piece.json',
+  knots: 'knots.json',
+  knotsQuestions: 'knots-questions.json',
 };
 
 function readJson(file) {
@@ -57,7 +59,27 @@ export function loadContent() {
     need(Array.isArray(bombard[list]) && bombard[list].length >= 7, `content/bombard.json needs at least 7 "${list}".`);
   }
   checkStory(content.onepiece);
+  checkQuestions(content.knotsQuestions);
   return content;
+}
+
+/** Knot So Fast: every question needs one right answer and three different wrong ones. */
+function checkQuestions(bank) {
+  const file = 'content/knots-questions.json';
+  need(Array.isArray(bank?.categories), `${file} needs a list of "categories".`);
+  let total = 0;
+  for (const cat of bank.categories) {
+    need(typeof cat.id === 'string' && typeof cat.name === 'string' && Array.isArray(cat.questions), `${file}: every category needs an "id", a "name" and a list of "questions".`);
+    cat.questions.forEach((x, i) => {
+      const where = `${file}: question ${i + 1} in "${cat.name}"`;
+      need(typeof x.q === 'string' && x.q.trim(), `${where} has no "q".`);
+      need(typeof x.a === 'string' && x.a.trim(), `${where} ("${x.q}") has no right answer "a".`);
+      need(Array.isArray(x.wrong) && x.wrong.length === 3 && x.wrong.every((w) => typeof w === 'string' && w.trim()), `${where} ("${x.q}") needs exactly three "wrong" answers.`);
+      need(new Set([x.a, ...x.wrong].map((a) => a.trim().toLowerCase())).size === 4, `${where} ("${x.q}") has the same answer twice.`);
+      total++;
+    });
+  }
+  need(total >= 60, `${file} needs at least 60 questions (it has ${total}).`);
 }
 
 /** Find the One Piece: make sure the story holds together before anyone is halfway up a volcano. */

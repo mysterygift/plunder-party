@@ -1,0 +1,62 @@
+{
+  "races": 3,
+  "laps": 3,
+  "scramble": true,
+  "crews": "pairs",
+
+  "seconds": {
+    "scramble": 45,
+    "cutoff": 20,
+    "countdown": 3,
+    "rules": 7,
+    "crews": 12,
+    "table": 8,
+    "muster": 15,
+    "lock": 1,
+    "fuse": 8
+  },
+
+  "wind": {
+    "lap": 100,
+    "drift": 1.2,
+    "top": 4.2,
+    "curve": 0.6,
+    "max": 10,
+    "leak": 0.1,
+    "gust": 4.3,
+    "wrongCost": 0.5,
+    "rollAfter": 5,
+    "rollBonus": 1.5,
+    "freshWind": 0.15,
+    "freshWindAt": 40
+  },
+
+  "powder": {
+    "every": [16, 13, 11, 10, 9],
+    "first": [8, 12],
+    "flight": 1.2,
+    "holedSeconds": 3,
+    "holedSpeed": 0.35,
+    "holedWind": 0.5,
+    "safeSeconds": 6
+  },
+
+  "stagger": 10,
+  "finalRaceTimes": 2,
+  "doubloons": [1000, 700, 500, 300, 200, 100],
+
+  "ships": [
+    "The Wet Sock",
+    "The Soggy Biscuit",
+    "Rum for Improvement",
+    "The Angry Haddock",
+    "Plank You Very Much",
+    "Sea You Later",
+    "The Crusty Barnacle",
+    "HMS Oops",
+    "The Sinking Feeling",
+    "Knot My Problem",
+    "The Unsinkable II",
+    "Ship Happens"
+  ]
+}

@@ -4,7 +4,7 @@ A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the
 same wifi. Nothing to install on the phones.
 
-Seven original games:
+Eight original games:
 
 | Game | What it is | Players |
 | --- | --- | --- |
@@ -15,6 +15,7 @@ Seven original games:
 | 💣 **Bombard!** | A drinking game. The crew is split into Pirates and Navy, each with a fleet hidden in fog. Pick a tile, fire: miss and you take a swig, sink a ship and the other side drinks. Then everyone joins forces against the Kraken. The TV shows the battle as a 3D tabletop diorama. | 2–12 |
 | 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. The TV shows the table as a 3D diorama: leather cups, the bid chalked on the baize, and the dice that count hopping onto the chalk marks. | 2–12 |
 | 🏝️ **Find the One Piece** | A choose-your-own captain’s log, played as one crew with no scores. The log writes itself beside a model island; the crew votes on what to do, then everybody rolls one die and the total decides how it goes, from Perfect down to Diabolical. Beach, jungle, New Oldham, a monkey, a volcano, a dragon, and five endings. About ten minutes. | 2–12 |
+| ⛵ **Knot So Fast** | A quick-fire trivia regatta. Crews of two or three race a ship round a desert island: questions fire onto every phone with no pause, right answers fill the sails, and a gold question fires your cannon at the ship in front. A 45-second solo sprint picks the crews, then three races. The TV shows it as a 3D model on the tavern table. About seven minutes. | 4–12 (2 or 3 can play, a boat each) |
 
 ## Running it
 
@@ -64,6 +65,8 @@ restarting.
 | `content/bombard.json` | Bombard!: the round timer, what everyone is drinking, and the names of the ships |
 | `content/liars-dice.json` | LiAARRRRGH’s Dice: the turn timer, dice each, wild ones, and what the loser drinks |
 | `content/one-piece.json` | Find the One Piece: the whole story (every entry, option and outcome), the odds, the timers, and which tune each scene plays |
+| `content/knots.json` | Knot So Fast: races, laps, timers, how the wind and the cannon behave, doubloons, ship names |
+| `content/knots-questions.json` | Knot So Fast: the 600 trivia questions, by category |
 | `content/dead-reckoning.json` | Locations: name, coordinates, clues, fun fact, optional photo |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
@@ -210,6 +213,47 @@ a pace set by `INK` in that file, and each part of the story has its own tune
 instead. If the story no longer holds together after an edit (a `next` that
 goes nowhere, an option with no outcome), the big screen says where.
 
+**Knot So Fast: the rules, and tuning them**
+
+Everyone starts alone in a rowing boat for the Scramble: 45 seconds of
+quick-fire questions, which teaches the game and ranks the room. Crews are
+then picked from that ranking, fastest with slowest (pairs, with one trio if
+the number is odd), and each crew gets a ship. Then three races, three laps
+each.
+
+- Tap the right answer and your ship gains wind. Wind leaks away fast, so keep
+  answering. A wrong answer spills some and locks your phone for a second.
+- Each answer is worth less the bigger the crew, so a trio has no edge over a
+  pair.
+- Now and then one of the crew gets a gold **powder question** with a fuse
+  burning across the top. Get it right before the fuse runs out and your gun
+  fires at the ship one place ahead, which is holed for three seconds. The
+  leader never gets one; the further back you are, the more often they come.
+- More than five right in a row and you are "on a roll": your answers count
+  half as much again until you miss.
+- In races two and three the ships start staggered, the top of the table
+  furthest back, and the last race pays double.
+- A race ends 20 seconds after the winner crosses the line. Then a muster
+  hands out titles: Sharpest Eye, Fastest Fingers, Master Gunner and so on.
+
+The phone knows the answers ahead of time, which is what makes the next
+question appear the instant you tap. The server still keeps the score.
+
+`content/knots.json` has every number: `races`, `laps`, whether to run the
+`scramble`, `crews` (`"pairs"` or `"trios"`), the timers under `seconds`, how
+the `wind` behaves (`gust` is what a right answer is worth, `leak` how fast it
+drains, `freshWind` the help given to ships at the back), the `powder` (how
+often each place gets a powder question, and what a hit costs), the `stagger`
+between places on the grid, and the `doubloons` for each place. The reasoning
+behind the numbers is in `docs/knot-so-fast-plan.md`.
+
+`content/knots-questions.json` is the question bank. Each question is one
+line: `q` the question (70 characters at most), `a` the right answer, `wrong`
+the other three (22 characters each at most), and a `level` from 1 (nearly
+everyone gets it) to 3. A phone is never dealt the same question twice until
+it has seen them all. The last category, `house`, is empty: put questions
+about your own crowd there, in the same shape.
+
 **The narrator**
 
 On a Mac, the server renders each narrator line with one of macOS's own voices
@@ -276,6 +320,7 @@ npm run bots -- 5 colours       # they scribble flags too (badly)
 npm run bots -- 6 bombard       # three a side, firing more or less at random
 npm run bots -- 4 liars         # they bid, bluff a bit, and call each other out
 npm run bots -- 5 onepiece      # they vote for whatever, and roll
+npm run bots -- 8 knots         # four ships of two; they answer every few seconds and get most right
 ```
 
 Join on your own phone as well and you can play a real game against them.
@@ -297,6 +342,7 @@ public/sound.js      Sound effects, chiptune shanties and narrator playback
 public/bombard-*.js  Bombard!: the 3D diorama on the TV (-host), the flat board on phones (-play), its sounds (-sound)
 public/liars-*.js    LiAARRRRGH’s Dice: the 3D dice table on the TV (-host), your dice and the bid buttons on phones (-play), its sounds and tavern band (-sound)
 public/onepiece-*.js Find the One Piece: the log page on the TV (-host), the island it sits beside (-world), the vote and the die on phones (-play), its sounds and tunes (-sound)
+public/knots-*.js    Knot So Fast: the island and the race on the TV (-host), the question screen on phones (-play), the motion sum shared with the server (-motion), its sounds and reel (-sound)
 public/vendor/       three.js, which draws the diorama (copied from node_modules, so no internet is needed)
 tools/bots.js        Robot players
 tools/build-assets.js  Regenerates the map data and fonts (already done; rarely needed)

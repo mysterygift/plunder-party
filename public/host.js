@@ -8,6 +8,7 @@ import { flagTag } from './flag.js';
 import * as diorama from './bombard-host.js';
 import * as diceTable from './liars-host.js';
 import * as captainsLog from './onepiece-host.js';
+import * as regatta from './knots-host.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -388,6 +389,9 @@ const screens = {
   // Find the One Piece: the captain's log, beside a 3D island drawn behind it (see onepiece-host.js).
   ...captainsLog.onePieceScreens({ anim, chip, inked }),
 
+  // Knot So Fast: the race is a 3D model drawn behind this; these are the sheets between races (see knots-host.js).
+  ...regatta.knotsScreens({ anim, chip }),
+
   // Bombard!: the battle itself is a 3D model drawn behind this (see bombard-host.js).
   // These are just the words along the top: the two sides and their crews.
   bombard(v) {
@@ -532,6 +536,8 @@ function render(v) {
   else diceTable.hide();
   if (v.screen === 'op') captainsLog.show(v, players);
   else captainsLog.hide();
+  if (v.screen?.startsWith('kn-')) regatta.show(v, players);
+  else regatta.hide();
 
   if (v.screen === 'dr-reveal') {
     showRevealMap(v);
