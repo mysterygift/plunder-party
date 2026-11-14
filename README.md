@@ -175,7 +175,7 @@ A bid is a claim about the dice, not a bet: nobody stakes any doubloons.
 
 - `seconds.turn`: how long each pirate gets (30).
 - `diceEach`: `0` picks for you by crew size (5 dice each for 2–3 players, 4
-  for 4, 3 for 5–6, 2 for 7 or more), which keeps a game to roughly a quarter
+  for 4, 2 for 5 or more), which keeps a game to roughly a quarter
   of an hour. The classic game is `5` whatever the crew; expect it to run long
   with a crowd, since a game lasts about one round per die on the table.
 - `wildOnes`: `true` makes 1s count as any number.

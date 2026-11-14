@@ -31,7 +31,7 @@ const POINTS = { challenge: 100, outlast: 300, lastStanding: 1000 };
  * about one round per die on the table, so a big crew gets fewer each to keep
  * it to a quarter of an hour or so. (The classic game is five each, whatever the crew.)
  */
-const autoDice = (crew) => (crew <= 3 ? 5 : crew === 4 ? 4 : crew <= 6 ? 3 : 2);
+const autoDice = (crew) => (crew <= 3 ? 5 : crew === 4 ? 4 : 2);
 
 const FACE_WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six'];
 const rollDie = () => 1 + Math.floor(Math.random() * 6);
