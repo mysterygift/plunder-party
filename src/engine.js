@@ -27,7 +27,7 @@ import * as brig from './games/brig.js';
 export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars, onepiece, knots, brig];
 
 const AVATARS = ['🦜', '🐙', '🦀', '🦈', '🐬', '🐢', '🦑', '🐡', '🦞', '🐳', '🐒', '🦩'];
-const COLORS = ['#e4572e', '#17bebb', '#ffc914', '#76b041', '#b388eb', '#f78fb3', '#4ea8de', '#ff9f1c', '#2ec4b6', '#e56b6f', '#9bc53d', '#c9ada7'];
+const COLORS = ['#e4572e', '#17bebb', '#ffc914', '#76b041', '#b388eb', '#f78fb3', '#4ea8de', '#ff9f1c', '#5c6bc0', '#e56b6f', '#9bc53d', '#c9ada7'];
 const MAX_PLAYERS = AVATARS.length;
 // For testing: SPEED=20 npm start makes every timer run 20x faster.
 const SPEED = Number(process.env.SPEED) > 0 ? Number(process.env.SPEED) : 1;
@@ -146,9 +146,11 @@ export class Room {
       if (this.game.ctx.players.includes(player)) this.game.ctx.act(player, msg);
       return;
     }
-    if (msg.type === 'avatar') {
-      const free = AVATARS.filter((a) => a === player.avatar || !this.players.some((p) => p.avatar === a));
-      player.avatar = free[(free.indexOf(player.avatar) + 1) % free.length];
+    if (msg.type === 'look') {
+      // Pick a mascot and/or a colour, as long as nobody else has it.
+      const free = (key, value, list) => list.includes(value) && !this.players.some((p) => p !== player && p[key] === value);
+      if (msg.avatar !== undefined && free('avatar', msg.avatar, AVATARS)) player.avatar = msg.avatar;
+      if (msg.color !== undefined && free('color', msg.color, COLORS)) player.color = msg.color;
     } else if (player === this.vip()) {
       if (msg.type === 'select') this.select(msg.game);
       if (msg.type === 'start') this.startGame();
@@ -275,6 +277,15 @@ export class Room {
     return view;
   }
 
+  /** Every mascot and colour, with who (if anyone else) already has each one. */
+  looks(player) {
+    const holder = (key, value) => this.players.find((p) => p !== player && p[key] === value)?.name ?? null;
+    return {
+      avatars: AVATARS.map((id) => ({ id, taken: holder('avatar', id) })),
+      colors: COLORS.map((id) => ({ id, taken: holder('color', id) })),
+    };
+  }
+
   playerView(player) {
     const title = this.party.title ?? 'Plunda the Bunda';
     if (!player) return { role: 'player', screen: 'join', key: 'join', title, inGame: !!this.game };
@@ -291,6 +302,7 @@ export class Room {
         games: this.gameList(),
         selected: this.selected,
         crew: this.players.length,
+        looks: this.looks(player),
         short: chosen ? Math.max(0, chosen.min - this.players.length) : 0,
       };
     }

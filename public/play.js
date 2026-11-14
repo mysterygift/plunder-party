@@ -195,6 +195,77 @@ async function sendPick(key) {
 }
 
 // ---------------------------------------------------------------------------
+// The look picker: tap your mascot in the lobby to choose an icon and a colour.
+// It sits outside #screen so server pushes refresh it rather than wipe it.
+// Anything another pirate already has is greyed out.
+// ---------------------------------------------------------------------------
+
+let looksEl = null;
+
+function openLooks() {
+  if (looksEl || view?.screen !== 'lobby') return;
+  looksEl = document.createElement('div');
+  looksEl.className = 'modal looks';
+  looksEl.innerHTML = `<div class="modal-card parch looks-card" role="dialog" aria-modal="true" aria-labelledby="looksTitle">
+    <div class="looks-head"><span id="looksMe"></span><h2 id="looksTitle">Pick yer look</h2></div>
+    <p class="looks-label">Mascot</p><div class="looks-grid" id="looksAvatars"></div>
+    <p class="looks-label">Colour</p><div class="looks-grid" id="looksColors"></div>
+    <div class="modal-btns"><button class="modal-btn yes" data-look="done">Done</button></div>
+  </div>`;
+  looksEl.addEventListener('click', onLooksTap);
+  document.addEventListener('keydown', onLooksKey, true);
+  document.body.append(looksEl);
+  refreshLooks();
+  looksEl.querySelector('[data-look="done"]').focus({ preventScroll: true });
+}
+
+function closeLooks() {
+  if (!looksEl) return;
+  document.removeEventListener('keydown', onLooksKey, true);
+  looksEl.remove();
+  looksEl = null;
+}
+
+function onLooksKey(e) {
+  if (e.key !== 'Escape') return;
+  e.stopImmediatePropagation();
+  closeLooks();
+}
+
+let lookPending = null; // a tap the server hasn't shown back yet: { kind, id, until }
+
+/** Redraw the picker from the latest view, plus any choice the server hasn't confirmed yet. */
+function refreshLooks() {
+  if (!looksEl) return;
+  const { avatars, colors } = view.looks;
+  const p = lookPending;
+  const lost = p && (p.kind === 'avatar' ? avatars : colors).find((o) => o.id === p.id)?.taken; // someone beat us to it
+  if (p && (view.me[p.kind] === p.id || lost || Date.now() > p.until)) lookPending = null;
+  const mine = lookPending ? { ...view.me, [p.kind]: p.id } : view.me;
+  $('looksMe').innerHTML = face(mine, 'big');
+  const cell = (kind, o, style, content) => {
+    const on = o.id === mine[kind];
+    const label = o.taken ? `${kind === 'color' ? 'Colour' : o.id} taken by ${o.taken}` : kind === 'color' ? `Colour ${o.id}` : o.id;
+    return `<button class="look ${on ? 'on' : ''}" data-look="${kind}" data-id="${o.id}" style="${style}" aria-label="${esc(label)}" aria-pressed="${on}" ${o.taken ? 'disabled' : ''}>${content}</button>`;
+  };
+  $('looksAvatars').innerHTML = avatars.map((o) => cell('avatar', o, `--c:${mine.color}`, `<span>${o.id}</span>`)).join('');
+  $('looksColors').innerHTML = colors.map((o) => cell('color', o, `--c:${o.id}`, `<span>${mine.avatar}</span>`)).join('');
+}
+
+async function onLooksTap(e) {
+  if (e.target === looksEl) return closeLooks();
+  const el = e.target.closest('[data-look]');
+  if (!el || el.disabled) return;
+  if (el.dataset.look === 'done') return closeLooks();
+  const kind = el.dataset.look;
+  navigator.vibrate?.(10);
+  lookPending = { kind, id: el.dataset.id, until: Date.now() + 1500 };
+  refreshLooks(); // show it straight away
+  await send({ type: 'look', [kind]: el.dataset.id });
+  setTimeout(refreshLooks, 1600); // if the server never showed it back, fall back to what it says
+}
+
+// ---------------------------------------------------------------------------
 // Screens
 // ---------------------------------------------------------------------------
 
@@ -243,8 +314,8 @@ const screens = {
          }`
       : `<p class="sub">${chosen ? `Next up: <b>${chosen.icon} ${esc(chosen.name)}</b>` : `Captain ${esc(v.vipName)} is choosing a game…`}</p>`;
     return `<div class="center">
-      <button class="avatar" data-act="avatar" aria-label="Change your mascot">${face(v.me, 'big')}</button>
-      <p class="tiny">Tap to change your mascot</p>
+      <button class="avatar" data-act="looks" aria-label="Change your mascot and colour">${face(v.me, 'big')}<span class="avatar-edit" aria-hidden="true">✎</span></button>
+      <p class="tiny">Tap to change your mascot and colour</p>
       <h1 class="title small">Welcome aboard, ${esc(v.me.name)}!</h1>
       <p class="tiny">${v.crew} in the crew</p>
       ${captain}
@@ -392,6 +463,8 @@ function render(v) {
   // (or already picked) rather than losing it. The server waits a moment for these.
   const moved = previous?.screen !== v.screen || previous?.key !== v.key;
   if (moved) dismissQuestion(); // any "are you sure?" was about a screen that has gone
+  if (v.screen === 'lobby') refreshLooks();
+  else closeLooks();
   if (moved && previous?.screen === 'draw' && pad.key === previous.key) sendFlag(previous.key);
   if (moved && previous?.screen === 'combine' && pick.key === previous.key) sendPick(previous.key);
   // The easel and the pairing screen keep their own state; nothing to redraw until they change.
@@ -480,6 +553,7 @@ screenEl.addEventListener('click', async (e) => {
     return refreshPick();
   }
   if (act === 'launch') return sendPick(pick.key);
+  if (act === 'looks') return openLooks();
   if (act.startsWith('bb-')) return bombardTap(act, id, view, send);
   if (act.startsWith('ld-')) return liarsTap(act, id, view, send);
   if (act.startsWith('op-')) return onePieceTap(act, id, view, send);
