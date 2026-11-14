@@ -148,6 +148,28 @@
         "server.js"
       ],
       "port": 3960
+    },
+    {
+      "name": "cradle-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=3990",
+        "SPEED=2",
+        "node",
+        "server.js"
+      ],
+      "port": 3990
+    },
+    {
+      "name": "cradle-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=3991",
+        "SPEED=12",
+        "node",
+        "server.js"
+      ],
+      "port": 3991
     }
   ]
 }

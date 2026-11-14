@@ -24,6 +24,7 @@ const FILES = {
   lawyer: 'sea-lawyer.json',
   parley: 'parley.json',
   bottle: 'bottle.json',
+  cradle: 'cradle.json',
 };
 
 function readJson(file) {
@@ -66,10 +67,27 @@ export function loadContent() {
   checkStory(content.onepiece);
   checkLawyer(content.lawyer);
   need(Array.isArray(content.parley.prompts) && content.parley.prompts.length >= 10, 'content/parley.json needs at least 10 "prompts".');
+  checkCradle(content.cradle);
   need(Array.isArray(content.bottle.ideas) && content.bottle.ideas.length >= 12, 'content/bottle.json needs at least 12 "ideas".');
   need(Array.isArray(content.parley.finalPrompts) && content.parley.finalPrompts.length >= 1, 'content/parley.json needs at least 1 "finalPrompts" entry.');
   checkQuestions(content.knotsQuestions);
   return content;
+}
+
+/** Cradle to Kraken: every deck needs cards, and every calling a perk the game knows. */
+function checkCradle(c) {
+  const file = 'content/cradle.json';
+  const perks = ['gunner', 'navigator', 'surgeon', 'cook', 'shantyman', 'smuggler', 'quartermaster', 'privateer', 'carpenter', 'powdermonkey', 'seawitch'];
+  need(Array.isArray(c?.callings) && c.callings.length >= 2, `${file} needs at least 2 "callings".`);
+  for (const x of c.callings) {
+    need(typeof x.name === 'string' && Number(x.share) > 0, `${file}: every calling needs a "name" and a "share" (its wages).`);
+    need(perks.includes(x.id) || x.id === 'none', `${file}: the calling "${x.name}" has the id "${x.id}"; it has to be one of ${perks.join(', ')} (or "none" for no perk).`);
+  }
+  for (const deck of ['fortune', 'misfortune', 'grog', 'tales', 'truths', 'crew', 'kraken', 'stowaways']) {
+    need(Array.isArray(c[deck]) && c[deck].length >= 3, `${file} needs at least 3 "${deck}".`);
+  }
+  const kinds = ['self', 'give', 'all', 'others', 'richest', 'poorest', 'mate', 'game'];
+  c.grog.forEach((g, i) => need(kinds.includes(g.kind), `${file}: grog ${i + 1} ("${g.text}") has the kind "${g.kind}"; it has to be one of ${kinds.join(', ')}.`));
 }
 
 /** Sea Lawyer: every question needs a blank to fill, the real answer, and a few house lies. */

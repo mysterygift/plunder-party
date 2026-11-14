@@ -3,7 +3,7 @@
 //   npm run bots                  -> 4 bots join the lobby and play along
 //   npm run bots -- 6             -> 6 bots
 //   npm run bots -- 4 scuttlebutt -> 4 bots, and they start that game themselves
-//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots | brig | lawyer | parley | bottle)
+//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots | brig | lawyer | parley | bottle | cradle)
 //
 // Start the server first (npm start). You can join on your own phone too:
 // the bots answer and vote, you play for real.
@@ -65,6 +65,32 @@ function liarsMove(view) {
   if (raises.length === 0) return { type: 'ld-call', key };
   const best = raises.sort((a, b) => b.appeal - a.appeal)[0];
   return { type: 'ld-bid', key, q: best.q, f: best.f };
+}
+
+/** A robot's answer to one of Cradle to Kraken's orders: mostly sensible, sometimes reckless. */
+function cradleChoice(t, view) {
+  const cash = view.status?.cash ?? 0;
+  const person = () => pick(t.people ?? []).id;
+  switch (t.kind) {
+    case 'fork': return Math.random() < 0.45 ? 0 : 1;
+    case 'ship': {
+      const affordable = t.options.filter((o) => o.price <= cash * 1.2);
+      return affordable.length && Math.random() < 0.8 ? affordable[affordable.length - 1].id : 'keep';
+    }
+    case 'map': return Math.random() < 0.6 && cash > t.cost ? pick(t.options) : 'pass';
+    case 'raid': return [...t.people].sort((a, b) => b.cash - a.cash)[0].id; // always go for the richest
+    case 'propose': return Math.random() < 0.8 ? person() : 'sea';
+    case 'answer': return Math.random() < 0.75 ? pick(t.people).id : 'none';
+    case 'give': return Array.from({ length: t.n }, person);
+    case 'retire': return Math.random() < 0.5 ? 'sunset' : 'job';
+    case 'card': {
+      if (Math.random() < 0.3) return 'skip';
+      const card = pick(t.cards);
+      return { card: card.id, target: card.target ? person() : undefined };
+    }
+    case 'haunt': return Math.random() < 0.7 ? person() : 'skip';
+  }
+  return null;
 }
 
 async function post(path, body) {
@@ -279,6 +305,39 @@ async function runBot(name, index) {
         await act({ type: 'tb-jail', key: view.key, id: vote?.id ?? 'nobody' });
         break;
       }
+      // Cradle to Kraken: spin, give orders, bet, vote, tell tales (well, press the button).
+      case 'ck-calling':
+        await pause(1500, 7000);
+        await act({ type: 'ck-calling', id: pick(view.options).id });
+        break;
+      case 'ck-helm':
+        if (view.roll != null) break;
+        await pause(800, 5000);
+        await act({ type: 'ck-spin', key: view.key, fair: !!view.canFair && Math.random() < 0.6 });
+        break;
+      case 'ck-decide':
+        for (const t of view.tasks) {
+          await pause(800, 3500);
+          await act({ type: 'ck-task', key: view.key, task: t.id, value: cradleChoice(t, view) });
+        }
+        break;
+      case 'ck-wager':
+        await pause(1000, 5000);
+        await act({ type: 'ck-bet', key: view.key, side: pick(['a', 'b']) });
+        break;
+      case 'ck-tale':
+        if (view.role !== 'teller') break;
+        await pause(3000, 9000);
+        await act({ type: 'ck-told', key: view.key });
+        break;
+      case 'ck-vote':
+        await pause(1000, 5000);
+        await act({ type: 'ck-vote', key: view.key, vote: Math.random() < 0.6 ? 'legend' : 'bilge' });
+        break;
+      case 'ck-truth':
+        await pause(1500, 5000);
+        await act({ type: 'ck-truth', key: view.key, choice: Math.random() < 0.5 ? 'answer' : 'drink' });
+        break;
       case 'op-end':
         if (autoGame && view.canContinue) {
           await pause(8000, 9000);

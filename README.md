@@ -4,7 +4,7 @@ A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the
 same wifi. Nothing to install on the phones.
 
-Twelve original games:
+Thirteen original games:
 
 | Game | What it is | Players |
 | --- | --- | --- |
@@ -20,6 +20,7 @@ Twelve original games:
 | 🔥 **Parley** | Who among ye…? A question about the crew goes up ("who's most likely to text their ex tonight?"). Vote in secret, then guess who the crew picked. Ends with the Black Spot: guess how many votes you'll get yourself. The TV shows the crew as carved figures round a bonfire on a moonlit beach, getting up to mischief while they wait; the votes drop out of the sky as doubloons, and the camera goes in close on the crew's pick (split screen for a tie). | 3–12 |
 | 🍾 **Message in a Bottle** | Draw it, guess it, pass it on. Write a message and cork it in a bottle; the next pirate draws it, the next writes what they think the drawing is, and so on round the crew. Then every bottle is unrolled page by page, and the crew votes for the best page in each. The TV is a sunny archipelago, one island per pirate, with the bottles drifting from island to island. | 3–12 |
 | ⛓️ **To the Brig with Ye** | A talking game with secret mutineers. Each leg, the captain sends two pirates up the crow’s nest; only they can see which side of the channel hides the reef, and each hoists a flag in secret. If the flags disagree, one of them is lying: the crew argues it out, votes on the heading, then votes somebody into the brig. Three strikes on the reef and the mutineers win. The TV shows the view from the bow, with the fork in the channel ahead. About a quarter of an hour. | 5–12 |
+| 🧭 **Cradle to Kraken** | A pirate’s whole life as a race round a board, and a drinking game. Everyone spins the ship’s wheel on their phone at once each year and sails up the route: pick a calling, marry a crewmate at Tortuga (shipmates drink together), buy a bigger ship, take on crew, buy treasure maps that pay out whenever *anyone* spins your number, raid your rivals (everyone else bets on the duel), tell tall tales for the crew to judge, and drink when the sea says so. At the Kraken’s Lair, retire safe or gamble it all on One Last Job. The TV is a toy board on the sea at sunset, with a ship for every pirate that grows from a rowing boat to a galleon. About 20 minutes. | 2–12 |
 
 ## Running it
 
@@ -78,6 +79,7 @@ restarting.
 | `content/sea-lawyer.json` | Sea Lawyer: the questions (each with its answer, a few house lies and an optional fun fact), questions per round, timers |
 | `content/parley.json` | Parley: the questions, the Black Spot questions, questions per round, timers |
 | `content/bottle.json` | Message in a Bottle: ideas for opening messages, pages per bottle, timers |
+| `content/cradle.json` | Cradle to Kraken: the callings, every card (fortunes, misfortunes, grog, tales, truths, crew, the Kraken), stowaways’ names, timers, the drink |
 | `content/dead-reckoning.json` | Locations: name, theme, coordinates, clues, fun fact, optional photo. Also the themes themselves, and whether distances are in miles or km |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
@@ -346,6 +348,68 @@ will be better liars and worse detectives than the simulation, so if one side
 keeps winning, `hull`, `mutineers` and `fog` are the ones to change (more fog
 helps the mutineers).
 
+**Cradle to Kraken: the rules, and tuning them**
+
+Everybody starts in Cradle Cove with a few doubloons and a rowing boat. First
+each pirate is dealt two **callings** and keeps one: it sets your wages (your
+*share*) and gives you a trick (the Gunner adds 2 in a duel, the Surgeon’s crew
+can’t be taken by the Kraken, the Quartermaster takes a cut of everyone else’s
+pay, the Sea Witch starts with a free treasure map…).
+
+Then every year goes the same way, with everybody playing at once:
+
+1. **Spin.** Flick the ship’s wheel on your phone: 1 to 10. Whoever owns the
+   treasure map with that number is paid, whoever spun it. A 1 costs a swig.
+2. **Sail.** Sailing past a **share-out** pays your wages. **Tortuga** and the
+   **shipyard** catch everyone who sails past; **forks** and the **Lair** stop
+   you dead. At a fork you choose a way: the short branch (Kraken Deep, Skull
+   Island) doubles the stakes; the long way round is steadier and pays twice.
+3. **Land.** Fortune, misfortune, grog, new crew (everyone else chips in), the
+   Kraken (lose crew, and drink for each), a fate card, a raid, a treasure map,
+   or a tavern tale. Money on the board grows the further along you are.
+4. **Orders.** Everyone decides on their phone at the same time: which way at
+   the fork; which ship to buy at the yard (bigger ships carry more crew, add to
+   your duel spin and sell for more at the end, and making captain there raises
+   your wages); who to raid; who to propose to; who gets the swigs you’re handing
+   out; whether to play a fate card on someone.
+5. **The show.** The TV plays out the year one beat at a time:
+   - **Weddings.** Say yes and you’re shipmates: wedding presents from everyone,
+     and from then on whenever one of you drinks, so does the other. Say no and
+     they drink alone. Propose to each other at once and it’s love at first sight.
+   - **Fate cards:** Becalmed (halve a rival’s next spin), Kraken Bait, Press
+     Gang (steal a crew member), Pickpocket, Round’s on Me. Two are kept and work
+     by themselves: Parley stops the next raid or nasty card, Iron Liver cancels
+     your next swig. Fair Winds (+3) is played on the wheel.
+   - **Raids.** Raider and defender both spin, plus ship and calling bonuses,
+     while everyone else bets on the winner (right: doubloons; wrong: a swig).
+     Win and you take a fifth of their doubloons, plus a bounty if they’re the
+     richest; lose and you pay them. The loser drinks.
+   - **Tavern tales.** Tell the room the story on the card; the crew votes
+     *Legend* (doubloons) or *Bilge* (you drink). **Truth or rum:** answer the
+     question out loud, or drink.
+   - Swigs handed out, and **hauntings**: retired pirates pick someone still at
+     sea each year to take a swig and pay them.
+
+Run out of money and the loan shark lends you 5,000; he wants 6,000 back at the
+end. At the **Kraken’s Lair** you retire (the first ones home get a bonus) and
+choose **Sunset Cove** (a safe pension) or **One Last Job**: at the very end you
+spin once more and 1–3 halves your doubloons, 4–6 is ×1.25, 7–9 ×1.6, and 10
+doubles them. After the last year the Kraken wakes and drags anyone still at
+sea into retirement. Then the ships are sold (at a surveyor’s price), the crew
+paid off, maps sold, debts settled, and the richest pirate wins. Titles go to
+the Hollow Leg (most swigs), Most Feared, Living Legend and friends.
+
+`content/cradle.json` has the settings: `drink` (empty for no drinking, and then
+every swig is a `fine` in doubloons instead), `purse` (what everyone starts
+with), `maxYears` (0 is 14), the timers under `seconds`, and all the cards.
+Each `callings` entry has a `share` to change and a `perk` line to reword; its
+`id` picks which trick it has, so keep those. `grog` cards have a `kind`:
+`self`, `give` (hand them out), `all`, `others`, `richest`, `poorest`, `mate`
+(you and your shipmate) or `game` (a drinking game the room plays out loud).
+The board itself (the order of the spaces, the forks) is in
+`public/cradle-board.js`, and the rest of the numbers (ship prices, map prices,
+the loan shark, raid shares) are at the top of `src/games/cradle.js`.
+
 **The narrator**
 
 On a Mac, the server renders each narrator line with one of macOS's own voices
@@ -414,6 +478,7 @@ npm run bots -- 4 liars         # they bid, bluff a bit, and call each other out
 npm run bots -- 5 onepiece      # they vote for whatever, and roll
 npm run bots -- 8 knots         # four ships of two; they answer every few seconds and get most right
 npm run bots -- 7 brig          # loyal robots are honest and gullible; mutinous ones lie when it counts and frame honest lookouts
+npm run bots -- 6 cradle        # they spin, raid the richest, propose to anyone, and vote on tales they never hear
 ```
 
 Join on your own phone as well and you can play a real game against them.
@@ -438,6 +503,7 @@ public/liars-*.js    LiAARRRRGH’s Dice: the 3D dice table on the TV (-host), y
 public/onepiece-*.js Find the One Piece: the log page on the TV (-host), the island it sits beside (-world), the vote and the die on phones (-play), its sounds and tunes (-sound)
 public/knots-*.js    Knot So Fast: the island and the race on the TV (-host), the question screen on phones (-play), the motion sum shared with the server (-motion), its sounds and reel (-sound)
 public/tb-*.js       To the Brig with Ye: the view from the bow on the TV (-host), your orders and the votes on phones (-play), its sounds and slow air (-sound)
+public/cradle-*.js   Cradle to Kraken: the board shared by the server and the TV (-board), the sunset board on the TV (-host), the wheel and your orders on phones (-play), its sounds and jig (-sound)
 public/vendor/       three.js, which draws the diorama (copied from node_modules, so no internet is needed)
 tools/bots.js        Robot players
 tools/build-assets.js  Regenerates the map data and fonts (already done; rarely needed)
