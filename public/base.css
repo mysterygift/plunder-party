@@ -25,6 +25,9 @@
 }
 
 :root {
+  /* We draw our own colours: stop phone browsers (Samsung Internet, Chrome "darken websites")
+     from auto-inverting them, which turned the dice pips pale red. */
+  color-scheme: only light;
   --night: #071523;
   --deep: #0c2a40;
   --sea: #14506b;
