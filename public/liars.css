@@ -1,0 +1,150 @@
+/* LiAARRRRGH's Dice: the dice themselves (shared), then the big screen, then the phones.
+   Dice are sized by font-size: a die is always 1em square. */
+
+/* ============ dice ============ */
+.die { display: inline-block; flex: none; width: 1em; height: 1em; vertical-align: middle; }
+.die svg { display: block; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0.05em 0.05em rgba(0, 0, 0, 0.45)); }
+.die-body { fill: #fbf2d8; stroke: #6b4a1f; stroke-width: 4; }
+.die-shine { fill: #fff; opacity: 0.5; }
+.die-spot { fill: var(--ink); }
+.die[data-n='1'] .die-spot { fill: var(--red); }
+.die-q { font: 58px var(--display); fill: var(--gold); opacity: 0.75; }
+.die.back .die-body { fill: #4a3524; stroke: #1f1612; }
+.die.back .die-shine { opacity: 0.1; }
+.die.wild .die-body { fill: #ffe9a3; stroke: var(--gold-dark); }
+
+/* a bid, as a picture: 4 × ⚄ */
+.ld-bid { display: inline-flex; align-items: center; gap: 0.16em; line-height: 1; vertical-align: middle; white-space: nowrap; }
+.ld-bid b { font: 400 1.12em/1 var(--display); }
+.ld-bid i { font: 400 0.6em/1 var(--os-font); opacity: 0.7; }
+
+/* ============ the big screen ============ */
+
+/* The diorama fills the whole window, behind the 1920x1080 stage (see liars-host.js). */
+#ldLayer { position: fixed; inset: 0; overflow: hidden; background: #1d130c; }
+#ldLayer canvas { display: block; width: 100%; height: 100%; }
+body[data-screen='ld-table'] #backdrop { display: none; }
+
+/* Dark at the edges, like a table under one lamp. */
+.ld-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 6, 3, 0.8) 0%, rgba(10, 6, 3, 0.35) 14%, transparent 27%, transparent 82%, rgba(10, 6, 3, 0.6) 100%),
+    radial-gradient(ellipse at 50% 55%, transparent 52%, rgba(10, 6, 3, 0.6) 100%);
+}
+
+/* --- the name plates round the table. --u is one "TV pixel"; a plate is sized by its font-size. --- */
+.ld-labels { position: absolute; inset: 0; pointer-events: none; font-size: calc(var(--u) * var(--seat, 36) * 1px); }
+.ld-label {
+  position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 0.16em; white-space: nowrap;
+  padding: 0.22em 0.6em 0.3em; border-radius: 0.55em; color: var(--parchment);
+  background: rgba(6, 12, 18, 0.82); border: 0.08em solid rgba(201, 239, 230, 0.28); box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.5);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s, opacity 0.3s;
+}
+.ld-label .chip { font-size: 0.92em; }
+.ld-left { display: flex; gap: 0.1em; font-size: 0.62em; }
+.ld-gone { font-size: 0.5em; font-style: italic; color: var(--foam); }
+.ld-label.turn { border-color: var(--gold); background: rgba(60, 40, 6, 0.94); box-shadow: 0 0 0.3em var(--gold), 0 0 1.3em rgba(247, 201, 72, 0.6); animation: ld-nudge 0.8s ease-in-out infinite alternate; }
+.ld-label.out { opacity: 0.55; filter: grayscale(0.85); }
+.ld-label.away .chip { opacity: 0.6; }
+.ld-tag {
+  position: absolute; left: 50%; top: -0.95em; translate: -50% 0; white-space: nowrap; padding: 0.04em 0.6em 0.12em; border-radius: 1em;
+  font: 0.66em var(--display); letter-spacing: 0.03em; color: #fff; background: var(--red); box-shadow: 0 0.12em 0.3em rgba(0, 0, 0, 0.5);
+  animation: ld-tag 0.35s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.ld-tag.gold { background: var(--gold); color: var(--ink); }
+.ld-tag.dark { background: #1f1612; color: var(--parchment); border: 0.08em solid rgba(244, 230, 193, 0.4); }
+@keyframes ld-nudge { to { scale: 1.07; } }
+@keyframes ld-tag { from { opacity: 0; scale: 0.4; } }
+
+/* --- the words, drawn on the stage by host.js: the bid along the top, the stamps --- */
+body.host .ld { position: absolute; inset: -100px 0 0 0; }
+.ld-top {
+  position: absolute; left: 50%; top: 16px; translate: -50% 0; min-width: 700px; max-width: 1180px; padding: 10px 50px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; white-space: nowrap;
+}
+.ld-top p { margin: 0; }
+.ld-top i { font-style: italic; }
+.ld-kicker { font: 28px var(--display); letter-spacing: 0.07em; color: var(--red-dark); }
+.ld-main { display: flex; align-items: center; justify-content: center; gap: 0.28em; font: 400 64px/1.1 var(--display); color: var(--ink); }
+.ld-main i { font: italic 0.6em var(--body); }
+.ld-main .chip { font-size: 0.72em; }
+.ld-main .ld-bid { font-size: 1.25em; }
+.ld-gap { width: 0.5em; }
+.ld-found { min-width: 0.7em; font-size: 1.3em; }
+.ld-found.good { color: #2f7d3a; }
+.ld-found.bad { color: var(--red); }
+.ld-sub { display: flex; align-items: center; gap: 0.3em; font-size: 34px; }
+.ld-sub .chip { font-size: 0.95em; }
+.ld-next { padding: 2px 24px 6px; border-radius: 40px; background: rgba(110, 75, 25, 0.16); }
+
+.ld-stamp {
+  position: absolute; left: 50%; top: 300px; translate: -50% 0; rotate: -6deg; padding: 0 44px 8px; white-space: nowrap;
+  font: 132px/1.1 var(--display); color: var(--red); border: 10px double var(--red); border-radius: 22px;
+  background: rgba(244, 230, 193, 0.95); box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6);
+}
+.ld-stamp.good { color: #2f7d3a; border-color: #2f7d3a; }
+.ld-foot {
+  position: absolute; left: 50%; bottom: 22px; translate: -50% 0; margin: 0; padding: 12px 46px 16px; white-space: nowrap;
+  display: flex; align-items: center; gap: 0.35em; font-size: 46px;
+}
+.ld-foot .chip { font-size: 0.95em; }
+.ld-foot i { font-size: 0.8em; }
+
+/* ============ the phones ============ */
+/* Top to bottom: the bid on the table, your own dice, then (pinned to the bottom,
+   where thumbs are) whatever you can do about it. */
+body.play .ld-hand { align-items: center; gap: 12px; padding-top: 12px; }
+.ld-hand > * { flex: none; width: 100%; max-width: 480px; }
+
+.ld-table { padding: 10px 16px 14px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.ld-table p { margin: 0; }
+.ld-kick { font: 13px var(--os-font); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
+body.play .ld-says { font-size: 18px; font-style: italic; }
+body.play .ld-says b { font: 400 1.15em var(--display); font-style: normal; color: var(--red-dark); }
+body.play .ld-claim { margin: 2px 0; font-size: 62px; line-height: 1; }
+.ld-open { font: 34px/1.1 var(--display); color: var(--red-dark); }
+
+/* your dice, in a tray; tap it to turn them face down */
+.ld-tray {
+  display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 12px; text-align: left; color: var(--foam);
+  background: linear-gradient(180deg, #2f2013, #24180e); border: 2px solid #6b4a1f; border-radius: 16px; box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.6);
+}
+.ld-tray-top { display: flex; align-items: baseline; justify-content: space-between; }
+.ld-tray-top b { font: 13px var(--os-font); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.ld-tray-top i { font-size: 13px; opacity: 0.6; }
+.ld-dice { display: flex; justify-content: center; gap: 8px; font-size: 52px; }
+.die.roll { animation: ld-tumble 0.7s cubic-bezier(0.2, 1.2, 0.4, 1) both; }
+@keyframes ld-tumble { from { opacity: 0; transform: translateY(-46px) rotate(-220deg) scale(0.4); } }
+
+/* what you can do: pinned to the bottom of the screen */
+.ld-panel {
+  margin-top: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px;
+  background: rgba(4, 16, 28, 0.6); border: 2px solid rgba(201, 239, 230, 0.2); border-radius: 18px;
+}
+.ld-hand.my-turn .ld-panel { border-color: var(--gold); box-shadow: 0 0 18px rgba(247, 201, 72, 0.25); }
+.ld-panel p { margin: 0; text-align: center; }
+.ld-status { padding: 8px 0; font-size: 20px; color: var(--foam); }
+.ld-status small { display: block; margin-top: 4px; font-size: 15px; font-style: italic; opacity: 0.8; }
+.ld-prompt { font: 24px var(--display); letter-spacing: 0.02em; color: var(--gold); }
+
+.ld-dial { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ld-step {
+  flex: none; width: 56px; height: 56px; padding: 0 0 4px; border-radius: 50%; font: 700 34px/1 var(--os-font); color: var(--ink);
+  background: linear-gradient(180deg, #ffe08a, var(--gold)); border: 2px solid var(--gold-dark); box-shadow: 0 4px 0 #7a4e0c;
+}
+.ld-step:active { transform: translateY(3px); box-shadow: 0 1px 0 #7a4e0c; }
+.ld-step:disabled { filter: grayscale(0.8); opacity: 0.35; }
+.ld-preview { font-size: 54px; line-height: 1; color: var(--parchment); }
+.ld-faces { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.ld-face { padding: 5px; display: grid; place-items: center; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 3px solid transparent; }
+.ld-face .die { width: 100%; height: auto; aspect-ratio: 1; }
+.ld-face.on { border-color: var(--gold); background: rgba(247, 201, 72, 0.18); }
+.ld-face:disabled { opacity: 0.25; }
+
+.ld-panel .btn { width: 100%; }
+.ld-or { display: flex; align-items: center; gap: 10px; font-size: 14px; font-style: italic; color: var(--foam); opacity: 0.7; }
+.ld-or::before, .ld-or::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.5; }
+.ld-call { padding-top: 6px; font-size: 30px; line-height: 1.1; letter-spacing: 0.04em; color: #fff; background: linear-gradient(180deg, #dc5046, var(--red)); border-color: var(--red-dark); box-shadow: 0 5px 0 #5e1611; }
+.ld-call small { display: block; font: italic 14px var(--body); letter-spacing: 0; opacity: 0.9; }
+.ld-call:active { box-shadow: 0 2px 0 #5e1611; }

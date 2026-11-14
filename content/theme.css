@@ -1,0 +1,38 @@
+/* PARTY THEME
+   Change these to re-skin every screen (TV and phones). This file loads last,
+   so anything here wins. Refresh the browser to see changes; no restart needed.
+
+   Tip: for a different party, try swapping --gold and --red for your own
+   colours, or point --display at any font installed on your laptop. */
+
+:root {
+  /* Night sky and sea (the TV background, the phone background) */
+  --night: #071523;
+  --deep: #0c2a40;
+  --sea: #14506b;
+  --foam: #c9efe6;
+
+  /* Accents */
+  --gold: #f7c948;
+  --gold-dark: #b9801a;
+  --red: #c8372d;
+  --red-dark: #8c211a;
+
+  /* Parchment cards and ink */
+  --parchment: #f4e6c1;
+  --parchment-dark: #d9c08a;
+  --ink: #2b1b0f;
+
+  /* Fonts: big titles, and everything else */
+  --display: 'Pirata One', 'Luminari', fantasy;
+  --body: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --hand: 'Cedarville Cursive', 'Bradley Hand', cursive; /* handwriting, for diary entries */
+
+  /* The retro "ShipOS" desktop used by Scuttlebutt */
+  --os-desk-top: #2d8fa8;
+  --os-desk-bottom: #0f4460;
+  --os-bar-a: #12355b;
+  --os-bar-b: #3a86b8;
+  --os-panel: #efe8d6;
+  --os-start: #c8372d;
+}

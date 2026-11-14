@@ -1,0 +1,25 @@
+{
+  "name": "plunder-party",
+  "version": "1.0.0",
+  "description": "A pirate party game pack you host on your laptop. Guests play from their phone's browser over wifi.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js --open",
+    "bots": "node tools/bots.js",
+    "narrator": "node tools/narrator-test.js",
+    "build:assets": "node tools/build-assets.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@fontsource/cedarville-cursive": "^5.3.0",
+    "@fontsource/im-fell-english": "^5.3.0",
+    "@fontsource/pirata-one": "^5.3.0",
+    "three": "^0.170.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  }
+}

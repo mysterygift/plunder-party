@@ -1,0 +1,9 @@
+{
+  "seconds": {
+    "turn": 30
+  },
+
+  "diceEach": 0,
+  "wildOnes": false,
+  "drink": "rum"
+}

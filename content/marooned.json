@@ -1,0 +1,683 @@
+{
+  "seconds": { "vote": 20, "roll": 12 },
+
+  "odds": { "diabolical": 10, "bad": 20, "neutral": 40, "good": 20, "perfect": 10 },
+
+  "ship": "{star}’s Revenge",
+
+  "title": {
+    "heading": "The Log of the {ship}",
+    "kept": "Kept by Capt. {star}",
+    "note": "If found, please return to the sea."
+  },
+
+  "rules": [
+    "This is the captain’s log, and we are writing it together.",
+    "When the log asks what we did, vote on your phone.",
+    "Then everybody rolls one die. The crew’s total decides how it went, from Perfect all the way down to Diabolical."
+  ],
+
+  "lines": {
+    "tie": "The vote was tied. It was settled with a doubloon.",
+    "cat": "The ship’s cat rolled for {name}.",
+    "needs": "We need {total} or better.",
+    "helped": "In our favour: {things}.",
+    "hurt": "Against us: {things}."
+  },
+
+  "bands": {
+    "perfect": "Perfect",
+    "good": "Good",
+    "neutral": "Neutral",
+    "bad": "Bad",
+    "diabolical": "Diabolical"
+  },
+
+  "marks": {
+    "canny": "Canny",
+    "bold": "Bold",
+    "daft": "Daft"
+  },
+
+  "kit": {
+    "stick": { "name": "The Stick", "note": "A right good stick." },
+    "rum": { "name": "Cask of rum", "note": "Saved from the wreck. Nothing else was." },
+    "pan": { "name": "The Big Pan", "note": "Iron. Seats six." },
+    "map-whole": { "name": "The monkey’s map", "note": "Whole, and quite legible." },
+    "map-torn": { "name": "The monkey’s map", "note": "Torn across the middle." },
+    "map-chewed": { "name": "Half the monkey’s map", "note": "He ate the rest." },
+    "high-ground": { "name": "The high ground", "note": "We are above it. For now." },
+    "lookout": { "name": "The lie of the land", "note": "Smoke inland, and a way through." },
+    "welcome": { "name": "A warm welcome", "note": "Anyone that keen on gravy can’t be all bad." },
+    "friends": { "name": "Friends in New Oldham", "note": "We are all right, apparently." },
+    "secret": { "name": "Darren’s secret", "note": "It is ticklish. Under the left wing." }
+  },
+
+  "woes": {
+    "soggy": { "name": "Soggy", "note": "Wet through. Not speaking." },
+    "marinated": { "name": "Marinated", "note": "Basted in gravy. We smell delicious." },
+    "tea": { "name": "Tomorrow’s tea", "note": "They keep looking at the pan." },
+    "bitten": { "name": "Bitten", "note": "All hands. Some twice." },
+    "singed": { "name": "Singed", "note": "Smelling of bonfire." }
+  },
+
+  "start": "beach",
+
+  "scenes": [
+    {
+      "id": "beach",
+      "name": "The Beach",
+      "set": "beach",
+      "header": { "day": "Day the 1st", "wind": "Spiteful", "course": "Downwards", "remarks": "Ship mislaid" },
+      "entry": "At first light the {ship} struck a reef that was not on the chart, chiefly because we have no chart. All hands reached the beach alive, and have complained without pause since. The wreck is still above water.",
+      "ask": "We resolved to…",
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Comb the tideline",
+          "lead": "We walked the tideline in good order, turning over whatever the sea had finished with."
+        },
+        {
+          "mark": "bold",
+          "text": "Swim out to the wreck",
+          "lead": "We swam for the wreck before she went under.",
+          "outcomes": {
+            "perfect": { "text": "{hero} came up with the rum cask under one arm and a right good stick under the other. I have never been prouder of anybody.", "gain": ["rum", "stick"] },
+            "good": { "text": "{hero} saved the rum. Nothing else was saved. Nobody has asked about anything else.", "gain": ["rum"] },
+            "neutral": { "text": "We reached the wreck in time to save one boot. It is not ours. We have kept it, in case." },
+            "bad": { "text": "The wreck sank as we reached it, out of spite. {jonah} swallowed a good deal of the ocean and brought most of it ashore.", "woe": ["soggy"] },
+            "diabolical": { "text": "The wreck rolled over on us and went down. We saved nothing, and very nearly not {jonah}. We begin the expedition wringing wet and not speaking.", "woe": ["soggy"] }
+          }
+        },
+        {
+          "mark": "daft",
+          "text": "Send {player} up a palm tree to look for a pub",
+          "lead": "{player} was sent up a palm tree to look for a pub.",
+          "outcomes": {
+            "perfect": { "text": "No pub. But from the top {player} saw smoke inland, and a path leading to it, and came down holding a stick of real quality.", "gain": ["lookout", "stick"] },
+            "good": { "text": "No pub. But {player} saw smoke inland and a clear way through the trees. We count this a success, and have told {player} so.", "gain": ["lookout"] },
+            "neutral": { "text": "No pub. {player} reports sea in every direction, and has been asked to stop reporting it." },
+            "bad": { "text": "No pub. {player} fell out of the tree and into a rock pool, taking {jonah} along. All hands are wet through.", "woe": ["soggy"] },
+            "diabolical": { "text": "No pub. The tree came down with {player} still in it, across our only dry clothes, and the tide took the lot. We are wringing wet and not speaking.", "woe": ["soggy"] }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "The sea gave back a spar of seasoned oak, straight and well balanced. {hero} swung it twice and the crew fell silent. It is a very good stick.", "gain": ["stick"] },
+        "good": { "text": "{hero} found a length of oak among the weed, straight and well balanced. It is, all hands agree, a right good stick.", "gain": ["stick"] },
+        "neutral": { "text": "We found one boot. It is not ours. We have kept it, in case." },
+        "bad": { "text": "The tide came in faster than advertised. {jonah} fell in a rock pool, twice, and all our powder is wet. So is everything else.", "woe": ["soggy"] },
+        "diabolical": { "text": "A wave took our dry clothes, our dignity, and very nearly {jonah}. We begin the expedition wringing wet and not speaking.", "woe": ["soggy"] }
+      },
+      "next": "jungle"
+    },
+
+    {
+      "id": "jungle",
+      "name": "The Jungle",
+      "set": "jungle",
+      "header": { "day": "Day the 2nd", "wind": "None. Air like soup", "course": "Inland, roughly", "remarks": "Drums" },
+      "entry": "Marched inland. The jungle is hot, and loud, and takes a personal interest in us. There is smoke ahead, and drums, and on the breeze a smell that all hands agree is gravy.",
+      "also": [
+        { "if": "soggy", "text": "We squelch as we go." },
+        { "if": "lookout", "text": "We have at least some notion of the way." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "soggy": -1, "lookout": 1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Follow the stream",
+          "lead": "We kept to the stream, on the principle that water knows where it is going."
+        },
+        {
+          "mark": "bold",
+          "text": "Cut straight for the drums",
+          "lead": "We cut straight through the trees toward the drums."
+        },
+        {
+          "mark": "daft",
+          "text": "Follow the smell of gravy",
+          "lead": "We followed our noses. {player} led, on merit.",
+          "outcomes": {
+            "perfect": { "text": "The smell led us to a village, and straight to the head of the queue. They took to us at once, and {player} was handed the first ladle. Anyone that keen on gravy, they said, can’t be all bad.", "gain": ["welcome"], "next": "feast" },
+            "good": { "text": "The smell led us to a village, and straight to the head of the queue. They took to us at once. Anyone that keen on gravy, they said, can’t be all bad.", "gain": ["welcome"], "next": "feast" }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": {
+          "text": "We came upon a village and saw it before it saw us. We tidied ourselves, formed up, and marched in as if expected. Nobody questioned it.",
+          "also": [{ "unless": "stick", "text": "On the way {hero} picked up a stick of real quality.", "gain": ["stick"] }],
+          "next": "feast"
+        },
+        "good": { "text": "We found a village by its smoke and walked in bold as brass. They looked us over, and put the kettle on.", "next": "feast" },
+        "neutral": { "text": "We blundered out of the trees into the middle of a village. There were spears. Then there was a brew. We are guests, we think.", "next": "feast" },
+        "bad": { "text": "{jonah} trod on something that proved to be a net. We were carried into a village slung from poles, like washing.", "next": "pan" },
+        "diabolical": { "text": "Netted, every one of us. We were carried in on poles, and basted on the way, which I thought forward. {jonah} says the gravy is very good.", "woe": ["marinated"], "next": "pan" }
+      }
+    },
+
+    {
+      "id": "pan",
+      "name": "New Oldham",
+      "set": "pan",
+      "header": { "day": "Day the 2nd, evening", "wind": "Blocked by the lid", "course": "Clockwise, when stirred", "remarks": "Carrots" },
+      "entry": "The village is called New Oldham. A sign says it is twinned with Oldham. We are in a large iron pan, with some carrots. The chief, one Big Sandra, is arguing with her people over whether we are dinner or tea.",
+      "also": [
+        { "if": "rum", "text": "We still have the rum. They have not found it." }
+      ],
+      "ask": "We resolved to…",
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Wriggle out while they argue",
+          "lead": "We climbed out quietly while the argument was at its height.",
+          "outcomes": {
+            "good": { "text": "We were out, dried off and sat by the fire before anybody counted. Big Sandra said that anyone who can get out of that pan is no fool, and gave us a brew.", "gain": ["friends"] },
+            "neutral": { "text": "We are out of the pan but not out of the village. They watch us the way one watches a pie that is not ready." },
+            "bad": { "text": "{jonah} knocked the lid off with a clang. We were counted back in, one by one, and {jonah} has been moved to the top of the menu.", "woe": ["tea"], "note": "potted" }
+          }
+        },
+        {
+          "mark": "bold",
+          "text": "Tell them we’re from Oldham an’ all",
+          "lead": "I declared that we were Oldham born and bred, the lot of us.",
+          "outcomes": {
+            "perfect": { "text": "They asked which end we stand at Boundary Park. {hero} said, the cold end. There was a silence, and then a cheer. We are family now.", "gain": ["friends"] },
+            "good": { "text": "They asked what we call the meal at noon. {hero} said dinner. It was the right answer. We were lifted out and given a brew.", "gain": ["friends"] },
+            "bad": { "text": "They asked us what a rag pudding is. {jonah} said it was a sort of hat. The lid went back on.", "woe": ["tea"], "note": "potted" },
+            "diabolical": { "text": "They asked where in Oldham. {jonah} said, the seafront. They have added onions, and gravy, and lit the fire. We will be ready by tea.", "woe": ["tea", "marinated"], "note": "potted" }
+          }
+        },
+        {
+          "mark": "daft",
+          "text": "Criticise the seasoning",
+          "lead": "{player} tasted the stock and said, loudly, that it wanted salt.",
+          "outcomes": {
+            "perfect": { "text": "Big Sandra has not been spoken to like that in twenty years, and it turns out she has missed it. We were lifted out, and {player} now commands the kitchen and the Big Pan with it.", "gain": ["friends", "pan"] },
+            "good": { "text": "Big Sandra tasted it, and went quiet, and said the lad was right. We were lifted out, and {player} was put in charge of the Big Pan. It is ours now.", "gain": ["friends", "pan"] },
+            "neutral": { "text": "They added salt. We remain in the pan, though it is agreed the stock is much improved." },
+            "bad": { "text": "Big Sandra said that {player} could season it personally, from the inside. The lid went back on.", "woe": ["tea"], "note": "potted" },
+            "diabolical": { "text": "They took the note. They added salt, onions, and a great deal of gravy, and lit the fire. {player} says it is better now. We will be ready by tea.", "woe": ["tea", "marinated"], "note": "potted" }
+          }
+        },
+        {
+          "mark": "bold",
+          "needs": "rum",
+          "spends": "rum",
+          "tilt": 2,
+          "text": "Offer them the rum",
+          "lead": "I offered them the cask, with the compliments of the ship.",
+          "outcomes": {
+            "perfect": { "text": "The cask was empty within the hour, and so was the pan. Big Sandra has taught {hero} a song about Oldham and will not let go of {hero}’s arm.", "gain": ["friends"] },
+            "bad": { "text": "They drank the rum, thanked us warmly, and put the lid back on. {jonah} is top of the menu.", "woe": ["tea"], "note": "potted" },
+            "diabolical": { "text": "They drank the rum and said it would do nicely for the gravy. It has. The fire is lit, and we will be ready by tea.", "woe": ["tea", "marinated"], "note": "potted" }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "It worked better than we deserved. By nightfall we were out of the pan and at the top table, and Big Sandra was calling {hero} “cock”. I am told this is good.", "gain": ["friends"] },
+        "good": { "text": "It answered. We were lifted out, towelled down and given a brew. Big Sandra says we are all right, for southerners. We are not southerners. I let it pass.", "gain": ["friends"] },
+        "neutral": { "text": "We are out of the pan but not out of the village. They watch us the way one watches a pie that is not ready." },
+        "bad": { "text": "It did not answer. The lid went back on. {jonah} has been moved to the top of the menu, with a sprig of something.", "woe": ["tea"], "note": "potted" },
+        "diabolical": { "text": "It went as badly as a plan can. They have added onions, and gravy, and lit the fire. Big Sandra says we will be ready by tea.", "woe": ["tea", "marinated"], "note": "potted" }
+      },
+      "next": "monkey"
+    },
+
+    {
+      "id": "feast",
+      "name": "New Oldham",
+      "set": "feast",
+      "header": { "day": "Day the 2nd, evening", "wind": "Fair, with gravy", "course": "Three, and a pudding", "remarks": "Do not ask" },
+      "entry": "The village is called New Oldham. A sign says it is twinned with Oldham. The chief, one Big Sandra, has sat us down to a feast of rag pudding. The crew have remarked that there are no animals on this island.",
+      "also": [
+        { "if": "welcome", "text": "We are, for the moment, well thought of." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "welcome": 1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Eat up and ask nothing",
+          "lead": "We ate what we were given and asked no questions."
+        },
+        {
+          "mark": "bold",
+          "text": "Challenge Big Sandra to an arm wrestle",
+          "lead": "We challenged Big Sandra to an arm wrestle, for the honour of the ship.",
+          "outcomes": {
+            "perfect": { "text": "{hero} put her arm down inside a minute. The village roared. Big Sandra stood the round and says {hero} may marry into the family.", "gain": ["friends"] },
+            "good": { "text": "{hero} held Big Sandra to a draw for a quarter of an hour. She says nobody has managed that since her mother.", "gain": ["friends"] },
+            "neutral": { "text": "Big Sandra won, though {hero} made her put her brew down to do it. Honour is satisfied. Nothing else is." },
+            "bad": { "text": "Big Sandra beat {jonah}, and then the rest of us, one after another, without putting down her brew. They look at us differently now. Hungrily.", "woe": ["tea"] },
+            "diabolical": { "text": "Big Sandra put {jonah} through the table. We are no longer guests. We are in the Big Pan, with onions, and the gravy is going on.", "woe": ["tea", "marinated"], "note": "potted" }
+          }
+        },
+        {
+          "mark": "daft",
+          "text": "Ask what’s in the pudding",
+          "lead": "{player} asked what was in the pudding.",
+          "outcomes": {
+            "perfect": { "text": "“Last crew,” said Big Sandra, and laughed till she wept, and so, after a moment, did we. Her lad Darren then told {player} about the great lizard up the mountain. It is ticklish, he says. Under the left wing.", "gain": ["friends", "secret"] },
+            "good": { "text": "“Best not, cock,” said Big Sandra, kindly. Her lad Darren changed the subject to the great lizard up the mountain. It is ticklish, he says. Under the left wing.", "gain": ["friends", "secret"] },
+            "neutral": { "text": "“Suet,” said Big Sandra, “mostly.” Nobody has asked about the rest. {player} has stopped eating." },
+            "bad": { "text": "“You are,” said Big Sandra. Nobody laughed. They have started measuring {jonah}.", "woe": ["tea"] },
+            "diabolical": { "text": "“Nothing yet,” said Big Sandra, and looked at {player}. We are now in the Big Pan, with onions, and the gravy is going on.", "woe": ["tea", "marinated"], "note": "potted" }
+          }
+        },
+        {
+          "mark": "bold",
+          "needs": "rum",
+          "spends": "rum",
+          "tilt": 2,
+          "text": "Get a round in",
+          "lead": "I stood the whole village a round from our cask.",
+          "outcomes": {
+            "perfect": { "text": "The cask is empty and we are the most popular people ever to visit New Oldham. Big Sandra has taught {hero} a song about Oldham and will not let go of {hero}’s arm.", "gain": ["friends"] },
+            "bad": { "text": "They drank the rum, and it made them hungry. {jonah} gave offence, I could not say how. We are now spoken of as “tea”.", "woe": ["tea"] },
+            "diabolical": { "text": "They drank the rum and said it would do nicely for the gravy. We are in the Big Pan, with onions, and it is going on now.", "woe": ["tea", "marinated"], "note": "potted" }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "A triumph. By the end of the night we had been taught three songs, all of them about Oldham, and Big Sandra called {hero} “our kid” in front of everyone.", "gain": ["friends"] },
+        "good": { "text": "It went well. We were given seconds, and a brew, and told we were all right. I believe that is the highest honour they have.", "gain": ["friends"] },
+        "neutral": { "text": "The evening passed without incident or warmth. They have not decided about us. They keep looking at us, and then at the pan." },
+        "bad": { "text": "It went poorly. {jonah} gave offence, I could not say how, and the pudding was taken away. We are now spoken of as “tea”.", "woe": ["tea"] },
+        "diabolical": { "text": "It went as badly as a supper can. We are in the Big Pan, with onions, the gravy is going on, and Big Sandra says we will be ready by tomorrow.", "woe": ["tea", "marinated"], "note": "potted" }
+      },
+      "next": "monkey"
+    },
+
+    {
+      "id": "monkey",
+      "name": "The Monkey",
+      "set": "monkey",
+      "header": { "day": "Day the 3rd", "wind": "Held its breath", "course": "Backwards, briskly", "remarks": "Monkey" },
+      "entry": "At noon the drums stopped. A monkey walked out of the woods and into the middle of the village. He wore a small waistcoat. Big Sandra went white, and said, “It’s ’im.” He looked at each of us in turn. Then he went for us.",
+      "also": [
+        { "if": "potted", "text": "We were let out of the pan for the purpose, on the understanding that we get back in after." },
+        { "if": "stick", "text": "We had, by the grace of God, a stick." },
+        { "unless": "stick", "text": "Big Sandra pressed a stick into my hand. “It’s not a good stick,” she said." },
+        { "if": "friends", "text": "The village was behind us. Some distance behind us." },
+        { "if": "tea", "text": "The village had money on the monkey." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "stick": 1, "friends": 1, "tea": -1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Hit him with the stick",
+          "lead": "We hit him with the stick."
+        },
+        {
+          "mark": "bold",
+          "text": "Hit him with the stick, with a run-up",
+          "lead": "We hit him with the stick, having first taken a run-up."
+        },
+        {
+          "mark": "daft",
+          "text": "Give {player} the stick",
+          "lead": "We gave {player} the stick, and stood well back.",
+          "outcomes": {
+            "perfect": { "text": "{player} swung once, eyes shut, and he went down like a dropped pudding. {player} is a legend in New Oldham. They have given us the Big Pan and named a child after the stick.", "gain": ["pan"], "note": "clean" },
+            "good": { "text": "{player} swung with eyes shut, and connected. The monkey sat down, surprised, and did not get up. {player} was given the Big Pan on the spot.", "gain": ["pan"], "note": "clean" },
+            "neutral": { "text": "{player} and the monkey went twice round the village, and it was not always clear who had the stick. He was beaten at last, with the stick, but he made his point.", "note": "scrappy" },
+            "bad": { "text": "He took the stick off {player} almost at once. We got it back, and beat him with it, but not before he had bitten every one of us, and {jonah} more than once.", "woe": ["bitten"], "note": "scrappy" },
+            "diabolical": {
+              "text": "We won. I record that first, because nothing else about it was creditable. He took the stick off {player} and beat the whole crew with it for four hours, wearing my hat.",
+              "also": [{ "if": "rum", "text": "He also drank the rum.", "lose": ["rum"] }],
+              "woe": ["bitten"],
+              "note": "shameful"
+            }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "One swing. {hero} caught him clean and he went down like a dropped pudding. The village cheered for a quarter of an hour, made us honorary Oldhamers, and gave us the Big Pan to keep.", "gain": ["pan"], "note": "clean" },
+        "good": { "text": "Three good blows from {hero} and it was settled. The village was impressed, though not so much as to say so.", "note": "clean" },
+        "neutral": { "text": "It took most of the afternoon, and went twice round the village. He was beaten at last, with the stick, but he made his point.", "note": "scrappy" },
+        "bad": { "text": "He was beaten in the end, with the stick, but not before he had bitten every one of us, and {jonah} more than once. {jonah} asks that this be left out of the log.", "woe": ["bitten"], "note": "scrappy" },
+        "diabolical": {
+          "text": "We won. I record that first, because nothing else about it was creditable. It took four hours. He bit all hands, wore my hat, and beat {jonah} with our own stick before we got it back.",
+          "also": [{ "if": "rum", "text": "He also drank the rum.", "lose": ["rum"] }],
+          "woe": ["bitten"],
+          "note": "shameful"
+        }
+      },
+      "next": "trial"
+    },
+
+    {
+      "id": "trial",
+      "name": "The Trial",
+      "set": "cross",
+      "header": { "day": "Day the 3rd, later", "wind": "Returned", "course": "Justice", "remarks": "Guilty" },
+      "entry": "The village held a trial at once. The charge was being from Rochdale. He offered no defence. They hung him up on a cross made of the stick and one other stick, and he looked very cross indeed. In his waistcoat pocket we found a map of this island, with an X upon the volcano and, beside it, a small drawing of a dragon. “Oh aye,” said Big Sandra. “We don’t go up there.”",
+      "also": [
+        { "if": "clean", "text": "The map is whole, and quite legible.", "gain": ["map-whole"] },
+        { "if": "scrappy", "text": "The map was torn across the middle in the struggle.", "gain": ["map-torn"] },
+        { "if": "shameful", "text": "He had eaten half of it.", "gain": ["map-chewed"] }
+      ],
+      "next": "volcano"
+    },
+
+    {
+      "id": "volcano",
+      "name": "The Volcano",
+      "set": "volcano",
+      "header": { "day": "Day the 4th", "wind": "Hot, from below", "course": "Up", "remarks": "Smells of eggs" },
+      "entry": "Set out at dawn for the volcano, by the monkey’s map. The mountain smokes, the ground is warm underfoot, and the whole place smells of eggs. Near the top the map offers a choice of roads.",
+      "also": [
+        { "if": "map-torn", "text": "We hold the two halves together and hope." },
+        { "if": "map-chewed", "text": "The half we need is, I fear, the half he ate." },
+        { "if": "friends", "text": "Big Sandra’s lad Darren came to see us off, and pointed out the mountain, in case we had missed it." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "map-whole": 1, "map-chewed": -1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Take the goat track, the long way round",
+          "lead": "We took the goat track, which goes the long way round, and says so."
+        },
+        {
+          "mark": "bold",
+          "text": "Take the lava tube",
+          "lead": "We took the lava tube, which is quicker, and only slightly on fire."
+        },
+        {
+          "mark": "daft",
+          "text": "Shout “hello?” into the crater",
+          "lead": "{player} leaned over the crater and shouted “hello?”, to see if anyone was in.",
+          "outcomes": {
+            "perfect": { "text": "A voice from below said, “Not today, thank you,” and something very large turned over and went back to sleep. We went in on tiptoe, took the high ground, and {hero} filled both pockets.", "gain": ["high-ground"] },
+            "good": { "text": "A voice from below said, “Not today, thank you,” and something very large turned over and went back to sleep. We went in on tiptoe and took the high ground.", "gain": ["high-ground"] },
+            "neutral": { "text": "Nothing answered but the echo, with which {player} then had words. We went in none the wiser." },
+            "bad": { "text": "Something below shouted “hello” back, and then a quantity of fire. All hands are singed. {player} has no eyebrows, and has been told why.", "woe": ["singed"] },
+            "diabolical": {
+              "text": "Something below answered with fire, and the rim gave way. We arrived by the quick route, on our backs, alight.",
+              "also": [{ "loseOne": ["pan", "rum", "stick"], "text": "Something we were fond of went into the lava and did not come out." }],
+              "woe": ["singed"]
+            }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "We came out upon a ledge high above a cavern heaped with gold, unseen and unsinged. {hero} filled both pockets on the way. Whatever lives here, we have the high ground of it.", "gain": ["high-ground"] },
+        "good": { "text": "A hard climb, well managed. We reached the heart of the mountain with all hands, all eyebrows, and a little breath to spare." },
+        "neutral": { "text": "We arrived, in the sense that we are here. All hands are winded, and {jonah} has a stone in one shoe that is now the chief subject of conversation." },
+        "bad": { "text": "The mountain coughed as we passed. All hands are singed, and {jonah} is still faintly alight. We pressed on, smelling of bonfire.", "woe": ["singed"] },
+        "diabolical": {
+          "text": "The path gave way. We arrived by the quick route, on our backs, on fire.",
+          "also": [{ "loseOne": ["pan", "rum", "stick"], "text": "Something we were fond of went into the lava and did not come out." }],
+          "woe": ["singed"]
+        }
+      },
+      "next": "hoard"
+    },
+
+    {
+      "id": "hoard",
+      "name": "The Hoard",
+      "set": "hoard",
+      "header": { "day": "Day the 4th, later", "wind": "Breathing", "course": "None advisable", "remarks": "Dragon" },
+      "entry": "The X on the map is a cavern, and the cavern is full of gold: coin, and plate, and crowns, heaped to the roof. On top of the heap lay something the size of a ship, asleep. {player} sneezed. It is no longer asleep.",
+      "next": "dragon-1"
+    },
+
+    {
+      "id": "dragon-1",
+      "name": "The Dragon: it breathes in",
+      "set": "dragon",
+      "fight": true,
+      "header": { "day": "Day the 4th, night", "wind": "Rising, inward", "course": "Any", "remarks": "It is breathing in" },
+      "entry": "The dragon stood up, and went on standing up for some time. It looked us over as Big Sandra looks at a pudding. Then it began to breathe in.",
+      "also": [
+        { "if": "marinated", "text": "It could smell the gravy on us. I saw it lick its lips." },
+        { "if": "pan", "text": "We had the Big Pan to hand." },
+        { "if": "high-ground", "text": "We had the high ground." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "pan": 1, "high-ground": 1, "marinated": -1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Get behind a rock",
+          "lead": "We got behind a rock, in order of rank.",
+          "outcomes": {
+            "good": { "text": "The rock took the fire, and held. When the dragon stopped for breath, {hero} leaned out and caught it smartly on the nose." },
+            "bad": { "text": "The rock took the fire, and then the rock melted. All hands are scorched, {jonah} worst, and we have given ground." }
+          }
+        },
+        {
+          "mark": "bold",
+          "text": "Charge in under the flame",
+          "lead": "We charged in under the flame, shouting."
+        },
+        {
+          "mark": "daft",
+          "text": "Throw {player} at it",
+          "lead": "We threw {player} at it.",
+          "outcomes": {
+            "perfect": { "text": "{player} went straight down its throat as it breathed in, and came straight back out on a cough of smoke. The fire has gone out. {player} is unharmed, and furious.", "move": 3 },
+            "good": { "text": "{player} struck it full on the snout, and held on. The dragon has never had a sailor thrown at it before, and plainly did not know what to do.", "move": 2 },
+            "neutral": { "text": "{player} bounced off. The dragon looked at {player}, and then at us, and I believe it was disappointed in all parties." },
+            "bad": { "text": "It caught {player} in its mouth, thought about it, and spat {player} back at us, on fire. We have given ground." },
+            "diabolical": { "text": "It caught {player}, and used {player} to hit the rest of us. We are driven back to the cavern wall, and I can smell my own hat cooking." }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "The fire went clean over our heads and brought half the roof down upon the beast. {hero} got in a blow that it will remember. First blood to the ship." },
+        "good": { "text": "The fire missed us, though not by much. {hero} struck it smartly on the nose, and it sat back, offended." },
+        "neutral": { "text": "It breathed fire. We were elsewhere. Neither party has yet learned anything." },
+        "bad": { "text": "The fire found us. All hands are scorched, {jonah} worst, and we have given ground." },
+        "diabolical": { "text": "The fire found us, and stayed. {jonah} is alight, we are driven back to the cavern wall, and I can smell my own hat cooking." }
+      },
+      "next": "dragon-2"
+    },
+
+    {
+      "id": "dragon-2",
+      "name": "The Dragon: the soft spot",
+      "set": "dragon",
+      "fight": true,
+      "header": { "day": "Day the 4th, night", "wind": "Hot, gusting", "course": "Round the back of it", "remarks": "Seeking a weak place" },
+      "entry": "It came on again. Every beast has a weak place, and the trick, I am told, is to find it before the beast finds yours.",
+      "also": [
+        { "if": "map-whole", "text": "The map marks a spot beneath the left wing with a small skull." },
+        { "if": "map-chewed", "text": "The map says its weak place is the, and there the monkey’s bite begins." },
+        { "if": "secret", "text": "Darren swore it was ticklish under the left wing." },
+        { "if": "stick", "text": "We still had the stick, and it had not failed us yet." },
+        { "if": "bitten", "text": "All hands were still sore from the monkey." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "stick": 1, "map-whole": 1, "secret": 1, "bitten": -1, "map-chewed": -1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "Go for the tail",
+          "lead": "We went for the tail, it being the end farthest from the fire.",
+          "outcomes": {
+            "good": { "text": "{hero} got hold of the tail and would not let go. The dragon went twice round the cavern trying to see what was the matter." },
+            "neutral": { "text": "We struck the tail hard, several times. It is armour to the very tip. The dragon did not notice, and we are out of breath." },
+            "bad": { "text": "The tail proved to be the end it hits people with. {jonah} was flung the length of the cavern and landed in the plate." }
+          }
+        },
+        {
+          "mark": "bold",
+          "text": "Go in under the left wing",
+          "lead": "We went in under the left wing, where such beasts are said to be soft."
+        },
+        {
+          "mark": "daft",
+          "text": "Tickle it",
+          "lead": "{player} went in under the wing and tickled it.",
+          "outcomes": {
+            "perfect": { "text": "It laughed until it wept, fell off its own gold, and begged {player} to stop. {player} did not stop.", "move": 3 },
+            "good": { "text": "It giggled. I record this faithfully. It rolled on its back with its legs in the air, and {hero} got in two free blows.", "move": 2 },
+            "neutral": { "text": "It twitched, once. {player} says that was a laugh. Nobody else says so." },
+            "bad": { "text": "It is not ticklish there. {player} has been bitten, gently, as a warning, and we have given ground." },
+            "diabolical": { "text": "It is ticklish, and it hates it. I have not seen an animal so angry. {player} was thrown clear. The rest of us were not." }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "We found the place. {hero} drove home a blow there, and the dragon let out a shriek like a kettle and fell off its own treasure." },
+        "good": { "text": "{hero} landed a good one where it is tender. It flinched, and for the first time looked at us with some doubt." },
+        "neutral": { "text": "We struck it hard in several places. All of them were armour. It did not notice, and we are out of breath." },
+        "bad": { "text": "We found its weak place at the same moment it found ours. {jonah} was flung the length of the cavern and landed in the plate." },
+        "diabolical": { "text": "There is no weak place, or not where we were told. It swept the whole crew off our feet with its tail, and sat on {jonah}." }
+      },
+      "next": "dragon-3"
+    },
+
+    {
+      "id": "dragon-3",
+      "name": "The Dragon: now or never",
+      "set": "dragon",
+      "fight": true,
+      "header": { "day": "Day the 4th, night", "wind": "Fire", "course": "At it", "remarks": "Now or never" },
+      "entry": "Both parties were now tired, and one of us was on fire. The dragon drew itself up for a last breath. It was now or never.",
+      "also": [
+        { "if": "singed", "text": "We were already well cooked from the climb." },
+        { "if": "rum", "text": "We still had the rum." }
+      ],
+      "ask": "We resolved to…",
+      "tilts": { "singed": -1 },
+      "options": [
+        {
+          "mark": "canny",
+          "text": "One great shout, to bring the roof down",
+          "lead": "All hands shouted together, to bring the roof down upon it.",
+          "outcomes": {
+            "good": { "text": "It told. A good piece of the roof came down across its back. The dragon staggered, coughed a small sad flame, and looked about for the way out." },
+            "bad": { "text": "The roof came down. It came down on us. The dragon breathed out, and we ran before it, {jonah} last and loudest." }
+          }
+        },
+        {
+          "mark": "bold",
+          "needs": "rum",
+          "spends": "rum",
+          "tilt": 1,
+          "text": "Rum down its throat, then a spark",
+          "lead": "We put the whole cask down its throat and followed it with a spark.",
+          "outcomes": {
+            "perfect": { "text": "The cask went down, the spark went after it, and the dragon let out a belch that blew it backwards across the cavern. It is raining gold." },
+            "good": { "text": "The dragon drank the lot, hiccupped fire, and fell over sideways. I believe it is singing." },
+            "bad": { "text": "It enjoyed the rum very much, and breathed out twice as hard. We ran before it, {jonah} last and loudest." }
+          }
+        },
+        {
+          "mark": "bold",
+          "unless": "rum",
+          "text": "Go for its eyes",
+          "lead": "We went straight for its eyes, with whatever was to hand."
+        },
+        {
+          "mark": "daft",
+          "text": "Beat it with the stick and hang it up on a cross",
+          "lead": "We resolved to beat it with the stick and hang it up on a cross. It worked on the monkey.",
+          "outcomes": {
+            "perfect": { "text": "It worked on the dragon. I do not know what to say. {hero} beat it soundly with the stick, and it lay down and let us. We could not find a cross big enough.", "move": 3 },
+            "good": { "text": "The stick broke across its nose at the first blow. The dragon was so astonished that it sat down. We could not find a cross big enough, but the point was made.", "move": 2 },
+            "neutral": { "text": "We beat it with the stick. It watched us do it. After a while {jonah} asked whether it was working, and nobody could say." },
+            "bad": { "text": "The stick caught fire. Then {jonah} caught fire. We withdrew to consider other methods." },
+            "diabolical": { "text": "It took the stick from us, snapped it, and picked its teeth with the pieces, looking directly at {jonah}. Then it breathed out." }
+          }
+        }
+      ],
+      "outcomes": {
+        "perfect": { "text": "It answered beyond all hope. The dragon was knocked the whole length of the cavern and fetched up against the wall with a crash that shook the mountain." },
+        "good": { "text": "It told. The dragon staggered, coughed a small sad flame, and looked about for the way out." },
+        "neutral": { "text": "It made a great noise and settled nothing. The dragon is still standing. So, to its evident surprise, are we." },
+        "bad": { "text": "It failed. The dragon breathed out, and we ran before it, {jonah} last and loudest." },
+        "diabolical": { "text": "It failed entirely. The dragon breathed out, the cavern went white, and for a time I could see neither {jonah} nor anyone." }
+      },
+      "next": "ending"
+    }
+  ],
+
+  "fight": {
+    "moves": { "perfect": 2, "good": 1, "neutral": 0, "bad": -1, "diabolical": -2 },
+    "endings": { "perfect": 3, "good": 1, "neutral": 0, "bad": -1, "diabolical": -3 }
+  },
+
+  "endings": {
+    "perfect": {
+      "name": "Fair Winds",
+      "set": "sail",
+      "header": { "day": "Day the 5th", "wind": "Fair, at last", "course": "Home", "remarks": "Rich" },
+      "entry": [
+        "When the smoke cleared, the dragon lay still upon its gold, and the gold was ours. We carried out all that we could lift, and {hero} carried more.",
+        "From the mountain top, at dawn, we saw a sail. We lit a beacon from the dragon’s last ember, and she turned toward us.",
+        "All hands are saved, and rich, and insufferable. Big Sandra waved us off from the beach and has asked us to write. I close this log."
+      ],
+      "signed": "{star}, Captain"
+    },
+    "good": {
+      "name": "A Receipt",
+      "set": "sail",
+      "header": { "day": "Day the 5th", "wind": "Fair", "course": "Home, under escort", "remarks": "Receipt enclosed" },
+      "entry": [
+        "When the smoke cleared, the dragon had had enough. It slunk off down a side passage, and we filled our pockets.",
+        "From the mountain top we saw a sail, lit a great fire, and were seen. She proved to be HMS Paperwork.",
+        "Her captain has rescued us, confiscated the treasure in the King’s name, and given us a receipt. All hands are alive. {jonah} has been asked to stop saying “at least”."
+      ],
+      "signed": "{star}, Captain"
+    },
+    "neutral": {
+      "name": "Back for Tea",
+      "set": "village",
+      "header": { "day": "Day the 5th", "wind": "Light, with gravy", "course": "Back down", "remarks": "Tea" },
+      "entry": [
+        "When the smoke cleared, we and the dragon looked at one another, and it was agreed without a word to call it a draw. It keeps its gold. We keep our skins.",
+        "From the mountain top we saw a sail. Nobody had anything dry to light, and she passed.",
+        "We are back in New Oldham in time for tea and, for the present, we are not in it. This log continues."
+      ],
+      "signed": "{star}, Captain"
+    },
+    "bad": {
+      "name": "The Smoke Was Us",
+      "set": "pan",
+      "header": { "day": "Day the 5th", "wind": "Smoky", "course": "Downhill, at speed", "remarks": "On fire" },
+      "entry": [
+        "When the smoke cleared, we were outside, running, and on fire. The gold is where we found it. So is the dragon, laughing.",
+        "A ship did pass, and did see smoke. The smoke was us. She sailed on.",
+        "We reached New Oldham at dusk. Big Sandra looked at the state of us and said, “Well, that’s saved us a job.” The Big Pan is on."
+      ],
+      "signed": "{star}, Captain, for now"
+    },
+    "diabolical": {
+      "name": "Bit Gamey",
+      "set": "ashes",
+      "burns": true,
+      "header": { "day": "Day the 5th", "wind": "Fire", "course": "None", "remarks": "None" },
+      "entry": [
+        "The dragon breathed out. I write this in haste, as the page is alight, and so am I. All hands are"
+      ],
+      "otherHand": {
+        "text": "Day 5. Ate crew. Bit gamey.",
+        "also": [
+          { "if": "marinated", "text": "Nice gravy, though." },
+          { "if": "rum", "text": "Kept the rum." }
+        ],
+        "signed": "D."
+      }
+    }
+  },
+
+  "muster": {
+    "heading": "Crew Muster",
+    "intro": "Being a true account of who rolled what.",
+    "titles": {
+      "luckiest": { "name": "Luckiest Hand", "note": "Rolled the most, all told." },
+      "jonah": { "name": "The Jonah", "note": "Rolled the least. Sits at the far end of the boat from now on." },
+      "sixes": { "name": "Most Sixes", "note": "Suspiciously." },
+      "ones": { "name": "Most Ones", "note": "Reliably." }
+    }
+  }
+}

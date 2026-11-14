@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "plunder-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3100", "SPEED=3", "node", "server.js"],
+      "port": 3100
+    },
+    {
+      "name": "bombard-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3210", "node", "server.js"],
+      "port": 3210
+    },
+    {
+      "name": "liars-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3310", "node", "server.js"],
+      "port": 3310
+    }
+  ]
+}

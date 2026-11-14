@@ -1,0 +1,10 @@
+{
+  "title": "Plunder Party",
+  "tagline": "Maria’s Birthday Voyage",
+  "guestOfHonour": "Maria",
+
+  "narrator": {
+    "voice": "system",
+    "signoffs": ["Yarr, me hearties!", "Ahrr, matey!", "Yo ho ho!", "Shiver me timbers!", "Aye aye, captain!", "Ahoy there!", "Heave ho!", "Thar she blows!", "Savvy?"]
+  }
+}

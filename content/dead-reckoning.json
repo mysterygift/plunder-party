@@ -1,0 +1,267 @@
+{
+  "rounds": 5,
+  "seconds": { "guess": 60 },
+
+  "locations": [
+    {
+      "name": "Port Royal, Jamaica",
+      "lat": 17.937, "lng": -76.841,
+      "clues": [
+        "Once called the wickedest city on Earth.",
+        "Most of it slid into the sea during an earthquake in 1692.",
+        "It guards the harbour of Kingston, on a Caribbean island famous for reggae."
+      ],
+      "fact": "Two thirds of Port Royal sank in minutes. Its ruins are still under the harbour."
+    },
+    {
+      "name": "Nassau, Bahamas",
+      "lat": 25.06, "lng": -77.345,
+      "clues": [
+        "For about a decade this town was the capital of a self-declared Republic of Pirates.",
+        "Blackbeard, Calico Jack and Anne Bonny all drank here.",
+        "Today it’s the capital of the Bahamas."
+      ],
+      "fact": "The pirate republic ended in 1718 when Governor Woodes Rogers arrived offering royal pardons."
+    },
+    {
+      "name": "Tortuga, Haiti",
+      "lat": 20.04, "lng": -72.79,
+      "clues": [
+        "Its name means ‘turtle’, after the shape of the island.",
+        "In the 1600s it was the headquarters of the buccaneers.",
+        "It sits just off the north coast of Haiti."
+      ],
+      "fact": "The buccaneers here called themselves the Brethren of the Coast."
+    },
+    {
+      "name": "Île Sainte-Marie, Madagascar",
+      "lat": -16.9, "lng": 49.9,
+      "clues": [
+        "This island has what’s said to be the world’s only pirate cemetery.",
+        "Pirates used it to ambush ships sailing home from India.",
+        "It lies off the east coast of Madagascar."
+      ],
+      "fact": "As many as a thousand pirates are thought to have lived here around 1700."
+    },
+    {
+      "name": "Ocracoke Island, North Carolina",
+      "lat": 35.115, "lng": -75.98,
+      "clues": [
+        "A thin strip of sand in a chain of barrier islands.",
+        "Blackbeard fought his last battle here in November 1718.",
+        "It’s part of the Outer Banks, on the east coast of the USA."
+      ],
+      "fact": "Legend says Blackbeard’s headless body swam around the ship three times."
+    },
+    {
+      "name": "Cartagena, Colombia",
+      "lat": 10.39, "lng": -75.48,
+      "clues": [
+        "Spanish treasure fleets loaded up with gold and emeralds here.",
+        "Francis Drake captured the city in 1586 and held it to ransom.",
+        "A walled city on the Caribbean coast of Colombia."
+      ],
+      "fact": "After the raids, Spain built the largest fortress in its American colonies here."
+    },
+    {
+      "name": "Cape Horn, Chile",
+      "lat": -55.98, "lng": -67.27,
+      "clues": [
+        "Sailors feared this headland more than any other.",
+        "Tradition says rounding it earns you a gold earring.",
+        "It’s the southern tip of South America."
+      ],
+      "fact": "Before the Panama Canal opened in 1914, this was the main sea route between the Atlantic and the Pacific."
+    },
+    {
+      "name": "Galápagos Islands, Ecuador",
+      "lat": -0.63, "lng": -90.36,
+      "clues": [
+        "Buccaneers hid here and stocked their ships with live giant tortoises.",
+        "A young naturalist visited in 1835 and took a keen interest in the finches.",
+        "These islands sit on the equator, about 1,000 km west of Ecuador."
+      ],
+      "fact": "‘Galápago’ is an old Spanish word for tortoise."
+    },
+    {
+      "name": "Robinson Crusoe Island, Chile",
+      "lat": -33.64, "lng": -78.85,
+      "clues": [
+        "A Scottish privateer was marooned here alone for over four years.",
+        "His story inspired a very famous novel about a castaway.",
+        "It’s in the Pacific, about 670 km off the coast of Chile."
+      ],
+      "fact": "The real castaway was Alexander Selkirk, rescued in 1709."
+    },
+    {
+      "name": "Pitcairn Island",
+      "lat": -25.07, "lng": -130.1,
+      "clues": [
+        "One of the most remote inhabited islands on Earth.",
+        "Mutineers from HMS Bounty hid here in 1790 and burned their ship.",
+        "It’s in the South Pacific, roughly halfway between New Zealand and Peru."
+      ],
+      "fact": "Around fifty people live here today, many descended from the mutineers."
+    },
+    {
+      "name": "Oak Island, Nova Scotia",
+      "lat": 44.51, "lng": -64.29,
+      "clues": [
+        "People have been digging for treasure here since 1795 and found almost nothing.",
+        "It’s famous for a mysterious booby-trapped shaft called the Money Pit.",
+        "A small island on the Atlantic coast of Canada."
+      ],
+      "fact": "Theories about what’s buried here range from pirate gold to Shakespeare’s manuscripts."
+    },
+    {
+      "name": "Cocos Island, Costa Rica",
+      "lat": 5.53, "lng": -87.06,
+      "clues": [
+        "Hundreds of expeditions have searched this jungle island for the lost Treasure of Lima.",
+        "Today it’s better known for hammerhead sharks than for gold.",
+        "It’s in the Pacific, about 550 km off Costa Rica."
+      ],
+      "fact": "Nobody has ever found the treasure. Or at least, nobody has admitted to it."
+    },
+    {
+      "name": "Clew Bay, Ireland",
+      "lat": 53.83, "lng": -9.75,
+      "clues": [
+        "Home waters of a 16th-century pirate queen who met Elizabeth I face to face.",
+        "The bay is said to have an island for every day of the year.",
+        "It’s on the west coast of Ireland, in County Mayo."
+      ],
+      "fact": "Grace O’Malley commanded hundreds of men and a fleet of galleys from her castles here."
+    },
+    {
+      "name": "Algiers, Algeria",
+      "lat": 36.75, "lng": 3.06,
+      "clues": [
+        "For three centuries this was the great stronghold of the Barbary corsairs.",
+        "The red-bearded Barbarossa brothers ruled from here.",
+        "It’s a North African capital on the Mediterranean."
+      ],
+      "fact": "Barbary corsairs raided as far north as Cornwall, Ireland and even Iceland."
+    },
+    {
+      "name": "Saint-Malo, France",
+      "lat": 48.65, "lng": -2.03,
+      "clues": [
+        "A walled port that grew rich on legal piracy.",
+        "Its corsairs raided English ships with the French king’s blessing.",
+        "It’s on the north coast of Brittany."
+      ],
+      "fact": "Its motto was roughly: ‘Not French, not Breton, but from Saint-Malo.’"
+    },
+    {
+      "name": "Panama City, Panama",
+      "lat": 8.98, "lng": -79.52,
+      "clues": [
+        "Captain Henry Morgan marched across the jungle to sack this city in 1671.",
+        "Spanish silver from Peru passed through here on its way to Europe.",
+        "Today a very famous canal starts right beside it."
+      ],
+      "fact": "Morgan was arrested for the raid, then knighted and made deputy governor of Jamaica."
+    },
+    {
+      "name": "Charleston, South Carolina",
+      "lat": 32.78, "lng": -79.93,
+      "clues": [
+        "Blackbeard blockaded this entire port for nearly a week in 1718.",
+        "His ransom demand was not gold but a chest of medicine.",
+        "A historic harbour city in South Carolina, USA."
+      ],
+      "fact": "He got his medicine chest and sailed away without firing a shot."
+    },
+    {
+      "name": "Hong Kong",
+      "lat": 22.3, "lng": 114.17,
+      "clues": [
+        "These waters were ruled by the most successful pirate in history, and she was a woman.",
+        "Zheng Yi Sao commanded hundreds of junks and tens of thousands of pirates.",
+        "A famous harbour city at the mouth of China’s Pearl River."
+      ],
+      "fact": "She negotiated a pardon, kept her loot, and retired to run a gambling house."
+    },
+    {
+      "name": "Wapping, London",
+      "lat": 51.503, "lng": -0.058,
+      "clues": [
+        "Execution Dock stood on the riverbank here for 400 years.",
+        "Captain Kidd was hanged at this spot in 1701.",
+        "It’s on the River Thames, in England’s capital."
+      ],
+      "fact": "Pirates’ bodies were left until three tides had washed over them."
+    },
+    {
+      "name": "Bristol, England",
+      "lat": 51.45, "lng": -2.59,
+      "clues": [
+        "Blackbeard is believed to have been born in this port.",
+        "In ‘Treasure Island’, the Hispaniola sets sail from here.",
+        "A harbour city in the south-west of England, famous for a suspension bridge and hot-air balloons."
+      ],
+      "fact": "Long John Silver ran the Spy-glass tavern on Bristol’s docks."
+    },
+    {
+      "name": "Penzance, Cornwall",
+      "lat": 50.12, "lng": -5.54,
+      "clues": [
+        "A seaside town with a notorious smuggling past.",
+        "Gilbert and Sullivan wrote a comic opera about its pirates.",
+        "It’s almost at the very tip of Cornwall."
+      ],
+      "fact": "‘The Pirates of Penzance’ opened in 1879 and has barely been off the stage since."
+    },
+    {
+      "name": "Zanzibar, Tanzania",
+      "lat": -6.16, "lng": 39.2,
+      "clues": [
+        "A spice island whose old quarter is called Stone Town.",
+        "The singer of ‘Bohemian Rhapsody’ was born here.",
+        "It lies in the Indian Ocean, just off the coast of Tanzania."
+      ],
+      "fact": "It was once the world’s biggest producer of cloves."
+    },
+    {
+      "name": "Mauritius",
+      "lat": -20.2, "lng": 57.5,
+      "clues": [
+        "Sailors stopping here for supplies ate a large, trusting, flightless bird.",
+        "It was the only home the dodo ever had.",
+        "An island nation in the Indian Ocean, east of Madagascar."
+      ],
+      "fact": "The dodo was extinct within about a century of people arriving."
+    },
+    {
+      "name": "Tahiti, French Polynesia",
+      "lat": -17.65, "lng": -149.43,
+      "clues": [
+        "HMS Bounty spent five months here collecting breadfruit plants.",
+        "The crew liked it so much that leaving helped spark the mutiny.",
+        "It’s the largest island of French Polynesia, in the South Pacific."
+      ],
+      "fact": "Captain Bligh survived a 6,000 km voyage in an open boat after being cast adrift."
+    },
+    {
+      "name": "Havana, Cuba",
+      "lat": 23.11, "lng": -82.37,
+      "clues": [
+        "Spanish treasure fleets gathered here every year before crossing the Atlantic.",
+        "Famous for cigars, rum and classic 1950s cars.",
+        "It’s the capital of the largest island in the Caribbean."
+      ],
+      "fact": "A French corsair burned the city to the ground in 1555."
+    },
+    {
+      "name": "Easter Island, Chile",
+      "lat": -27.11, "lng": -109.35,
+      "clues": [
+        "A Dutch explorer landed here on a Sunday in spring, 1722, and named it after the day.",
+        "It’s watched over by nearly a thousand giant stone heads.",
+        "A tiny speck in the Pacific, over 3,500 km west of Chile."
+      ],
+      "fact": "The statues are called moai, and most of them have bodies buried below the ground."
+    }
+  ]
+}

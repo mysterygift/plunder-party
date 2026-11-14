@@ -1,0 +1,34 @@
+{
+  "seconds": {
+    "aim": 30,
+    "krakenAim": 30
+  },
+
+  "drink": "rum",
+
+  "pirateShips": [
+    "The Soggy Biscuit",
+    "The Unwashed",
+    "Plank You Very Much",
+    "The Angry Haddock",
+    "Rum for Improvement",
+    "The Crusty Barnacle",
+    "The Wet Sock",
+    "Sea You Later",
+    "Maria’s Revenge",
+    "The Leaky Bucket"
+  ],
+
+  "navyShips": [
+    "HMS Pompous",
+    "HMS Insufferable",
+    "HMS Paperwork",
+    "HMS Stiff Upper Lip",
+    "HMS Regret",
+    "HMS Unsinkable",
+    "HMS Tea Break",
+    "HMS Mind Your Manners",
+    "HMS Health and Safety",
+    "HMS Strongly Worded Letter"
+  ]
+}

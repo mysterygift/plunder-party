@@ -1,0 +1,52 @@
+{
+  "seconds": { "draw": 180, "names": 80, "combine": 60, "vote": 40, "drawExtra": 75, "namesExtra": 45 },
+
+  "flagsEach": 3,
+  "namesEach": 4,
+
+  "ideas": [
+    "the flag of a ship crewed entirely by cats",
+    "a flag that says “please don’t attack us”",
+    "the flag of the least scary pirates on the seven seas",
+    "the flag {star} would fly from the mast",
+    "a flag for pirates who are mostly in it for the snacks",
+    "the flag of a ship that is definitely haunted",
+    "a skull and crossbones, drawn from memory, badly",
+    "the flag of a pirate crew from Manchester",
+    "a flag designed by the ship’s parrot",
+    "the flag {player} would get tattooed on their back",
+    "a flag for a ship that only sails on bank holidays",
+    "the Kraken’s family crest",
+    "a flag that would get you barred from every port",
+    "the flag of a very posh pirate",
+    "a pirate flag, but make it cute",
+    "the flag of a ship that is actually a pedalo",
+    "a flag for pirates who have run out of rum",
+    "what the seagulls would fly if they had a ship",
+    "a flag for a crew of retired pirates",
+    "the logo of a pirate budget airline",
+    "a flag for pirates who are scared of water",
+    "the flag of the ship’s cook, who is not well",
+    "a flag celebrating {star}’s birthday",
+    "the flag of a ship that got lost on the way to Blackpool"
+  ],
+
+  "spareNames": [
+    "The Soggy Biscuit",
+    "HMS Questionable Decisions",
+    "The Leaky Bucket",
+    "Davy Jones’ Plus One",
+    "The Unsinkable II",
+    "The Salty Spaniel",
+    "The Mild Peril",
+    "Scurvy’s Revenge",
+    "The Wobbly Plank",
+    "The Damp Squib",
+    "Barnacle’s Folly",
+    "The Rum Deal",
+    "The Seagull’s Lunch",
+    "The Overdue Library Book",
+    "{star}’s Revenge",
+    "The Second-Best Ship in Salford"
+  ]
+}

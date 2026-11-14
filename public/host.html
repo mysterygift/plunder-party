@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plunder Party · Big Screen</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏴‍☠️</text></svg>">
+  <link rel="stylesheet" href="/base.css">
+  <link rel="stylesheet" href="/host.css">
+  <link rel="stylesheet" href="/bombard.css">
+  <link rel="stylesheet" href="/liars.css">
+  <link rel="stylesheet" href="/content/theme.css">
+</head>
+<body class="host">
+  <!-- Night sky and rolling sea (the normal backdrop) -->
+  <div id="backdrop">
+    <div class="stars"></div>
+    <div class="moon"></div>
+    <div class="ship">⛵</div>
+    <div class="wave w3"></div>
+    <div class="wave w2"></div>
+    <div class="wave w1"></div>
+  </div>
+
+  <!-- The retro "ShipOS" desktop (only shown during Scuttlebutt) -->
+  <div id="desktop">
+    <div class="desk-icons">
+      <span><b>🗺️</b>My Charts</span>
+      <span><b>💀</b>Davy Jones’ Bin</span>
+      <span><b>🍾</b>BottleMail</span>
+      <span><b>🦜</b>Polly.exe</span>
+      <span><b>💰</b>Loot.xls</span>
+    </div>
+    <div class="taskbar">
+      <span class="start">⚓ Ahoy</span>
+      <span class="task">🦜 Scuttlebutt</span>
+      <span class="tray"><span id="deskTimer" data-timer hidden></span><span id="deskClock"></span></span>
+    </div>
+  </div>
+
+  <!-- Everything is laid out on a fixed 1920x1080 stage and scaled to fit the window -->
+  <div id="stage">
+    <div id="bar"><span id="barTitle"></span><span id="timer" data-timer hidden></span></div>
+    <div id="screen"></div>
+    <div id="mapLayer" hidden></div>
+  </div>
+
+  <div id="paused" hidden>⏸ Paused</div>
+  <div id="toast" hidden></div>
+  <div id="offline">Reconnecting to the ship…</div>
+
+  <div id="controls">
+    <button data-ctl="pause" title="Pause / resume (P)">⏯</button>
+    <button data-ctl="skip" title="Skip ahead (Space)">⏭</button>
+    <button data-ctl="end" title="End this game (Esc)">⏹</button>
+    <span class="sep"></span>
+    <button data-ctl="sound" title="Sound effects (S)">🔊</button>
+    <button data-ctl="music" title="Music and sea ambience (M)">🎵</button>
+    <button data-ctl="narrator" title="Narrator voice (N)">🗣️</button>
+    <button data-ctl="fullscreen" title="Fullscreen (F)">⛶</button>
+  </div>
+
+  <button id="curtain">
+    <span class="curtain-flag">🏴‍☠️</span>
+    <span class="curtain-title">Click to hoist the sails</span>
+    <span class="curtain-sub">(this switches the sound on)</span>
+  </button>
+
+  <script type="module" src="/host.js"></script>
+</body>
+</html>

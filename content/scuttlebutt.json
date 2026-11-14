@@ -1,0 +1,189 @@
+{
+  "roundsPerGame": 3,
+  "seconds": {
+    "answer": 60,
+    "twist": 80,
+    "vote": 35
+  },
+  "fallbackAnswers": [
+    "Arr.",
+    "No comment.",
+    "It’s complicated.",
+    "I’d rather not say."
+  ],
+  "rounds": [
+    {
+      "name": "Tavern Chat",
+      "intro": "Answer an innocent question. Then a crewmate decides what you were REALLY asked.",
+      "questions": [
+        "What’s your honest opinion of Mondays?",
+        "How do you feel about camping?",
+        "What do you think of pineapple on pizza?",
+        "How would you describe your own cooking?",
+        "What’s your opinion of karaoke?",
+        "How do you feel about surprise parties?",
+        "What do you think about going to the gym?",
+        "Describe your last holiday in a few words.",
+        "How do you feel about long car journeys?",
+        "What’s your opinion of group chats?",
+        "How do you feel about getting up early?",
+        "What do you think about cats?",
+        "How was your week, honestly?",
+        "What’s your opinion of reality TV?",
+        "How do you feel about dancing in public?",
+        "Describe the last film you watched.",
+        "What do you think of this party so far?",
+        "How do you feel about seagulls?",
+        "What’s your opinion of the British weather?",
+        "How do you feel about fancy dress?"
+      ],
+      "twistPrompt": "What were they REALLY asked? Write the question.",
+      "twistPlaceholder": "e.g. How was the captain’s cooking?",
+      "setup": "Down at the tavern, someone asked {name}:",
+      "bridge": "{name} replied:",
+      "fallbackTwists": [
+        "What do you think of the captain’s singing?",
+        "How did the wedding go?",
+        "Any last words?"
+      ],
+      "icon": "🍺",
+      "window": "TavernChat 2.0"
+    },
+    {
+      "name": "Wanted!",
+      "intro": "Describe yourself honestly. A crewmate will decide what crime you’re confessing to.",
+      "questions": [
+        "Describe your morning routine in a few words.",
+        "What’s your go-to excuse for leaving a party early?",
+        "How would you describe your driving?",
+        "What do you say when you stub your toe?",
+        "Describe your dance moves.",
+        "What’s your proudest achievement this year?",
+        "How do you behave at an all-you-can-eat buffet?",
+        "What’s your strategy for winning board games?",
+        "Describe how you parallel park.",
+        "What do you usually do on a Sunday afternoon?",
+        "How do you react when someone eats your leftovers?",
+        "What’s your approach to flat-pack furniture?",
+        "Describe your singing voice.",
+        "What do you do when nobody’s watching?",
+        "How do you deal with a spider in the bath?",
+        "Describe your handwriting.",
+        "What are you like before your first coffee?",
+        "How do you behave on a long flight?"
+      ],
+      "twistPrompt": "This is their confession. What crime are they wanted for?",
+      "twistPlaceholder": "e.g. stealing the captain’s wig",
+      "setup": "WANTED: {name}, for the crime of…",
+      "bridge": "When finally caught, {name} said only:",
+      "fallbackTwists": [
+        "stealing the ship’s biscuits",
+        "impersonating an admiral",
+        "teaching the parrot rude words"
+      ],
+      "icon": "📜",
+      "window": "Wanted Poster Wizard"
+    },
+    {
+      "name": "Captain’s Log",
+      "icon": "📓",
+      "window": "CaptainsLog.exe",
+      "style": "diary",
+      "intro": "Tell us how things are going. A crewmate decides what actually happened to you that day.",
+      "questions": [
+        "How’s your day going so far?",
+        "Sum up your weekend in a few words.",
+        "How are you feeling right now?",
+        "Describe your last meal.",
+        "How did you sleep last night?",
+        "What’s the best thing that happened this week?",
+        "How was your journey here tonight?",
+        "Describe your last trip to the supermarket.",
+        "How did your last job interview go?",
+        "What was your last haircut like?",
+        "How was your last family gathering?",
+        "Describe your last workout.",
+        "How did your last attempt at DIY go?",
+        "What was your last night out like?",
+        "How was your last trip to the dentist?",
+        "Describe your last phone call with your mum."
+      ],
+      "twistPrompt": "This is their log entry. What actually happened to them that day?",
+      "twistPlaceholder": "e.g. was swallowed whole by a whale",
+      "setup": "Captain’s log. Today, {name}…",
+      "bridge": "{name}’s only entry that night:",
+      "fallbackTwists": [
+        "was swallowed whole by a whale",
+        "lost the ship in a card game",
+        "was promoted to captain by mistake"
+      ]
+    },
+    {
+      "name": "Parrot Says",
+      "icon": "🦜",
+      "window": "PollyPlayer",
+      "intro": "Say something nice. Parrots repeat everything, and a crewmate decides where yours repeated it.",
+      "questions": [
+        "Say something encouraging.",
+        "Give a piece of life advice.",
+        "Pay someone a compliment.",
+        "What do you say when you’re impressed?",
+        "What do you say when the food arrives?",
+        "How do you greet an old friend?",
+        "What do you shout when your team scores?",
+        "What do you say when you open a present you love?",
+        "How do you cheer someone up?",
+        "What do you say when you finally sit down after a long day?",
+        "What’s your catchphrase?",
+        "What do you say to a dog you’ve just met?",
+        "How do you say goodnight?",
+        "What do you say when you’re winning at a game?",
+        "What do you say when someone tells you a secret?",
+        "How do you react to really good news?"
+      ],
+      "twistPrompt": "Their parrot squawked this out loud. Where, or during what?",
+      "twistPlaceholder": "e.g. the admiral’s funeral",
+      "setup": "{name}’s parrot was heard squawking, right in the middle of…",
+      "bridge": "The parrot, in {name}’s exact voice:",
+      "fallbackTwists": [
+        "the admiral’s funeral",
+        "a very tense hostage negotiation",
+        "the captain’s wedding vows"
+      ]
+    },
+    {
+      "name": "Bottle Mail",
+      "intro": "Write a short, sincere note. A crewmate decides who it was sent to. Double doubloons!",
+      "questions": [
+        "Write a one-line thank-you note.",
+        "Write a one-line apology.",
+        "Write a short, heartfelt compliment.",
+        "Write a one-line complaint.",
+        "Write a one-line love note.",
+        "Write a short warning.",
+        "Write a one-line resignation letter.",
+        "Write a short invitation.",
+        "Write a one-line ‘get well soon’ message.",
+        "Write a short birthday message.",
+        "Write a one-line ‘I miss you’ note.",
+        "Write a polite request.",
+        "Write a one-line confession.",
+        "Write a short ‘congratulations’ message.",
+        "Write a one-line pep talk.",
+        "Write a short goodbye."
+      ],
+      "twistPrompt": "This note was found in a bottle. Who (or what) was it sent to?",
+      "twistPlaceholder": "e.g. the kraken",
+      "setup": "A bottle washed ashore, addressed to…",
+      "bridge": "Inside was a note signed by {name}:",
+      "fallbackTwists": [
+        "the kraken",
+        "the ship’s cat",
+        "a very confused seagull"
+      ],
+      "icon": "🍾",
+      "window": "BottleMail Express",
+      "final": true
+    }
+  ]
+}

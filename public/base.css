@@ -1,0 +1,152 @@
+/* Shared by the TV and the phones: fonts, colours, player chips, the map.
+   To re-theme the party, edit content/theme.css rather than this file. */
+
+@font-face {
+  font-family: 'Pirata One';
+  src: url('/fonts/pirata-one-latin-400-normal.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IM Fell English';
+  src: url('/fonts/im-fell-english-latin-400-normal.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IM Fell English';
+  font-style: italic;
+  src: url('/fonts/im-fell-english-latin-400-italic.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cedarville Cursive';
+  src: url('/fonts/cedarville-cursive-latin-400-normal.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --night: #071523;
+  --deep: #0c2a40;
+  --sea: #14506b;
+  --foam: #c9efe6;
+  --gold: #f7c948;
+  --gold-dark: #b9801a;
+  --parchment: #f4e6c1;
+  --parchment-dark: #d9c08a;
+  --ink: #2b1b0f;
+  --red: #c8372d;
+  --red-dark: #8c211a;
+  --display: 'Pirata One', 'Luminari', fantasy;
+  --body: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --hand: 'Cedarville Cursive', 'Bradley Hand', cursive; /* handwriting, for diary entries */
+
+  /* The retro "ShipOS" desktop used by Scuttlebutt */
+  --os-font: Tahoma, Verdana, 'Trebuchet MS', sans-serif;
+  --os-desk-top: #2d8fa8;
+  --os-desk-bottom: #0f4460;
+  --os-bar-a: #12355b;
+  --os-bar-b: #3a86b8;
+  --os-panel: #efe8d6;
+  --os-edge: #0b2540;
+  --os-start: #c8372d;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--night);
+  color: var(--parchment);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+[hidden] { display: none !important; }
+
+/* ----- player chips ----- */
+.chip { display: inline-flex; align-items: center; gap: 0.35em; vertical-align: middle; }
+.chip .face {
+  display: inline-grid; place-items: center;
+  width: 1.7em; height: 1.7em; flex: none;
+  border-radius: 50%;
+  background: var(--c, var(--gold));
+  border: 0.09em solid #fff8e4;
+  box-shadow: 0 0.08em 0.2em rgba(0, 0, 0, 0.45);
+  line-height: 1;
+}
+.chip .face > span { font-size: 1.05em; }
+.chip .nm { font-family: var(--display); letter-spacing: 0.02em; white-space: nowrap; }
+
+/* ----- parchment ----- */
+.parch {
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at 25% 15%, rgba(255, 255, 255, 0.55), transparent 55%),
+    radial-gradient(ellipse at 85% 95%, rgba(120, 80, 20, 0.28), transparent 50%),
+    var(--parchment);
+  border-radius: 14px 22px 16px 24px / 22px 14px 24px 16px;
+  box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.35), inset 0 0 38px rgba(140, 95, 30, 0.28), 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+
+/* ----- "are you sure?" popups (see ask() in common.js) -----
+   Sized in em: the TV and the phones each set .modal's font-size. */
+.modal {
+  position: fixed; inset: 0; z-index: 35; display: grid; place-items: center; padding: 1em;
+  background: rgba(3, 10, 18, 0.72); animation: modal-fade 0.15s ease-out both;
+}
+.modal-card { width: min(100%, 25em); padding: 1.3em 1.5em 1.4em; text-align: center; animation: modal-pop 0.22s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+.modal-card h2 { margin: 0; font: 400 1.9em/1.08 var(--display); color: var(--red-dark); letter-spacing: 0.01em; overflow-wrap: anywhere; }
+.modal-card p { margin: 0.55em 0 0; font-size: 1.05em; line-height: 1.25; }
+.modal-btns { display: flex; justify-content: center; gap: 0.8em; margin-top: 1.2em; }
+.modal-btn {
+  flex: 1; padding: 0.38em 0.6em 0.46em; border-radius: 0.5em; font: 1.3em/1.1 var(--display); letter-spacing: 0.02em; color: var(--ink);
+  background: rgba(255, 255, 255, 0.45); border: 0.09em solid rgba(110, 75, 25, 0.6); box-shadow: 0 0.2em 0 rgba(110, 75, 25, 0.55);
+}
+.modal-btn.yes { color: #fff; background: linear-gradient(180deg, #dc5046, var(--red)); border-color: var(--red-dark); box-shadow: 0 0.2em 0 #5e1611; }
+.modal-btn:active { transform: translateY(0.12em); box-shadow: 0 0.08em 0 rgba(0, 0, 0, 0.5); }
+.modal-btn:focus-visible { outline: 0.14em solid var(--ink); outline-offset: 0.12em; }
+@keyframes modal-fade { from { opacity: 0; } }
+@keyframes modal-pop { from { opacity: 0; transform: scale(0.8); } }
+
+/* ...and as a ShipOS dialog box during Scuttlebutt */
+body.retro .modal-card { padding: 0 0 1.2em; overflow: hidden; background: var(--os-panel); color: #16202b; font-family: var(--os-font); border: 0.16em solid var(--os-edge); border-radius: 0.6em 0.6em 0.25em 0.25em; box-shadow: 0.45em 0.45em 0 rgba(0, 0, 0, 0.3); }
+body.retro .modal-card h2 { padding: 0.4em 0.7em; text-align: left; font: 700 1.15em var(--os-font); color: #fff; background: linear-gradient(180deg, var(--os-bar-b), var(--os-bar-a) 60%); }
+body.retro .modal-card p { margin: 1.1em 1.3em 0; }
+body.retro .modal-btns { margin: 1.2em 1.3em 0; }
+body.retro .modal-btn { font: 700 1em var(--os-font); border-radius: 0.3em; background: linear-gradient(180deg, #fff, #d9dee4); border: 0.12em solid var(--os-edge); box-shadow: 0.16em 0.16em 0 rgba(0, 0, 0, 0.3); color: #16202b; }
+body.retro .modal-btn.yes { background: linear-gradient(180deg, #e2685f, var(--os-start)); color: #fff; }
+
+/* ----- pirate flags (Flying Colours) ----- */
+.flag {
+  display: block; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 3px;
+  background: #17151c; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.flag svg { display: block; width: 100%; height: 100%; }
+
+/* ----- the treasure map ----- */
+.map {
+  position: relative; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(120, 80, 20, 0.3), transparent 55%),
+    #ecdcae;
+}
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.map-grid line { stroke: rgba(110, 75, 25, 0.22); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 5; }
+.map-land { fill: #cfb277; stroke: #5a3d1a; stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.map-borders { fill: none; stroke: rgba(90, 61, 26, 0.5); stroke-width: 0.8; vector-effect: non-scaling-stroke; stroke-dasharray: 3 3; }
+.map-lines line { stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-dasharray: 7 6; stroke-linecap: round; opacity: 0.9; animation: fade-in 0.6s both; }
+.mark-body { animation: mark-drop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.pin-dot { stroke: #fff8e4; stroke-width: 3; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)); }
+.pin-face { font-size: 21px; text-anchor: middle; dominant-baseline: central; }
+.mark-me .pin-face { font-size: 16px; }
+.x-halo { stroke: #fff8e4; stroke-width: 13; stroke-linecap: round; }
+.x-ink { stroke: var(--red); stroke-width: 7; stroke-linecap: round; }
+.mark-label {
+  font-family: var(--display); font-size: 26px; text-anchor: middle; fill: var(--ink);
+  paint-order: stroke; stroke: #fff8e4; stroke-width: 6px; stroke-linejoin: round;
+}
+.mark-x .mark-label { font-size: 34px; fill: var(--red-dark); }
+
+@keyframes mark-drop { from { opacity: 0; transform: translateY(-40px) scale(1.6); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 0.9; } }
