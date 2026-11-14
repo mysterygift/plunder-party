@@ -14,6 +14,7 @@ import * as bowView from './tb-host.js';
 import * as court from './lawyer-host.js';
 import * as beach from './parley-host.js';
 import * as lagoon from './bottle-host.js';
+import * as hold from './mutiny-host.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -439,6 +440,9 @@ const screens = {
   // Message in a Bottle: the islands and the drifting bottles are a 3D model drawn behind this (see bottle-host.js).
   ...lagoon.bottleScreens({ anim, chip }),
 
+  // Mutiny: the ship's hold, the plotters and the chameleon are a 3D model drawn behind this (see mutiny-host.js).
+  ...hold.mutinyScreens({ anim, chip }),
+
   // Bombard!: the battle itself is a 3D model drawn behind this (see bombard-host.js).
   // These are just the words along the top: the two sides and their crews.
   bombard(v) {
@@ -475,7 +479,7 @@ const screens = {
 // ---------------------------------------------------------------------------
 
 let lastSay = 0;
-const OWN_AMBIENCE = ['sl', 'pa', 'mb']; // screens whose diorama makes its own background sounds (see ambience.js)
+const OWN_AMBIENCE = ['sl', 'pa', 'mb', 'mu']; // screens whose diorama makes its own background sounds (see ambience.js)
 let lastSfx = 0;
 let lastDone = 0;
 let heard = null; // what the screen looked like last time, for spotting changes
@@ -528,6 +532,8 @@ function render(v) {
   else beach.hide();
   if (v.screen === 'mb') lagoon.show(v, players);
   else lagoon.hide();
+  if (v.screen === 'mu') hold.show(v, players);
+  else hold.hide();
 
   // Toast (errors such as "needs 3 pirates" or a typo in a content file)
   $('toast').hidden = !v.toast;

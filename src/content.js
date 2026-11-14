@@ -24,6 +24,7 @@ const FILES = {
   lawyer: 'sea-lawyer.json',
   parley: 'parley.json',
   bottle: 'bottle.json',
+  mutiny: 'mutiny.json',
 };
 
 function readJson(file) {
@@ -69,6 +70,7 @@ export function loadContent() {
   need(Array.isArray(content.bottle.ideas) && content.bottle.ideas.length >= 12, 'content/bottle.json needs at least 12 "ideas".');
   need(Array.isArray(content.parley.finalPrompts) && content.parley.finalPrompts.length >= 1, 'content/parley.json needs at least 1 "finalPrompts" entry.');
   checkQuestions(content.knotsQuestions);
+  checkMutiny(content.mutiny);
   return content;
 }
 
@@ -82,6 +84,25 @@ function checkLawyer(bank) {
     need(typeof x.a === 'string' && x.a.trim(), `${where} ("${x.q}") has no answer "a".`);
     need(Array.isArray(x.decoys) && x.decoys.length >= 3, `${where} ("${x.q}") needs at least three "decoys" (house lies).`);
   });
+}
+
+/** Mutiny: every topic needs enough watchwords to hide one among, and questions written for its kind. */
+function checkMutiny(bank) {
+  const file = 'content/mutiny.json';
+  need(Array.isArray(bank?.topics) && bank.topics.length >= 6, `${file} needs at least 6 "topics".`);
+  need(bank.questions && typeof bank.questions === 'object', `${file} needs "questions".`);
+  const enough = (kind) => Array.isArray(bank.questions[kind]) && bank.questions[kind].filter((q) => typeof q === 'string' && q.trim()).length >= 6;
+  need(enough('crew'), `${file} needs at least 6 "crew" questions (for the One of Us plot).`);
+  const names = new Set();
+  for (const topic of bank.topics) {
+    const where = `${file}: topic "${topic?.name}"`;
+    need(typeof topic?.name === 'string' && topic.name.trim(), `${file}: every topic needs a "name".`);
+    need(!names.has(topic.name), `${where} is in the list twice.`);
+    names.add(topic.name);
+    need(topic.kind !== 'crew' && enough(topic.kind), `${where} has the kind "${topic.kind}", which needs at least 6 questions of its own under "questions".`);
+    need(Array.isArray(topic.words) && topic.words.length >= 6 && topic.words.every((w) => typeof w === 'string' && w.trim()), `${where} needs at least 6 "words".`);
+    need(new Set(topic.words.map((w) => w.trim().toLowerCase())).size === topic.words.length, `${where} has the same word twice.`);
+  }
 }
 
 /** Knot So Fast: every question needs one right answer and three different wrong ones. */

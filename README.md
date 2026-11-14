@@ -4,7 +4,7 @@ A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the
 same wifi. Nothing to install on the phones.
 
-Twelve original games:
+Thirteen original games:
 
 | Game | What it is | Players |
 | --- | --- | --- |
@@ -19,6 +19,7 @@ Twelve original games:
 | ⚖️ **Sea Lawyer** | A bluffing game. A real bit of sea slang or sea history goes up with the answer blanked out. Everyone writes a convincing lie, then tries to pick the truth from among all the lies. Find the truth for doubloons; fool a crewmate and you pocket doubloons for everyone you fooled. The TV is a candlelit Admiralty court: the question is inked into a great lexicon on the judge's desk, the lies come in as sealed letters, and the gavel comes down on the verdict. | 3–12 |
 | 🔥 **Parley** | Who among ye…? A question about the crew goes up ("who's most likely to text their ex tonight?"). Vote in secret, then guess who the crew picked. Ends with the Black Spot: guess how many votes you'll get yourself. The TV shows the crew as carved figures round a bonfire on a moonlit beach, getting up to mischief while they wait; the votes drop out of the sky as doubloons, and the camera goes in close on the crew's pick (split screen for a tie). | 3–12 |
 | 🍾 **Message in a Bottle** | Draw it, guess it, pass it on. Write a message and cork it in a bottle; the next pirate draws it, the next writes what they think the drawing is, and so on round the crew. Then every bottle is unrolled page by page, and the crew votes for the best page in each. The TV is a sunny archipelago, one island per pirate, with the bottles drifting from island to island. | 3–12 |
+| 🦎 **Mutiny** | Everybody is told a secret watchword, except the Chameleon, who has to bluff. The bosun asks “hands up if…?” (it’s bigger than a ship’s cat, you’d take it on a stag do); everyone answers at once on their phone and every hand is shown together. Argue it out, accuse somebody, and the one with the most daggers is unmasked, though a caught Chameleon who can name the watchword still gets away. One plot a game is about somebody in the room. The TV shows the plotters round a lantern in the ship’s hold, with a chameleon sat on top of it changing colour. About a quarter of an hour. | 3–12 |
 | ⛓️ **To the Brig with Ye** | A talking game with secret mutineers. Each leg, the captain sends two pirates up the crow’s nest; only they can see which side of the channel hides the reef, and each hoists a flag in secret. If the flags disagree, one of them is lying: the crew argues it out, votes on the heading, then votes somebody into the brig. Three strikes on the reef and the mutineers win. The TV shows the view from the bow, with the fork in the channel ahead. About a quarter of an hour. | 5–12 |
 
 ## Running it
@@ -78,6 +79,7 @@ restarting.
 | `content/sea-lawyer.json` | Sea Lawyer: the questions (each with its answer, a few house lies and an optional fun fact), questions per round, timers |
 | `content/parley.json` | Parley: the questions, the Black Spot questions, questions per round, timers |
 | `content/bottle.json` | Message in a Bottle: ideas for opening messages, pages per bottle, timers |
+| `content/mutiny.json` | Mutiny: the topics and their watchwords, the “hands up if…” questions, plots per game, timers |
 | `content/dead-reckoning.json` | Locations: name, theme, coordinates, clues, fun fact, optional photo. Also the themes themselves, and whether distances are in miles or km |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
@@ -346,6 +348,61 @@ will be better liars and worse detectives than the simulation, so if one side
 keeps winning, `hull`, `mutineers` and `fog` are the ones to change (more fog
 helps the mutineers).
 
+**Mutiny: the rules, and tuning them**
+
+The crew is down in the hold, plotting. A game is four plots, and each plot has
+a secret watchword on a theme the TV shows (Down the Pub, Holidays, Off the
+Telly…), hidden among a dozen candidates. Every phone is dealt the watchword,
+except one, which is told it belongs to the Chameleon. A strip along the bottom
+of every phone shows your secret again for a few seconds when tapped.
+
+- **Hands up if…?** Three times a plot, the bosun (it passes round the crew)
+  is dealt three questions and picks one, or writes their own. Everybody
+  answers on their phone, hand up or hand down, and nobody sees a thing until
+  every hand is in. Then they all go up at once on the TV. The Chameleon is
+  guessing, and learning a bit about the watchword from each show of hands.
+- The questions are woolly on purpose (is a dartboard *bigger than a ship’s
+  cat*? would *you* take it to a festival?), so honest pirates disagree as
+  well. That is what there is to argue about, and what the Chameleon hides in.
+- **Accuse.** Argue it out loud, then everybody accuses somebody on their
+  phone. The phone lists how each pirate answered. Whoever has the most
+  daggers is unmasked; a tie unmasks nobody.
+- **The last chance.** An unmasked Chameleon gets one guess at the watchword
+  from the candidates on the TV. Name it and they slip away regardless. So the
+  crew can’t ask questions that give the game away: a bosun who asks “hands up
+  if it’s a dartboard” has just handed the Chameleon a way out.
+- **One of Us.** The plot before last, the watchword is somebody in the room
+  (who knows it is them, unless they are the Chameleon), and the questions are
+  about them: would they survive a week on a desert island, would they sell
+  the crew out for a tenner. It needs four pirates or more.
+- The last plot pays double. Anybody can be the Chameleon, even twice running,
+  though whoever has had a go is less likely to get another.
+
+Doubloons: 500 for accusing the real Chameleon, whatever the rest of the crew
+did; 1,000 to every loyal pirate when the Chameleon is unmasked and can’t name
+the watchword; 1,500 to a Chameleon who is unmasked but names it; 2,500 to one
+who is never unmasked. A muster at the end names the Slipperiest Lizard, the
+Sharpest Eye, the Shiftiest Honest Pirate and the Odd One Out.
+
+It stays fresh because the watchwords and the questions are separate decks:
+any question can land on any watchword of the right kind, neither repeats
+until the deck runs out (across every game tonight), and the bosun can always
+write a question nobody has heard before.
+
+`content/mutiny.json` has the lot. `rounds` is how many plots make a game and
+`questionsPerRound` how many shows of hands each gets; `crewRound: false` drops
+the One of Us plot. `seconds` has the timers (`argue` is the one to stretch for
+a talkative crew). Each of the `topics` has a `name`, a list of `words` (six at
+least; a dozen go up on the TV) and a `kind`, which says which list of
+`questions` it draws from: `thing`, `place`, `famous` or `show`. Questions are
+written to finish the sentence “Hands up if…”, about “it” for things, places
+and shows and about “they” for people; `crew` is the list for One of Us. To add
+a topic about your own crowd (the office, the stag’s exes, pubs you have been
+thrown out of), add it to `topics` with whichever `kind` fits, or invent a new
+kind and give it at least six questions of its own. Nothing is read aloud
+(`narrator: false` in `src/games/mutiny.js`); the hold’s own creaks and drips
+are in `public/mutiny-sound.js`.
+
 **The narrator**
 
 On a Mac, the server renders each narrator line with one of macOS's own voices
@@ -414,6 +471,7 @@ npm run bots -- 4 liars         # they bid, bluff a bit, and call each other out
 npm run bots -- 5 onepiece      # they vote for whatever, and roll
 npm run bots -- 8 knots         # four ships of two; they answer every few seconds and get most right
 npm run bots -- 7 brig          # loyal robots are honest and gullible; mutinous ones lie when it counts and frame honest lookouts
+npm run bots -- 6 mutiny        # loyal robots agree on a made-up truth, most of the time; the Chameleon tosses a coin
 ```
 
 Join on your own phone as well and you can play a real game against them.
@@ -438,6 +496,7 @@ public/liars-*.js    LiAARRRRGH’s Dice: the 3D dice table on the TV (-host), y
 public/onepiece-*.js Find the One Piece: the log page on the TV (-host), the island it sits beside (-world), the vote and the die on phones (-play), its sounds and tunes (-sound)
 public/knots-*.js    Knot So Fast: the island and the race on the TV (-host), the question screen on phones (-play), the motion sum shared with the server (-motion), its sounds and reel (-sound)
 public/tb-*.js       To the Brig with Ye: the view from the bow on the TV (-host), your orders and the votes on phones (-play), its sounds and slow air (-sound)
+public/mutiny-*.js   Mutiny: the ship's hold and the chameleon on the TV (-host), your secret, your hand and your accusation on phones (-play), its sounds and tiptoeing tune (-sound)
 public/vendor/       three.js, which draws the diorama (copied from node_modules, so no internet is needed)
 tools/bots.js        Robot players
 tools/build-assets.js  Regenerates the map data and fonts (already done; rarely needed)
