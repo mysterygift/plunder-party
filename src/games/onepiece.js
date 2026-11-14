@@ -3,6 +3,7 @@
 // The whole story lives in content/one-piece.json. This file only walks it:
 //   1. A log entry writes itself onto the page.
 //   2. The crew votes on what to do (majority wins; a tie is a coin flip).
+//      The more of them back the plan that wins, the more the roll is worth.
 //   3. Everybody rolls one die on their phone. The total, set against the odds
 //      for that many dice, gives one of five results: diabolical, bad,
 //      neutral, good or perfect.
@@ -99,6 +100,29 @@ export function cutsFor(n, tilt = 0, odds = [10, 20, 40, 20, 10]) {
 export function bandOf(total, cuts) {
   const i = cuts.findIndex((top) => total <= top);
   return BANDS[i === -1 ? 4 : i];
+}
+
+// ---------------------------------------------------------------------------
+// Of one mind
+// ---------------------------------------------------------------------------
+//
+// A crew that agrees rolls better: when more than one pirate voted for the plan
+// that won, the dice total is multiplied before it is set against the scale.
+// One vote alone (a split crew, or a coin flip between loners) earns nothing.
+//
+// The same multiplier would be worth far more to a big crew than a small one
+// (their totals bunch up tighter), so the most a crew can earn shrinks with its
+// size: a unanimous vote always lifts the total by about 0.6 of its usual
+// spread, a bit over half a band. Part of the crew earns that share of it.
+
+/** How much a unanimous vote adds, in units of 1/sqrt(dice). */
+const ACCORD = 0.3;
+
+/** What the dice total is multiplied by when `backers` of a crew of `n` voted for the plan. */
+export function boostFor(backers, n) {
+  if (backers < 2 || n < 2) return 1;
+  const share = Math.min(1, (backers - 1) / (n - 1));
+  return Math.round((1 + (ACCORD / Math.sqrt(n)) * share) * 100) / 100;
 }
 
 // ---------------------------------------------------------------------------
@@ -264,12 +288,15 @@ export async function run(ctx) {
 
     const n = ctx.players.length;
     const cuts = cutsFor(n, tilt, odds);
+    const boost = boostFor(most, n); // a crew of one mind rolls better
     const canny = option.mark === 'canny';
     const lead = fill(option.lead, names);
     const dice = new Map(); // player -> { n, cat }
     const diceViews = () => ctx.players.map((p) => ({ id: p.id, n: dice.get(p)?.n ?? null, cat: dice.get(p)?.cat ?? false }));
-    const total = () => [...dice.values()].reduce((sum, d) => sum + d.n, 0);
-    const rollView = () => ({ dice: diceViews(), total: total(), count: n, scale: { min: n, max: 6 * n, cuts }, need: cuts[2] + 1, tilt, helped, hurt, canny });
+    const sum = () => [...dice.values()].reduce((acc, d) => acc + d.n, 0); // what the dice say
+    const total = () => Math.min(6 * n, Math.round(sum() * boost)); // what it counts for
+    const rollView = () => ({ dice: diceViews(), sum: sum(), total: total(), boost, backers: most, count: n, scale: { min: n, max: 6 * n, cuts }, need: cuts[2] + 1, tilt, helped, hurt, canny });
+    const phoneRoll = (p) => ({ screen: 'op-roll', key: `${key}-roll`, heading: scene.name, n: dice.get(p)?.n ?? null, need: cuts[2] + 1, sum: sum(), total: total(), boost, rolled: dice.size, count: n });
 
     // --- 3. what was chosen, and its opening line ---
     more = { phase: 'chosen', ask, options: optionViews(option.id), tied: tied.length > 1, lead, roll: rollView() };
@@ -290,7 +317,7 @@ export async function run(ctx) {
     ctx.screen({
       sfx: 'opRattle',
       host: () => ({ ...base(), roll: rollView() }),
-      player: (p) => ({ screen: 'op-roll', key: `${key}-roll`, heading: scene.name, n: dice.get(p)?.n ?? null, need: cuts[2] + 1, total: total(), rolled: dice.size, count: n }),
+      player: phoneRoll,
       onAction: (p, msg) => {
         if (msg.type === 'op-roll' && msg.key === `${key}-roll`) roll(p);
       },
@@ -310,7 +337,7 @@ export async function run(ctx) {
     const rolled = bandOf(total(), cuts);
     const band = canny ? (rolled === 'diabolical' ? 'bad' : rolled === 'perfect' ? 'good' : rolled) : rolled;
     more = { ...more, phase: 'tally', roll: rollView(), rolled };
-    show({ sfx: 'drumroll', player: (p) => ({ screen: 'op-roll', key: `${key}-roll`, heading: scene.name, n: dice.get(p).n, need: cuts[2] + 1, total: total(), rolled: n, count: n, done: true }) });
+    show({ sfx: 'drumroll', player: (p) => ({ ...phoneRoll(p), done: true }) });
     await ctx.wait(3000);
 
     // --- 6. the outcome ---
