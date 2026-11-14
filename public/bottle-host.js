@@ -167,11 +167,12 @@ function init() {
     exposure: 1.05,
     fov: 30,
     overlay: '<div class="mb-vignette"></div>',
-    // Lighting styles (see looks3d.js). House style: fine, gentle dithered
-    // sunlight across the lagoon, the same as Parley's firelight.
+    // Lighting styles (see looks3d.js). House style: no shading at all, just a
+    // touch of tilt-shift (top and bottom of the screen gently out of focus) to
+    // sell the little diorama.
     looks: {
       knee: 1,
-      house: { light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.7 } },
+      house: { post: { tilt: { amount: 1, centre: 0.5, band: 0.2 } } },
     },
   });
   const { scene } = stage;

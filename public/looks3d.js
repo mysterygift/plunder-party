@@ -8,8 +8,8 @@
 //     Fog can be stepped and dithered the same way. Glow is left alone, so
 //     flames and lamps stay smooth.
 //   * A screen pass, only when a style needs one: ink outlines (where depth
-//     jumps or folds), a limited palette with ordered dither, paper grain and
-//     a saturation push.
+//     jumps or folds), a limited palette with ordered dither, paper grain, a
+//     saturation push, and tilt-shift (to make a scene look like a model).
 //
 // Every scene draws through a pass:
 //   const look = createLookPass(renderer, { knee: 2, house: { light: {...}, post: {...} } });
@@ -39,6 +39,7 @@ export const STYLES = {
   halftone: { light: { pattern: 'halftone', bands: 4, cell: 3, spread: 1, amount: 0.7 } },
   outline: { post: { outline: { strength: 0.85, width: 1.5, colour: 0x1b130d, crease: 0.6 } } },
   palette: { post: { palette: { levels: 4, amount: 0.8, cell: 2 } } },
+  tilt: { post: { tilt: { amount: 1, centre: 0.5, band: 0.2 } } },
   fog: { fog: { bands: 5, cell: 2 }, light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.4 } },
 };
 
@@ -225,6 +226,7 @@ uniform vec3 uOutlineColour;
 uniform vec3 uPal[8];
 uniform float uPalSize, uPalAmount, uLevels, uKeepRed, uPalCell;
 uniform float uPaper, uSaturate;
+uniform float uTilt, uTiltCentre, uTiltBand;
 varying vec2 vUv;
 
 float kitBayer(vec2 p) {
@@ -242,6 +244,19 @@ float depthAt(vec2 uv) { return -perspectiveDepthToViewZ(texture2D(tDepth, uv).x
 
 void main() {
   vec4 src = texture2D(tColor, vUv);
+  if (uTilt > 0.0) { // tilt-shift: a band across the middle in focus, softening towards top and bottom
+    float d = clamp((abs(vUv.y - uTiltCentre) - uTiltBand) / max(0.5 - uTiltBand, 0.01), 0.0, 1.0);
+    float r = d * d * uTilt * uUnit * 7.0; // blur radius, device pixels
+    if (r > 0.5) {
+      vec3 sum = vec3(0.0);
+      for (int i = 0; i < 24; i++) { // a sunflower of taps
+        float fi = float(i);
+        float a = fi * 2.39996;
+        sum += texture2D(tColor, vUv + vec2(cos(a), sin(a)) * sqrt((fi + 0.5) / 24.0) * r / uRes).rgb;
+      }
+      src.rgb = sum / 24.0;
+    }
+  }
   float ink = 0.0;
   if (uOutline > 0.0) {
     vec2 uv = vUv;
@@ -333,6 +348,9 @@ export function createLookPass(renderer, tuning = {}) {
     uPalCell: { value: 2 },
     uPaper: { value: 0 },
     uSaturate: { value: 1 },
+    uTilt: { value: 0 },
+    uTiltCentre: { value: 0.5 },
+    uTiltBand: { value: 0.2 },
   };
   const material = new THREE.ShaderMaterial({ uniforms, vertexShader: POST_VERT, fragmentShader: POST_FRAG, depthTest: false, depthWrite: false, transparent: true });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
@@ -427,6 +445,12 @@ export function createLookPass(renderer, tuning = {}) {
       }
       uniforms.uPaper.value = post.paper ?? 0;
       uniforms.uSaturate.value = post.saturate ?? 1;
+      const tilt = post.tilt;
+      uniforms.uTilt.value = tilt ? (tilt.amount ?? 1) : 0;
+      if (tilt) {
+        uniforms.uTiltCentre.value = tilt.centre ?? 0.5; // up from the bottom of the screen
+        uniforms.uTiltBand.value = tilt.band ?? 0.2; // half the height of the sharp band
+      }
       renderer.render(postScene, postCamera);
     },
   };

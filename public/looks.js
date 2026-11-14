@@ -19,6 +19,7 @@ export const LOOKS = [
   { id: 'halftone', name: 'Halftone dots' },
   { id: 'outline', name: 'Ink outlines' },
   { id: 'palette', name: 'Limited palette' },
+  { id: 'tilt', name: 'Tilt-shift', hint: 'top and bottom out of focus, like a model' },
   { id: 'fog', name: 'Dithered fog', hint: 'Parley, the Brig and the One Piece' },
 ];
 

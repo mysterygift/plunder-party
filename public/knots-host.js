@@ -50,14 +50,9 @@ const ordinal = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 's
 // ---------------------------------------------------------------------------
 
 let layer = null; // the <div> that holds the canvas and the words drawn over it
-// Lighting styles (see looks3d.js). House style: dithered light, kept fine and
-// gentle like Parley's so everything still reads at a glance in a race.
-const LOOK_TUNING = {
-  knee: 1,
-  house: {
-    light: { pattern: 'bayer', bands: 6, cell: 2, spread: 0.45, amount: 0.75 },
-  },
-};
+// Lighting styles (see looks3d.js). House style: none. The race keeps its own
+// plain lighting; the menu's single styles can still be tried on it.
+const LOOK_TUNING = { knee: 1, house: {} };
 let styler = null;
 
 let renderer, scene, camera, sun, sky, water;
