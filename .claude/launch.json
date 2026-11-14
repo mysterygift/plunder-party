@@ -50,6 +50,12 @@
       "port": 3711
     },
     {
+      "name": "scuttlebutt-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3810", "SPEED=6", "node", "server.js"],
+      "port": 3810
+    },
+    {
       "name": "onepiece-test",
       "runtimeExecutable": "env",
       "runtimeArgs": ["PORT=3420", "node", "server.js"],

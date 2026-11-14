@@ -18,6 +18,7 @@ export const meta = {
   tagline: 'Twist your crewmates’ words on the pirate internet',
   blurb: 'Answer an innocent question. Then a crewmate gets your answer, with no idea what you were asked, and makes it look as bad as possible.',
   min: 3,
+  narrator: false, // nothing read aloud: the ShipOS desktop and its bleeps carry it
 };
 
 const MAX_ANSWER = 70;
@@ -67,7 +68,6 @@ async function playRound(ctx, content, round, index, multiplier) {
 
   // --- round title ---
   ctx.screen({
-    say: `Round ${index + 1}. ${round.name}. ${round.intro}`,
     sfx: 'bell',
     host: () => ({ screen: 'sb-round', key: `${k}-title`, number: index + 1, name: round.name, intro: round.intro, icon: round.icon ?? '🦜', window: round.window ?? round.name, double: multiplier > 1 }),
   });
@@ -75,7 +75,6 @@ async function playRound(ctx, content, round, index, multiplier) {
 
   // --- 1. innocent answers ---
   ctx.screen({
-    say: 'Answer the question on your phone. Be honest.',
     host: () => ({
       screen: 'writing',
       skin: 'retro',
@@ -104,7 +103,6 @@ async function playRound(ctx, content, round, index, multiplier) {
   ring.forEach((e, i) => (e.twister = ring[(i + 1) % ring.length].victim));
 
   ctx.screen({
-    say: round.twistPrompt,
     sfx: 'wind',
     host: () => ({
       screen: 'writing',
@@ -157,16 +155,15 @@ async function playRound(ctx, content, round, index, multiplier) {
   for (const e of order) {
     const key = `${k}-show-${e.id}`;
     const c = card(e);
-    ctx.screen({ say: `${c.setup} ${c.twist}`, sfx: 'parrot', host: () => ({ screen: 'sb-show', key, card: c, step: 1 }) });
+    ctx.screen({ sfx: 'parrot', host: () => ({ screen: 'sb-show', key, card: c, step: 1 }) });
     await ctx.wait(readTime(c.setup + c.twist, 1500));
-    ctx.screen({ say: `${c.bridge} ${c.answer}`, sfx: c.style === 'diary' ? 'quill' : 'reveal', host: () => ({ screen: 'sb-show', key, card: c, step: 2 }) });
+    ctx.screen({ sfx: c.style === 'diary' ? 'quill' : 'reveal', host: () => ({ screen: 'sb-show', key, card: c, step: 2 }) });
     await ctx.wait(readTime(c.bridge + c.answer, 2600));
   }
 
   // --- 4. vote for the best twist (not your own) ---
   const voted = new Set();
   ctx.screen({
-    say: 'Vote for the best twist.',
     sfx: 'pipe',
     host: () => ({
       screen: 'gallery',
@@ -210,9 +207,7 @@ async function playRound(ctx, content, round, index, multiplier) {
     ctx.award(e.twister, e.gain);
     ctx.award(e.victim, e.sympathy);
   }
-  const champs = entries.filter((e) => best > 0 && e.votes.length === best).map((e) => e.twister.name);
   ctx.screen({
-    say: champs.length ? `Top twist goes to ${champs.join(' and ')}.` : 'Nobody voted. Mutiny!',
     sfx: 'chest',
     host: () => ({
       screen: 'gallery',

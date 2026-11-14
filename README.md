@@ -108,6 +108,8 @@ are the lines shown around the twist and the answer on the TV (`{name}` is the
 victim). Mark one round `"final": true` to make it the double-points closer.
 Add `"style": "diary"` to show the answer as handwriting that writes itself
 onto a diary page (Captain's Log uses this).
+Nothing in Scuttlebutt is read aloud (`narrator: false` at the top of
+`src/games/scuttlebutt.js`); the ShipOS desktop and its sound effects carry it.
 
 **Tuning Flying Colours**
 
