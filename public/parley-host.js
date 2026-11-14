@@ -10,7 +10,7 @@
 // host.js draws the words (the question, who saw it coming); this file owns
 // the beach and everything on it, using the kit in kit3d.js.
 
-import { THREE, createStage, shapes, paint, part, decal, palm, rand, easeOut, easeIn, backOut, linear, chipHtml } from './kit3d.js';
+import { THREE, createStage, shapes, paint, part, figure, decal, palm, rand, easeOut, easeIn, backOut, linear, chipHtml } from './kit3d.js';
 import { esc, fmt } from './common.js';
 import * as sound from './sound.js';
 import { createAmbience } from './ambience.js';
@@ -225,23 +225,6 @@ function props(scene) {
   palm(scene, -24, 1, 0.22, 8, 2);
   palm(scene, 19, -8, -0.3, 11, 3.1);
   palm(scene, 25, 0, -0.2, 8.5, 1);
-}
-
-/** A carved wooden pawn painted in a pirate's colour, with a bandana. */
-function figure(colour) {
-  const S = shapes();
-  const g = new THREE.Group();
-  const coat = paint(new THREE.Color(colour).getHex(), { rough: 0.55 });
-  const wood = paint(0xc89a64, { rough: 0.6 });
-  const dark = paint(new THREE.Color(colour).multiplyScalar(0.55).getHex(), { rough: 0.6 });
-  part(S.round, dark, { at: [0, 0.14, 0], size: [0.72, 0.28, 0.72], into: g });
-  part(new THREE.CylinderGeometry(0.34, 0.6, 1.7, 14), coat, { at: [0, 1.12, 0], into: g });
-  part(S.round, wood, { at: [0, 2.02, 0], size: [0.42, 0.12, 0.42], into: g }); // the collar
-  g.userData.head = part(S.smooth, wood, { at: [0, 2.48, 0], size: 0.47, into: g });
-  g.userData.wood = wood;
-  part(new THREE.SphereGeometry(0.49, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), dark, { at: [0, 2.52, 0], into: g }); // bandana
-  part(S.ball, dark, { at: [-0.12, 2.7, -0.45], size: [0.12, 0.12, 0.2], into: g }); // its knot
-  return g;
 }
 
 /** A tricorn hat: a black crown with the brim turned up on three sides, and gold braid. */

@@ -144,7 +144,6 @@
       "runtimeExecutable": "env",
       "runtimeArgs": [
         "PORT=3960",
-        "SPEED=3",
         "node",
         "server.js"
       ],

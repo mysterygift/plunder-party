@@ -1,28 +1,33 @@
 // Message in a Bottle on the big screen: an archipelago on a sunny day.
 //
 // Every pirate has a little island of their own in a ring round a shipwreck,
-// with a palm and a flag in their colour. The bottles bob off each island's
-// beach; every time the crew finishes a page they drift across the lagoon to
-// the next island along. For the reveal the camera follows one bottle round
-// the ring, page by page, while host.js unrolls each page on a scroll beside it.
+// with a palm, a flag in their colour, and the pirate themself (one of Parley's
+// pawns) on the beach. Whoever has a bottle holds it; every time the crew
+// finishes a page they lob the bottles across the lagoon to the next island
+// along. For the reveal the camera follows one bottle round the ring, page by
+// page, while host.js unrolls each page on a scroll beside it. Anything that
+// gets between the camera and the bottle dissolves out of the way.
 //
 // Built with the kit in kit3d.js, like Sea Lawyer and Parley.
 
-import { THREE, createStage, shapes, paint, part, decal, palm, rand, easeOut, easeInOut, linear, chipHtml } from './kit3d.js';
+import { THREE, createStage, shapes, paint, part, figure, decal, palm, rand, easeOut, easeInOut, linear, chipHtml } from './kit3d.js';
 import { esc, fmt } from './common.js';
 import { flagTag } from './flag.js';
 import { createAmbience } from './ambience.js';
 import './bottle-sound.js';
 
 const RING = { a: 15, b: 8.6 }; // the islands sit on this ellipse round the wreck
-const LABEL_Y = 4.6;
+const FIG = 0.85; // the crew: Parley's pawns, a touch smaller to fit their islands
+const HOLD = new THREE.Vector3(0, 1.1, 0.72); // where a held bottle sits, cradled in front below the collar (figure space, before FIG)
+const UP = new THREE.Vector3(0, 1, 0);
+const LABEL_Y = 5.3; // name plates float over the pirates' heads
 
 let stage = null;
 let players = new Map();
 let sea = null;
-let islands = new Map(); // id -> { id, pos, harbour, group, label, flag, sig }
+let islands = new Map(); // id -> { id, pos, group, fig, anim, label, flag, sig }
 let islandsKey = '';
-let bottles = []; // { group, at: island id, from, to, t, wake }
+let bottles = []; // { group, holder: island id, at: where it's going, state: 'held' | 'windup' | 'flying', from, t, dur, peak, spin }
 let gulls = [];
 let clouds = [];
 let view = null;
@@ -151,22 +156,26 @@ function buildIsland(id, angle) {
   const pos = onRing(angle);
   const g = new THREE.Group();
   g.position.copy(pos);
+  g.rotation.y = Math.atan2(-pos.x, -pos.z); // local +z faces the wreck: the beach the crew stand on
   const sand = paint(0xe8cf92, { rough: 1 });
   part(S.smooth, sand, { at: [0, -0.35, 0], size: [3.2, 1.1, 2.7], into: g });
   part(S.smooth, paint(0xd9bd7c, { rough: 1 }), { at: [0.5, -0.2, -0.3], size: [2, 1.15, 1.6], into: g });
   part(S.round, new THREE.MeshBasicMaterial({ color: 0xa8eee2, transparent: true, opacity: 0.45, depthWrite: false }), { at: [0, 0.04, 0], size: [3.9, 0.01, 3.4], shadow: false, into: g }); // surf round the beach
-  for (let i = 0; i < 3; i++) part(S.ball, paint(0x7a7f80, { rough: 1 }), { at: [rand(-2.4, 2.4), 0.1, rand(-1.8, 1.8)], size: rand(0.25, 0.5), into: g });
-  palm(g, -0.6, -0.4, rand(0.15, 0.35), rand(5.5, 7), rand(0, 6));
-  // A flagpole with a pennant in the pirate's colour.
+  for (let i = 0; i < 3; i++) part(S.ball, paint(0x7a7f80, { rough: 1 }), { at: [rand(-2.4, 2.4), 0.1, rand(-1.8, -0.4)], size: rand(0.25, 0.5), into: g });
+  palm(g, -0.7, -0.6, rand(0.15, 0.35), rand(5.5, 7), rand(0, 6));
+  // A flagpole with a pennant in the pirate's colour, at the back of the island.
   const colour = players.get(id)?.color ?? '#888';
-  part(S.disc, paint(0x6b4426, { rough: 0.8 }), { at: [1.3, 1.6, 0.6], size: [0.06, 3.2, 0.06], into: g });
-  const flag = part(new THREE.PlaneGeometry(1.3, 0.8, 6, 2), new THREE.MeshStandardMaterial({ color: new THREE.Color(colour), roughness: 0.8, side: THREE.DoubleSide, flatShading: true }), { at: [1.95, 2.85, 0.6], into: g });
+  part(S.disc, paint(0x6b4426, { rough: 0.8 }), { at: [1.35, 1.6, -0.7], size: [0.06, 3.2, 0.06], into: g });
+  const flag = part(new THREE.PlaneGeometry(1.3, 0.8, 6, 2), new THREE.MeshStandardMaterial({ color: new THREE.Color(colour), roughness: 0.8, side: THREE.DoubleSide, flatShading: true }), { at: [2.0, 2.85, -0.7], into: g });
   flag.userData.base = Float32Array.from(flag.geometry.attributes.position.array);
+  // The pirate, on the beach facing the lagoon.
+  const fig = figure(colour);
+  fig.scale.setScalar(FIG);
+  fig.position.set(0.15, 0.58, 1.15);
+  fig.rotation.order = 'YXZ'; // turn first, then lean
+  g.add(fig);
   stage.scene.add(g);
-  // The bottle bobs a little way off the beach, on the lagoon side.
-  const harbour = pos.clone().multiplyScalar(1 - 3.6 / pos.length());
-  harbour.y = 0;
-  return { id, angle, pos, group: g, flag, harbour, label: stage.label('mb-label'), sig: '' };
+  return { id, angle, pos, group: g, flag, fig, anim: null, label: stage.label('mb-label'), sig: '' };
 }
 
 function makeBottle() {
@@ -182,7 +191,7 @@ function makeBottle() {
   g.rotation.z = Math.PI / 2 - 0.15; // floats on its side, neck a little up
   const holder = new THREE.Group();
   holder.add(g);
-  holder.scale.setScalar(1.3);
+  holder.scale.setScalar(1.0); // in proportion to the pirates holding them
   stage.scene.add(holder);
   return holder;
 }
@@ -234,7 +243,19 @@ function init() {
   gulls = Array.from({ length: 4 }, makeGull);
   stage.onFrame = frame;
   stage.onFit = fit;
+  // Try a throw from the big screen's console while the game is on: toss() passes a
+  // random bottle to the next island along, toss(2) slows the throw down 2x to watch it.
+  window.toss = (slow = 1) => {
+    const b = bottles.find((x) => x.state === 'held');
+    const ids = [...islands.keys()];
+    if (!b || ids.length < 2) return 'No bottle to throw.';
+    const next = ids[(ids.indexOf(b.holder) + 1) % ids.length];
+    tossSlow = slow;
+    sail(b, next);
+    return `${players.get(b.holder)?.name ?? b.holder} throws to ${players.get(next)?.name ?? next}`;
+  };
 }
+let tossSlow = 1;
 
 // ---------------------------------------------------------------------------
 // Islands and bottles
@@ -252,54 +273,156 @@ function placeIslands(ids) {
   bottles = [];
   islandsKey = sig;
   ids.forEach((id, i) => islands.set(id, buildIsland(id, (i / ids.length) * Math.PI * 2 + Math.PI * 0.08)));
-  bottles = ids.map((id) => {
-    const isle = islands.get(id);
-    const group = makeBottle();
-    group.position.copy(isle.harbour);
-    return { group, at: id, from: isle.harbour.clone(), to: isle.harbour.clone(), t: 1, spin: rand(0, 6) };
-  });
+  bottles = ids.map((id) => ({ group: makeBottle(), holder: id, at: id, state: 'held', caught: 0, from: new THREE.Vector3(), t: 1, dur: 1, peak: 0, spin: rand(0, 6) }));
+  for (const isle of islands.values()) isle.group.updateMatrixWorld(true);
+  for (const b of bottles) b.group.position.copy(holdPoint(islands.get(b.holder), b));
   fit();
 }
 
-/** Send a bottle across the lagoon to another island, in a curve that bows out round the wreck. */
-function sail(bottle, id, seconds = 3.4) {
-  if (bottle.at === id || !islands.has(id)) return;
-  bottle.at = id;
-  bottle.from = bottle.group.position.clone().setY(0);
-  bottle.to = islands.get(id).harbour.clone();
-  bottle.t = 0;
-  bottle.seconds = seconds;
+// ---------------------------------------------------------------------------
+// Throwing and catching. Whoever has a bottle holds it in front of them; to pass
+// it on they turn to face the next island, wind up and lob it across the lagoon,
+// and the catcher dips as it lands in their arms.
+// ---------------------------------------------------------------------------
+
+const THROW = { windup: 0.32, release: 0.42, done: 0.95 }; // seconds into a throw
+const CATCH = 0.45;
+
+/** How far an island's pirate has to turn (from facing the wreck) to face a point. */
+function turnToward(isle, point) {
+  const local = isle.group.worldToLocal(point.clone());
+  return Math.atan2(local.x - isle.fig.position.x, local.z - isle.fig.position.z);
 }
 
-function moveBottles(dt, clock) {
-  for (const b of bottles) {
-    if (b.t < 1) {
-      b.t = Math.min(1, b.t + dt / b.seconds);
-      const k = easeInOut(b.t);
-      const mid = b.from.clone().add(b.to).multiplyScalar(0.5);
-      const out = mid.clone().setY(0).normalize().multiplyScalar(4); // bow outwards, away from the wreck
-      const p0 = b.from;
-      const p1 = mid.add(out);
-      const p2 = b.to;
-      b.group.position.set(
-        (1 - k) ** 2 * p0.x + 2 * (1 - k) * k * p1.x + k ** 2 * p2.x,
-        0,
-        (1 - k) ** 2 * p0.z + 2 * (1 - k) * k * p1.z + k ** 2 * p2.z,
-      );
-      if (Math.random() < dt * 14) wake(b.group.position);
+/** The middle of an island's pirate, in the world. */
+const chestOf = (isle) => isle.fig.localToWorld(new THREE.Vector3(0, 1.45, 0));
+
+const SPARE = [[-1.05, -0.45], [1.05, -0.55], [-0.45, -1.15], [0.55, -1.25]]; // where spare bottles lie: either side of the pirate and behind, out of the way (island space)
+
+/**
+ * Where a bottle held by this island goes: the newest one in the pirate's arms,
+ * any others laid on the sand round their feet.
+ */
+function holdPoint(isle, bottle) {
+  const mine = bottles.filter((b) => b.holder === isle.id && b.state !== 'flying').sort((a, b) => b.caught - a.caught);
+  const i = Math.max(0, mine.indexOf(bottle));
+  if (i === 0) return isle.fig.localToWorld(HOLD.clone());
+  const [x, z] = SPARE[(i - 1) % SPARE.length];
+  return isle.group.localToWorld(new THREE.Vector3(isle.fig.position.x + x, 0.95, isle.fig.position.z + z));
+}
+const inArms = (isle, bottle) => bottles.filter((b) => b.holder === isle.id && b.state !== 'flying').sort((a, b) => b.caught - a.caught)[0] === bottle;
+
+/** Pass a bottle to another island: thrown by whoever has it, caught by them. */
+function sail(bottle, id, seconds = 1.6) {
+  if (bottle.at === id || !islands.has(id)) return;
+  bottle.at = id;
+  const from = islands.get(bottle.holder);
+  if (!from || bottle.state === 'flying' || bottle.holder === id) return launch(bottle, seconds);
+  if (from.anim?.kind === 'throw' && from.anim.bottle.state === 'windup') launch(from.anim.bottle, from.anim.seconds); // two at once: let the first one go
+  bottle.state = 'windup';
+  from.anim = { kind: 'throw', t: 0, turn: turnToward(from, islands.get(id).pos), bottle, seconds };
+}
+
+function launch(bottle, seconds) {
+  bottle.state = 'flying';
+  bottle.from = bottle.group.position.clone();
+  bottle.t = 0;
+  const to = islands.get(bottle.at);
+  const d = bottle.from.distanceTo(to.pos);
+  bottle.dur = Math.min(seconds, 0.75 + d * 0.045);
+  bottle.peak = 1.6 + d * 0.27;
+}
+
+function animateCrew(dt) {
+  dt /= tossSlow;
+  for (const isle of islands.values()) {
+    const fig = isle.fig;
+    const a = isle.anim;
+    let yaw = 0;
+    let lean = 0;
+    let dip = 0;
+    if (a) {
+      a.t += dt;
+      if (a.kind === 'throw') {
+        const { windup, release, done } = THROW;
+        if (a.t < windup) {
+          const k = easeOut(a.t / windup);
+          yaw = a.turn * k;
+          lean = -0.38 * k; // rock back
+        } else if (a.t < release) {
+          const k = (a.t - windup) / (release - windup);
+          yaw = a.turn;
+          lean = -0.38 + 0.78 * easeOut(k); // and fling forward
+          if (k > 0.55 && a.bottle.state === 'windup') launch(a.bottle, a.seconds);
+        } else {
+          const k = Math.min(1, (a.t - release) / (done - release));
+          yaw = a.turn * (1 - easeInOut(k));
+          lean = 0.4 * (1 - easeInOut(k));
+        }
+        if (a.bottle.state === 'windup' && a.t >= release) launch(a.bottle, a.seconds);
+        if (a.t >= done) isle.anim = null;
+      } else if (a.kind === 'catch') {
+        const k = Math.min(1, a.t / CATCH);
+        const bump = Math.sin(k * Math.PI);
+        yaw = a.turn * (1 - easeInOut(k));
+        lean = -0.22 * bump; // knocked back a touch
+        dip = -0.14 * bump;
+        if (a.t >= CATCH) isle.anim = null;
+      }
     }
-    const { x, z } = b.group.position;
-    b.group.position.y = swell(x, z, clock) + 0.18;
-    b.group.rotation.set(Math.sin(clock * 1.6 + b.spin) * 0.15, b.spin + Math.sin(clock * 0.3 + b.spin) * 0.4, Math.cos(clock * 1.3 + b.spin) * 0.12);
+    fig.rotation.set(lean, yaw, 0);
+    fig.position.y = 0.58 + dip;
+    isle.group.updateMatrixWorld(true);
   }
 }
 
-/** A puff of foam left behind a drifting bottle. */
+function moveBottles(dt, clock) {
+  const fly = dt / tossSlow;
+  if (tossSlow !== 1 && !bottles.some((b) => b.state !== 'held')) tossSlow = 1;
+  for (const b of bottles) {
+    const g = b.group;
+    if (b.state === 'flying') {
+      const to = islands.get(b.at);
+      b.t = Math.min(1, b.t + fly / b.dur);
+      const end = holdPoint(to, b);
+      g.position.lerpVectors(b.from, end, b.t);
+      g.position.y += Math.sin(b.t * Math.PI) * b.peak; // up and over
+      const spin = b.t * Math.PI * 3;
+      g.rotation.set(spin * 0.4, b.spin + spin, Math.sin(spin) * 0.5);
+      if (b.t >= 1) {
+        b.state = 'held';
+        b.holder = b.at;
+        b.caught = performance.now();
+        if (to.anim?.kind !== 'throw') to.anim = { kind: 'catch', t: 0, turn: turnToward(to, b.from) }; // (mid-throw, they just keep throwing)
+        wake(end);
+      }
+      continue;
+    }
+    const isle = islands.get(b.holder);
+    if (!isle) continue;
+    if (b.state === 'windup' && isle.anim?.bottle !== b) {
+      launch(b, 1.6); // its throw got interrupted: send it on its way anyway
+      continue;
+    }
+    const spot = holdPoint(isle, b);
+    if (inArms(isle, b)) {
+      // Held across the chest, swaying a little with whoever holds it.
+      spot.y += Math.sin(clock * 1.7 + b.spin) * 0.03;
+      g.rotation.set(0, isle.group.rotation.y + isle.fig.rotation.y, Math.sin(clock * 1.3 + b.spin) * 0.06);
+    } else {
+      g.rotation.set(0, isle.group.rotation.y + b.spin, 0); // a spare, lying on the sand
+    }
+    if (b.state === 'windup') g.position.copy(spot); // goes wherever the throwing arm goes
+    else g.position.lerp(spot, 1 - Math.exp(-dt * 12)); // shuffles over when another one arrives
+  }
+}
+
+/** A little splash of spray where a bottle lands. */
 function wake(at) {
-  const m = part(shapes().ball, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, depthWrite: false }), { at: [at.x + rand(-0.2, 0.2), 0.12, at.z + rand(-0.2, 0.2)], size: 0.01, shadow: false, into: stage.scene });
-  stage.tween(1.4, (k, raw) => {
-    m.scale.set(0.5 + raw, 0.08, 0.5 + raw);
-    m.material.opacity = 0.7 * (1 - raw);
+  const m = part(shapes().ball, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, depthWrite: false }), { at: [at.x, at.y, at.z], size: 0.01, shadow: false, into: stage.scene });
+  stage.tween(0.6, (k, raw) => {
+    m.scale.setScalar(0.25 + raw * 0.6);
+    m.material.opacity = 0.6 * (1 - raw);
   }, { ease: easeOut, done: () => stage.scene.remove(m) });
 }
 
@@ -372,18 +495,27 @@ function moveCamera(dt, clock) {
   let pos;
   let look;
   if (focus) {
-    // Following one bottle: low over the water, with the bottle on the left third (the scroll is on the right).
-    // Seen from the lagoon side, so the island (and its palm) stands behind the bottle rather than in front of it.
+    // Following one bottle: low over the lagoon, looking out at the island it's
+    // going to, with the bottle (and whoever holds it) on the left third and room
+    // for the page on the right. The camera keeps its place by the island while the
+    // bottle flies in, and just turns to follow it.
     const b = focus.group.position;
-    const facing = new THREE.Vector3(b.x, 0, b.z).normalize(); // looking outwards, from the wreck towards the island
-    const right = facing.clone().cross(new THREE.Vector3(0, 1, 0)).normalize();
-    look = b.clone().setY(1.2).addScaledVector(right, 3.4); // aim right of the bottle, so it sits in the left third
-    pos = b.clone().addScaledVector(facing, -13).addScaledVector(right, 2).setY(6.5);
+    const home = islands.get(focus.at)?.pos ?? b;
+    const facing = new THREE.Vector3(home.x, 0, home.z).normalize(); // outwards, from the wreck to the island
+    const right = facing.clone().cross(UP).normalize();
+    const held = focus.state !== 'flying';
+    look = b.clone().setY(held ? 1.7 : THREE.MathUtils.lerp(1.7, b.y, 0.6)).addScaledVector(right, 3.2);
+    pos = new THREE.Vector3(home.x, 0, home.z).addScaledVector(facing, -13).addScaledVector(right, 2.2).setY(held ? 4.6 : Math.max(4.6, b.y * 0.5 + 3.2));
+    // Anything between the camera and the bottle (the wreck, a palm) dissolves out of the way.
+    stage.look.focus = { target: b.clone(), radius: 2.2, near: 3 };
   } else {
     const drift = Math.sin(clock * 0.13) * 0.6;
     pos = new THREE.Vector3(cam.target.x + drift, cam.target.y + Math.sin(cam.elevation) * cam.dist, cam.target.z + Math.cos(cam.elevation) * cam.dist);
     look = cam.target.clone().add(new THREE.Vector3(drift * 0.4, 0, 0));
+    // Every pirate stays in sight: a palm in front of one melts away (and so does a gull swooping past the lens).
+    stage.look.focus = { targets: [...islands.values()].map((isle) => ({ at: chestOf(isle), radius: 1.9 })), near: 3 };
   }
+  stage.labelsEl.classList.toggle('mb-focus', !!focus);
   if (!shot.snapped) {
     shot.pos.copy(pos);
     shot.look.copy(look);
@@ -399,6 +531,7 @@ function moveCamera(dt, clock) {
 
 function frame(dt, clock) {
   waves(clock);
+  animateCrew(dt);
   moveBottles(dt, clock);
   for (const isle of islands.values()) {
     const a = isle.flag.geometry.attributes.position;
@@ -423,7 +556,7 @@ function frame(dt, clock) {
   room.tick(dt, playing);
   moveCamera(dt, clock);
   if (view) labels(view);
-  for (const isle of islands.values()) stage.pin(isle.label, isle.pos.clone().setY(LABEL_Y));
+  for (const isle of islands.values()) stage.pin(isle.label, isle.fig.localToWorld(new THREE.Vector3(0, 0, 0)).setY(LABEL_Y)); // over the pirate's head
 }
 
 // ---------------------------------------------------------------------------

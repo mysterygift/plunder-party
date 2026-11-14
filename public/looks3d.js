@@ -81,11 +81,23 @@ const U = {
   kTintAmount: { value: 0 },
   kFogBands: { value: 0 },
   kFogCell: { value: 2 },
+  // See-through occluders (pass.focus): whatever stands between the camera and
+  // what it's looking at, or right up against the lens, dissolves into a stipple.
+  kFade: { value: 0 },
+  kFadeCam: { value: new THREE.Vector3() },
+  kFadeTargets: { value: Array.from({ length: 8 }, () => new THREE.Vector4()) }, // xyz = where, w = how big (world units)
+  kFadeCount: { value: 0 },
+  kFadeNear: { value: 0 }, // closer to the camera than this fades too; 0 = off
+  kFadeCell: { value: 2 },
 };
 
 const COMMON_GLSL = /* glsl */ `
 uniform float kStyle, kPattern, kBands, kCell, kKnee, kSpread, kAmount, kTintAmount, kFogBands, kFogCell;
 uniform vec3 kTint;
+uniform float kFade, kFadeCount, kFadeNear, kFadeCell;
+uniform vec3 kFadeCam;
+uniform vec4 kFadeTargets[8];
+varying vec3 vKitWorld;
 float kitBayer(vec2 p) {
   const float m[16] = float[16](0., 8., 2., 10., 12., 4., 14., 6., 3., 11., 1., 9., 15., 7., 13., 5.);
   ivec2 i = ivec2(mod(floor(p), 4.0));
@@ -95,6 +107,28 @@ float kitHash(vec2 p) {
   p = fract(p * vec2(443.897, 441.423));
   p += dot(p, p.yx + 19.19);
   return fract((p.x + p.y) * p.x);
+}
+// Dissolve this pixel if it hides the target (inside the cone from the camera to
+// the target, and nearer than it) or sits right up against the lens. A faint
+// stipple stays, so you can still tell something was there.
+void kitFadeOut() {
+  if (kFade < 0.5) return;
+  vec3 toP = vKitWorld - kFadeCam;
+  float a = 0.0;
+  if (kFadeNear > 0.0) a = 1.0 - smoothstep(kFadeNear * 0.5, kFadeNear, length(toP));
+  for (int i = 0; i < 8; i++) {
+    if (float(i) >= kFadeCount) break;
+    float R = kFadeTargets[i].w;
+    vec3 seg = kFadeTargets[i].xyz - kFadeCam;
+    float L = max(length(seg), 0.001);
+    vec3 dir = seg / L;
+    float along = dot(toP, dir);
+    float off = length(toP - dir * along);
+    float r = R * max(along, 0.0) / L; // the target's outline, as seen from the camera
+    float hides = (1.0 - smoothstep(r * 0.75, r * 1.05 + 0.05, off)) * (1.0 - smoothstep(L - R * 0.9, L - R * 0.5, along)) * step(0.0, along);
+    a = max(a, hides);
+  }
+  if (kitBayer(gl_FragCoord.xy / kFadeCell) < a * 0.82) discard;
 }
 float kitLine(float u) { return 1.0 - abs(fract(u) - 0.5) * 2.0; } // 1 on the pen line, 0 between
 // The threshold for each pixel: where it is above the light, the pixel takes the band below.
@@ -156,17 +190,33 @@ const FOG_GLSL = /* glsl */ `
 #endif
 `;
 
+const WORLD_VERT = /* glsl */ `
+	vec4 kitW = vec4( transformed, 1.0 );
+	#ifdef USE_BATCHING
+		kitW = batchingMatrix * kitW;
+	#endif
+	#ifdef USE_INSTANCING
+		kitW = instanceMatrix * kitW;
+	#endif
+	vKitWorld = ( modelMatrix * kitW ).xyz;`;
+function worldVaryings(shader) {
+  shader.vertexShader = shader.vertexShader
+    .replace('void main() {', 'varying vec3 vKitWorld;\nvoid main() {')
+    .replace('#include <project_vertex>', `#include <project_vertex>${WORLD_VERT}`);
+}
 function litHook(shader) {
   Object.assign(shader.uniforms, U);
+  worldVaryings(shader);
   shader.fragmentShader = shader.fragmentShader
-    .replace('void main() {', `${COMMON_GLSL}${LIT_GLSL}\nvoid main() {`)
+    .replace('void main() {', `${COMMON_GLSL}${LIT_GLSL}\nvoid main() {\n\tkitFadeOut();`)
     .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n\tkitLight( reflectedLight );')
     .replace('#include <fog_fragment>', FOG_GLSL);
 }
 function basicHook(shader) {
   Object.assign(shader.uniforms, U);
+  worldVaryings(shader);
   shader.fragmentShader = shader.fragmentShader
-    .replace('void main() {', `${COMMON_GLSL}\nvoid main() {`)
+    .replace('void main() {', `${COMMON_GLSL}\nvoid main() {\n\tkitFadeOut();`)
     .replace('#include <fog_fragment>', FOG_GLSL);
 }
 // On the prototypes, so every material in every game takes part. (Plain light
@@ -206,6 +256,19 @@ function applyMaterialLook(spec, unit) {
   const f = spec?.fog;
   U.kFogBands.value = f ? f.bands : 0;
   if (f) U.kFogCell.value = cellPx(f.cell ?? 2, unit);
+}
+
+/** See-through occluders: works in every lighting style, plain included. */
+function applyFade(focus, camera, unit) {
+  U.kFade.value = focus ? 1 : 0;
+  if (!focus) return;
+  U.kFadeCam.value.setFromMatrixPosition(camera.matrixWorld);
+  // { target, radius } for one thing to keep in sight, or targets: [{ at, radius }] for up to 8.
+  const list = focus.targets ?? (focus.target ? [{ at: focus.target, radius: focus.radius }] : []);
+  U.kFadeCount.value = Math.min(8, list.length);
+  list.slice(0, 8).forEach((x, i) => U.kFadeTargets.value[i].set(x.at.x, x.at.y, x.at.z, x.radius ?? 2));
+  U.kFadeNear.value = focus.near ?? 0;
+  U.kFadeCell.value = cellPx(2, unit);
 }
 
 // ---------------------------------------------------------------------------
@@ -397,12 +460,20 @@ export function createLookPass(renderer, tuning = {}) {
     tuning,
     /** What's being drawn this frame (null = plain), for a game that wants to know. */
     spec: null,
+    /**
+     * See-through occluders, null = off. { target: Vector3, radius, near }, or
+     * { targets: [{ at, radius }], near } for up to 8 things to keep in sight:
+     * anything between the camera and a target of that size dissolves into a
+     * stipple, and so does anything nearer the camera than `near`.
+     */
+    focus: null,
     render(scene, camera, views = null) {
       active = this;
       const spec = resolveLook(this.tuning);
       this.spec = spec;
       const unit = tvPixel(renderer);
       applyMaterialLook(spec, unit);
+      applyFade(this.focus, views?.[0]?.camera ?? camera, unit);
       const post = spec?.post;
       if (!post) {
         draw(scene, camera, views, null);

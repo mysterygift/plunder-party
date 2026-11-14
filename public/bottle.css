@@ -21,6 +21,8 @@ body[data-screen='mb'] #backdrop { display: none; }
 .mb-label.in { border-color: var(--gold-dark); box-shadow: 0 0 0 0.12em var(--gold), 0 0.2em 0.5em rgba(0, 40, 60, 0.35); }
 .mb-label.here { border-color: var(--red); box-shadow: 0 0 0 0.14em var(--red), 0 0 1em rgba(200, 55, 45, 0.5); }
 .mb-label.away .chip { opacity: 0.55; }
+/* Following a bottle close up: only the island it's at keeps its name plate. */
+.kit-labels.mb-focus .mb-label:not(.here) { opacity: 0; }
 .mb-foot { font-size: 0.6em; }
 .mb-done { font-family: var(--display); color: var(--gold-dark); }
 .mb-wait { font-style: italic; opacity: 0.6; }

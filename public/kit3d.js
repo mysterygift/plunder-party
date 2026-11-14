@@ -263,6 +263,23 @@ export function createStage({ id, background = 0x101010, exposure = 1.1, fov = 3
   return stage;
 }
 
+/** A carved wooden pawn painted in a pirate's colour, with a bandana (the crew in Parley and Message in a Bottle). About 2.9 tall, facing +z. */
+export function figure(colour) {
+  const S = shapes();
+  const g = new THREE.Group();
+  const coat = paint(new THREE.Color(colour).getHex(), { rough: 0.55 });
+  const wood = paint(0xc89a64, { rough: 0.6 });
+  const dark = paint(new THREE.Color(colour).multiplyScalar(0.55).getHex(), { rough: 0.6 });
+  part(S.round, dark, { at: [0, 0.14, 0], size: [0.72, 0.28, 0.72], into: g });
+  part(new THREE.CylinderGeometry(0.34, 0.6, 1.7, 14), coat, { at: [0, 1.12, 0], into: g });
+  part(S.round, wood, { at: [0, 2.02, 0], size: [0.42, 0.12, 0.42], into: g }); // the collar
+  g.userData.head = part(S.smooth, wood, { at: [0, 2.48, 0], size: 0.47, into: g });
+  g.userData.wood = wood;
+  part(new THREE.SphereGeometry(0.49, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), dark, { at: [0, 2.52, 0], into: g }); // bandana
+  part(S.ball, dark, { at: [-0.12, 2.7, -0.45], size: [0.12, 0.12, 0.2], into: g }); // its knot
+  return g;
+}
+
 /** A soft warm light that flickers like a flame (call flicker(clock) each frame). */
 export function flame(into, { at = [0, 0, 0], size = 1, strength = 40, reach = 16, colour = 0xffa64a } = {}) {
   const S = shapes();

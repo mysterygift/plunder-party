@@ -1,7 +1,7 @@
 // MESSAGE IN A BOTTLE - a drawing game of whispers across the archipelago.
 //
 // Every pirate has an island. Each writes a message and corks it in a bottle,
-// and the bottles drift on to the next island along:
+// and the bottles are thrown on to the next island along:
 //   * if a bottle brings you words, draw them
 //   * if it brings you a drawing, write down what you think it shows
 // Nobody sees more than the page just before theirs. After a few hops every
@@ -43,7 +43,7 @@ export async function run(ctx) {
   const bottleFor = (p, s) => bottles[(crew.indexOf(p) - s + n * 8) % n];
 
   await ctx.intro([
-    'Write a message and cork it in a bottle. It drifts off to the next island.',
+    'Write a message and cork it in a bottle. It gets thrown to the next island.',
     'Bottle brings you words? Draw them. Brings you a drawing? Write what you think it shows. You only ever see the page before yours.',
     'At the end, every bottle is unrolled. Vote for the best page in each: doubloons to whoever made it.',
   ]);
