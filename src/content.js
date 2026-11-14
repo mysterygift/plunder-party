@@ -51,6 +51,7 @@ export function loadContent() {
   for (const loc of reckoning.locations) {
     need(typeof loc.lat === 'number' && typeof loc.lng === 'number', `content/dead-reckoning.json: "${loc.name}" needs numeric "lat" and "lng".`);
     need(Array.isArray(loc.clues) && loc.clues.length >= 1, `content/dead-reckoning.json: "${loc.name}" needs at least 1 clue.`);
+    need(loc.kind === undefined || reckoning.kinds?.[loc.kind], `content/dead-reckoning.json: "${loc.name}" has the kind "${loc.kind}", which isn't one of the "kinds" at the top of the file.`);
   }
   need(Array.isArray(colours.ideas) && colours.ideas.length >= 6, 'content/colours.json needs at least 6 "ideas".');
   need(Array.isArray(colours.spareNames) && colours.spareNames.length >= 6, 'content/colours.json needs at least 6 "spareNames".');

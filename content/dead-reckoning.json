@@ -1,109 +1,1046 @@
 {
   "rounds": 5,
   "seconds": { "guess": 60 },
+  "units": "miles",
+
+  "kinds": {
+    "pirate": { "name": "Pirate haunts", "icon": "🏴‍☠️" },
+    "telly": { "name": "Off the telly", "icon": "📺" },
+    "holiday": { "name": "Holidays & big nights out", "icon": "🍹" },
+    "home": { "name": "Home waters", "icon": "☔" },
+    "wonder": { "name": "Bucket list", "icon": "🌍" }
+  },
 
   "locations": [
     {
+      "kind": "telly",
+      "name": "Dubrovnik, Croatia",
+      "lat": 42.64, "lng": 18.11,
+      "clues": [
+        "A queen did a very long, very naked walk of shame down a staircase here. Shame. Shame. Shame.",
+        "Its old town played King’s Landing in Game of Thrones.",
+        "A walled city on the coast of Croatia, across the Adriatic from Italy."
+      ],
+      "fact": "The city now limits cruise ships because so many fans turned up."
+    },
+    {
+      "kind": "telly",
+      "name": "Hobbiton, New Zealand",
+      "lat": -37.87, "lng": 175.68,
+      "clues": [
+        "You can get a pint at the Green Dragon here, but mind your head on the way in.",
+        "Bilbo’s round green front door is still set into the hillside.",
+        "A sheep farm on the North Island of New Zealand."
+      ],
+      "fact": "The set was built twice. The first one was polystyrene and got pulled down."
+    },
+    {
+      "kind": "telly",
+      "name": "Barry Island, Wales",
+      "lat": 51.39, "lng": -3.27,
+      "clues": [
+        "Oh! What’s occurring?",
+        "Gavin is from Essex. Stacey is from here, and Nessa works the slots in the arcade.",
+        "A seaside resort in South Wales, just along the coast from Cardiff."
+      ],
+      "fact": "Nessa’s booth in the arcade is still there, and you can sit in it."
+    },
+    {
+      "kind": "telly",
+      "name": "Mallorca, Spain",
+      "lat": 39.62, "lng": 2.99,
+      "clues": [
+        "A place for grafting, cracking on, and getting pied in front of the nation.",
+        "Every summer a villa here fills up with singles in swimwear who’d like a chat.",
+        "The Love Island island: the biggest of Spain’s Balearics."
+      ],
+      "fact": "It’s also where you’ll find Magaluf, so it has seen things."
+    },
+    {
+      "kind": "telly",
+      "name": "Glenfinnan Viaduct, Scotland",
+      "lat": 56.876, "lng": -5.432,
+      "clues": [
+        "A flying Ford Anglia nearly gets flattened by a steam train here.",
+        "The Hogwarts Express crosses this curving viaduct on the way to school.",
+        "It’s in the Scottish Highlands, a little west of Fort William."
+      ],
+      "fact": "A real steam train, the Jacobite, still crosses it every summer."
+    },
+    {
+      "kind": "telly",
+      "name": "Skellig Michael, Ireland",
+      "lat": 51.771, "lng": -10.54,
+      "clues": [
+        "Luke Skywalker spent his retirement sulking on this rock.",
+        "It was so covered in puffins that the film crew turned them into porgs.",
+        "A jagged island off the south-west tip of Ireland, in County Kerry."
+      ],
+      "fact": "Monks lived on the summit for 600 years, in stone huts shaped like beehives."
+    },
+    {
+      "kind": "telly",
+      "name": "Birmingham, England",
+      "lat": 52.48, "lng": -1.9,
+      "clues": [
+        "By order of the Peaky Blinders.",
+        "Tommy Shelby’s gang ran the back streets of Small Heath in this city.",
+        "England’s second city, home of the Bullring, Cadbury and a great many canals."
+      ],
+      "fact": "It really does have more miles of canal than Venice."
+    },
+    {
+      "kind": "telly",
+      "name": "Albuquerque, New Mexico",
+      "lat": 35.08, "lng": -106.65,
+      "clues": [
+        "A chemistry teacher here found a far better-paid use for his skills.",
+        "Home of Walter White, Jesse Pinkman and Los Pollos Hermanos.",
+        "The biggest city in New Mexico, in the desert of the south-west USA."
+      ],
+      "fact": "Fans keep throwing pizzas onto the roof of the real house. The owners have asked them to stop."
+    },
+    {
+      "kind": "telly",
+      "name": "Chernobyl, Ukraine",
+      "lat": 51.39, "lng": 30.1,
+      "clues": [
+        "“3.6 roentgen. Not great, not terrible.”",
+        "Reactor number four exploded here in April 1986.",
+        "It’s in the north of Ukraine, close to the border with Belarus."
+      ],
+      "fact": "The town next door, Pripyat, still has a fairground that never opened."
+    },
+    {
+      "kind": "telly",
+      "name": "Skopelos, Greece",
+      "lat": 39.12, "lng": 23.72,
+      "clues": [
+        "Meryl Streep ran a crumbling hotel here, and her daughter had three possible dads.",
+        "Mamma Mia! Here we go again: the film was shot on this island.",
+        "A Greek island in the Aegean Sea, north of Athens."
+      ],
+      "fact": "The little chapel on the rock has 199 steps, which is a lot in a wedding dress."
+    },
+    {
+      "kind": "telly",
+      "name": "Ardross Castle, Scotland",
+      "lat": 57.74, "lng": -4.3,
+      "clues": [
+        "A round table, a lot of cloaks, and a woman with a very heavy fringe.",
+        "It’s the castle from The Traitors.",
+        "In the Scottish Highlands, a short drive north of Inverness."
+      ],
+      "fact": "Nobody actually sleeps there. The players are driven to a hotel every night."
+    },
+    {
+      "kind": "telly",
+      "name": "Seoul, South Korea",
+      "lat": 37.57, "lng": 126.98,
+      "clues": [
+        "456 players, one giant piggy bank, and a very tense game of Red Light, Green Light.",
+        "Squid Game is set in this capital city, which also gave the world K-pop.",
+        "The capital of South Korea."
+      ],
+      "fact": "About half of all South Koreans live in or around it."
+    },
+    {
+      "kind": "telly",
+      "name": "Derry, Northern Ireland",
+      "lat": 54.997, "lng": -7.32,
+      "clues": [
+        "Erin, Orla, Clare, Michelle, and the wee English fella.",
+        "Derry Girls. There’s a mural of them on the side of a pub.",
+        "A walled city in the north-west of Northern Ireland, right by the border."
+      ],
+      "fact": "Its city walls have never been breached, which is why it’s called the Maiden City."
+    },
+    {
+      "kind": "telly",
+      "name": "Matmata, Tunisia",
+      "lat": 33.54, "lng": 9.97,
+      "clues": [
+        "Luke Skywalker grew up in a hole in the ground here. It’s now a hotel.",
+        "The desert planet Tatooine is named after a real town just down the road.",
+        "In the south of Tunisia, on the northern edge of the Sahara."
+      ],
+      "fact": "You can still eat breakfast in the Skywalkers’ dining room."
+    },
+    {
+      "kind": "telly",
+      "name": "Kauai, Hawaii",
+      "lat": 22.07, "lng": -159.52,
+      "clues": [
+        "“Welcome to Jurassic Park.” The helicopter lands beside a waterfall on this island.",
+        "It’s nicknamed the Garden Isle, and it belongs to the USA’s surfiest state.",
+        "One of the Hawaiian islands, in the middle of the Pacific."
+      ],
+      "fact": "A real hurricane hit during filming. Some of the storm in the film is genuine."
+    },
+    {
+      "kind": "telly",
+      "name": "Scranton, Pennsylvania",
+      "lat": 41.41, "lng": -75.66,
+      "clues": [
+        "Home of the World’s Best Boss, according to his own mug.",
+        "The Dunder Mifflin Paper Company has its branch here.",
+        "A small city in Pennsylvania, in the north-east of the USA."
+      ],
+      "fact": "That’s what she said."
+    },
+    {
+      "kind": "telly",
+      "name": "The I’m a Celebrity jungle, Australia",
+      "lat": -28.33, "lng": 153.4,
+      "clues": [
+        "Every November, famous people come here to eat things that should not be eaten.",
+        "Ant and Dec watch from a treehouse while somebody shouts “Get me out of here!”",
+        "It’s on the east coast of Australia, in the hills behind the Gold Coast."
+      ],
+      "fact": "The camp is a fifteen-minute drive from a perfectly nice town with a pub."
+    },
+    {
+      "kind": "telly",
+      "name": "Medellín, Colombia",
+      "lat": 6.25, "lng": -75.57,
+      "clues": [
+        "“Plata o plomo?” Silver or lead?",
+        "In Narcos, Pablo Escobar runs his cartel from this city.",
+        "Colombia’s second city, up in the Andes in the north-west of South America."
+      ],
+      "fact": "Escobar’s escaped pet hippos have bred. There are now well over a hundred."
+    },
+    {
+      "kind": "telly",
+      "name": "New York City, USA",
+      "lat": 40.73, "lng": -74.0,
+      "clues": [
+        "Six friends drank a lot of coffee here, in a flat none of them could afford.",
+        "The one with Central Perk, the Empire State Building and the yellow taxis.",
+        "The Big Apple, on the east coast of the USA."
+      ],
+      "fact": "Friends was filmed in Los Angeles. The fountain is on a studio lot in California."
+    },
+
+    {
+      "kind": "holiday",
+      "name": "Ibiza, Spain",
+      "lat": 38.98, "lng": 1.43,
+      "clues": [
+        "A café here got famous for sunsets and sold millions of chill-out CDs to your parents.",
+        "Pacha, Amnesia and Ushuaïa are all on this island. The Vengaboys were going.",
+        "A Spanish party island in the Mediterranean, off the coast of Valencia."
+      ],
+      "fact": "Its seagrass meadows are a World Heritage Site, and one of the oldest living things on Earth."
+    },
+    {
+      "kind": "holiday",
+      "name": "Benidorm, Spain",
+      "lat": 38.54, "lng": -0.13,
+      "clues": [
+        "Full English breakfasts, mobility scooters, and a tribute act every night of the week.",
+        "The ITV sitcom set at the all-inclusive Solana resort is named after it.",
+        "A wall of skyscrapers on Spain’s Costa Blanca."
+      ],
+      "fact": "It has more high-rise buildings per person than anywhere else on Earth."
+    },
+    {
+      "kind": "holiday",
+      "name": "Malia, Crete",
+      "lat": 35.285, "lng": 25.463,
+      "clues": [
+        "Will, Simon, Jay and Neil came here on their first lads’ holiday. It went badly.",
+        "The Inbetweeners Movie made its strip of bars famous.",
+        "A party resort on the north coast of Crete, the biggest Greek island."
+      ],
+      "fact": "It also has a 3,500-year-old palace, which gets rather fewer visitors."
+    },
+    {
+      "kind": "holiday",
+      "name": "Amsterdam, Netherlands",
+      "lat": 52.37, "lng": 4.9,
+      "clues": [
+        "The first suggestion in every stag-do group chat.",
+        "Canals, more bikes than people, and coffee shops that aren’t really about the coffee.",
+        "The capital of the Netherlands."
+      ],
+      "fact": "Around 12,000 bikes are fished out of its canals every year."
+    },
+    {
+      "kind": "holiday",
+      "name": "Ayia Napa, Cyprus",
+      "lat": 34.99, "lng": 34.0,
+      "clues": [
+        "A fishing village that became the summer home of UK garage in about 2000.",
+        "Nissi Beach by day, the square full of bars by night.",
+        "A resort at the south-east corner of Cyprus, in the far east of the Mediterranean."
+      ],
+      "fact": "It has a museum of underwater sculptures you can only visit with a snorkel."
+    },
+    {
+      "kind": "holiday",
+      "name": "Koh Phangan, Thailand",
+      "lat": 9.74, "lng": 100.03,
+      "clues": [
+        "Buckets, glow paint, a flaming skipping rope, and regret.",
+        "Tens of thousands of backpackers pile onto its beach every month for the Full Moon Party.",
+        "An island in the Gulf of Thailand."
+      ],
+      "fact": "The first Full Moon Party, in the 1980s, was about thirty people and a guitar."
+    },
+    {
+      "kind": "holiday",
+      "name": "Bali, Indonesia",
+      "lat": -8.41, "lng": 115.19,
+      "clues": [
+        "Half your Instagram feed has been on a swing over a rice terrace here.",
+        "Canggu for the smoothie bowls, Ubud for the yoga, Uluwatu for the surf.",
+        "An Indonesian island, just east of Java."
+      ],
+      "fact": "Once a year the whole island shuts for a day of silence. Even the airport closes."
+    },
+    {
+      "kind": "holiday",
+      "name": "Glastonbury Festival, England",
+      "lat": 51.156, "lng": -2.586,
+      "clues": [
+        "For most of the year it’s a dairy farm.",
+        "Then 200,000 people turn up, and none of your mates managed to get tickets.",
+        "Worthy Farm in Somerset, home of the Pyramid Stage."
+      ],
+      "fact": "A ticket to the first one in 1970 cost £1 and came with free milk."
+    },
+    {
+      "kind": "holiday",
+      "name": "Las Vegas, Nevada",
+      "lat": 36.17, "lng": -115.14,
+      "clues": [
+        "What happens here, stays here.",
+        "The Hangover: a tiger in the bathroom, a missing groom, and a fake Eiffel Tower outside.",
+        "A city of casinos in the desert of Nevada, in the western USA."
+      ],
+      "fact": "The famous Strip isn’t technically in Las Vegas. It’s in a town called Paradise."
+    },
+    {
+      "kind": "holiday",
+      "name": "Prague, Czech Republic",
+      "lat": 50.09, "lng": 14.42,
+      "clues": [
+        "A city where a pint has long been cheaper than a bottle of water.",
+        "A stag-do favourite with a medieval astronomical clock and a very old bridge.",
+        "The capital of the Czech Republic."
+      ],
+      "fact": "Czechs drink more beer per person than any other country, and it’s not close."
+    },
+    {
+      "kind": "holiday",
+      "name": "Budapest, Hungary",
+      "lat": 47.5, "lng": 19.04,
+      "clues": [
+        "George Ezra would give up his house here for you. He had never been.",
+        "Ruin bars, thermal baths, and a river that splits the city in two.",
+        "The capital of Hungary, on the Danube."
+      ],
+      "fact": "It used to be two cities: Buda on one bank, Pest on the other."
+    },
+    {
+      "kind": "holiday",
+      "name": "Dubai, UAE",
+      "lat": 25.2, "lng": 55.27,
+      "clues": [
+        "Where influencers go when they announce they’re ‘relocating for business’.",
+        "It has the world’s tallest building, and an island shaped like a palm tree.",
+        "A city in the United Arab Emirates, on the Persian Gulf."
+      ],
+      "fact": "The Burj Khalifa is so tall you can watch the sunset twice: once at the bottom, once at the top."
+    },
+    {
+      "kind": "holiday",
+      "name": "Marbella, Spain",
+      "lat": 36.51, "lng": -4.88,
+      "clues": [
+        "“No carbs before Marbs.”",
+        "The cast of TOWIE come here every summer to argue beside a pool.",
+        "A glitzy resort on Spain’s Costa del Sol, not far from Málaga."
+      ],
+      "fact": "Its marina, Puerto Banús, has more supercars than parking spaces."
+    },
+    {
+      "kind": "holiday",
+      "name": "Munich, Germany",
+      "lat": 48.13, "lng": 11.55,
+      "clues": [
+        "Six million people come here every autumn and drink seven million litres of beer.",
+        "Lederhosen, pretzels and steins the size of your head: it’s Oktoberfest.",
+        "The capital of Bavaria, in the south of Germany."
+      ],
+      "fact": "Oktoberfest mostly happens in September."
+    },
+    {
+      "kind": "holiday",
+      "name": "Reykjavík, Iceland",
+      "lat": 64.13, "lng": -21.9,
+      "clues": [
+        "Everyone you know has a photo in a milky-blue lagoon near here, wearing a face mask.",
+        "In 2010 a volcano nobody could pronounce grounded every flight in Europe. It’s in this country.",
+        "The capital of Iceland."
+      ],
+      "fact": "It’s the most northerly capital city in the world."
+    },
+    {
+      "kind": "holiday",
+      "name": "Sydney, Australia",
+      "lat": -33.87, "lng": 151.21,
+      "clues": [
+        "Everyone on a working holiday visa ends up here, sharing a flat with six other Brits.",
+        "Bondi Beach, a harbour bridge, and an opera house that looks like a pile of sails.",
+        "Australia’s biggest city, on the south-east coast."
+      ],
+      "fact": "It isn’t the capital. That’s Canberra, which was built to stop this city and Melbourne arguing."
+    },
+    {
+      "kind": "holiday",
+      "name": "Santorini, Greece",
+      "lat": 36.39, "lng": 25.46,
+      "clues": [
+        "White houses, blue domes, and a queue of couples waiting to photograph the sunset.",
+        "It’s shaped like a croissant, because it’s the rim of a volcano that blew itself up.",
+        "A Greek island in the Aegean, between Athens and Crete."
+      ],
+      "fact": "The eruption, 3,600 years ago, may be where the legend of Atlantis comes from."
+    },
+    {
+      "kind": "holiday",
+      "name": "Rovaniemi, Lapland",
+      "lat": 66.5, "lng": 25.73,
+      "clues": [
+        "A man here gets more post than anyone else on Earth, almost all of it in December.",
+        "It’s the official home town of Father Christmas, right on the Arctic Circle.",
+        "The capital of Lapland, in the north of Finland."
+      ],
+      "fact": "Santa’s post office has had letters from 198 countries."
+    },
+
+    {
+      "kind": "home",
+      "name": "Blackpool, England",
+      "lat": 53.815, "lng": -3.055,
+      "clues": [
+        "Every Strictly couple is desperate to make it to this town’s ballroom.",
+        "A Pleasure Beach, three piers, six miles of illuminations and a lot of rock.",
+        "A seaside resort in Lancashire with a tower that isn’t quite the Eiffel."
+      ],
+      "fact": "The tower is 158 metres tall. The one it copied is about twice that."
+    },
+    {
+      "kind": "home",
+      "name": "Loch Ness, Scotland",
+      "lat": 57.32, "lng": -4.42,
+      "clues": [
+        "Home of Britain’s most camera-shy resident.",
+        "It holds more water than every lake in England and Wales put together, and possibly a monster.",
+        "A long, deep loch in the Scottish Highlands, south-west of Inverness."
+      ],
+      "fact": "The most famous photo of Nessie was a toy submarine with a plastic head."
+    },
+    {
+      "kind": "home",
+      "name": "Stonehenge, England",
+      "lat": 51.179, "lng": -1.826,
+      "clues": [
+        "Nobody is sure who built it or why, but you get a decent look from the traffic jam on the A303.",
+        "A ring of enormous standing stones, about 5,000 years old.",
+        "On Salisbury Plain in Wiltshire, in the south of England."
+      ],
+      "fact": "Some of the stones were dragged 150 miles from Wales."
+    },
+    {
+      "kind": "home",
+      "name": "Liverpool, England",
+      "lat": 53.41, "lng": -2.99,
+      "clues": [
+        "It hosted Eurovision in 2023, on behalf of Ukraine.",
+        "Four lads with guitars, two cathedrals, and two birds on top of a building.",
+        "A port city on the River Mersey, in the north-west of England."
+      ],
+      "fact": "Legend says that if the Liver Birds ever fly away, the city will cease to exist."
+    },
+    {
+      "kind": "home",
+      "name": "Newcastle upon Tyne, England",
+      "lat": 54.97, "lng": -1.61,
+      "clues": [
+        "The first ever Greggs opened in a suburb of this city.",
+        "Home of Ant and Dec, Geordie Shore, and a night out with no coat on.",
+        "A city on the River Tyne, in the north-east of England."
+      ],
+      "fact": "The Tyne Bridge was built by the same firm as the Sydney Harbour Bridge."
+    },
+    {
+      "kind": "home",
+      "name": "Giant’s Causeway, Northern Ireland",
+      "lat": 55.24, "lng": -6.51,
+      "clues": [
+        "Legend says a giant called Finn McCool built it so he could walk to Scotland for a fight.",
+        "About 40,000 stone columns, nearly all of them neat hexagons.",
+        "It’s on the north coast of Northern Ireland."
+      ],
+      "fact": "It’s actually cooled lava, about 60 million years old."
+    },
+    {
+      "kind": "home",
+      "name": "Edinburgh, Scotland",
+      "lat": 55.95, "lng": -3.19,
+      "clues": [
+        "Every August it fills up with comedians handing out flyers.",
+        "It has a castle on an extinct volcano, and a very loud Hogmanay.",
+        "The capital of Scotland."
+      ],
+      "fact": "A cannon is fired from the castle at one o’clock, so the whole city can set its watch."
+    },
+    {
+      "kind": "home",
+      "name": "Newquay, Cornwall",
+      "lat": 50.415, "lng": -5.08,
+      "clues": [
+        "Where half the country went the week after their GCSEs.",
+        "Britain’s surf capital: Fistral Beach and the Boardmasters festival.",
+        "A seaside town on the north coast of Cornwall."
+      ],
+      "fact": "Its airport is also a licensed spaceport."
+    },
+    {
+      "kind": "home",
+      "name": "Yr Wyddfa (Snowdon), Wales",
+      "lat": 53.068, "lng": -4.076,
+      "clues": [
+        "There’s a café at the top, and a train if you can’t be bothered.",
+        "The highest mountain in Wales.",
+        "It’s in Eryri National Park, in the north-west corner of Wales."
+      ],
+      "fact": "Edmund Hillary trained here before climbing Everest."
+    },
+    {
+      "kind": "home",
+      "name": "Isle of Man",
+      "lat": 54.24, "lng": -4.55,
+      "clues": [
+        "Its flag has three legs on it, and its cats have no tails.",
+        "Every summer motorbikes race round its ordinary roads at 200 miles an hour.",
+        "An island in the middle of the Irish Sea, between England and Ireland."
+      ],
+      "fact": "It isn’t part of the UK, and its parliament is over a thousand years old."
+    },
+    {
+      "kind": "home",
+      "name": "Alton Towers, England",
+      "lat": 52.99, "lng": -1.89,
+      "clues": [
+        "You queued two hours here for ninety seconds of screaming.",
+        "Nemesis, Oblivion and The Smiler: Britain’s biggest theme park.",
+        "In Staffordshire, in the middle of England."
+      ],
+      "fact": "The Smiler turns you upside down fourteen times, which is a world record."
+    },
+    {
+      "kind": "home",
+      "name": "Manchester, England",
+      "lat": 53.48, "lng": -2.24,
+      "clues": [
+        "Its symbol is a worker bee, and it rains rather less than people say.",
+        "Oasis, the Haçienda, and two football teams whose fans would like a word with each other.",
+        "A big city in the north-west of England, half an hour inland from Liverpool."
+      ],
+      "fact": "The first stored-program computer ran here in 1948. They called it the Baby."
+    },
+    {
+      "kind": "home",
+      "name": "John o’ Groats, Scotland",
+      "lat": 58.64, "lng": -3.07,
+      "clues": [
+        "People walk, cycle and occasionally skateboard 874 miles to get here.",
+        "It’s the other end of the journey from Land’s End.",
+        "A village at the far north-east tip of mainland Scotland."
+      ],
+      "fact": "It’s not actually the most northerly point. That’s Dunnet Head, eleven miles away."
+    },
+    {
+      "kind": "home",
+      "name": "Dover, England",
+      "lat": 51.13, "lng": 1.31,
+      "clues": [
+        "There’ll be bluebirds over them, according to the song.",
+        "Famous for white cliffs and for queues of lorries waiting for a ferry.",
+        "A port in Kent, at the closest point of England to France."
+      ],
+      "fact": "On a clear day you can see the French coast, 21 miles away."
+    },
+    {
+      "kind": "home",
+      "name": "Brighton, England",
+      "lat": 50.82, "lng": -0.14,
+      "clues": [
+        "The seagulls here will take the chips right out of your hand.",
+        "A pier, a pebble beach, a palace that looks like the Taj Mahal, and a very big Pride.",
+        "A seaside city on the south coast, an hour from London."
+      ],
+      "fact": "In 2002 Fatboy Slim played a free gig on the beach. A quarter of a million people came."
+    },
+    {
+      "kind": "home",
+      "name": "Dublin, Ireland",
+      "lat": 53.35, "lng": -6.26,
+      "clues": [
+        "A pint in its most famous bar district will cost you about a tenner.",
+        "Home of Guinness, Temple Bar and a statue everybody calls the Tart with the Cart.",
+        "The capital of Ireland."
+      ],
+      "fact": "The Guinness brewery’s lease runs for 9,000 years, at £45 a year."
+    },
+    {
+      "kind": "home",
+      "name": "Belfast, Northern Ireland",
+      "lat": 54.6, "lng": -5.93,
+      "clues": [
+        "“She was fine when she left here,” they say of the city’s most famous ship.",
+        "The Titanic was built in its shipyard. Line of Duty was filmed on its streets.",
+        "The capital of Northern Ireland."
+      ],
+      "fact": "The two giant yellow shipyard cranes are called Samson and Goliath."
+    },
+    {
+      "kind": "home",
+      "name": "St Andrews, Scotland",
+      "lat": 56.34, "lng": -2.8,
+      "clues": [
+        "A prince met his future wife at the university here.",
+        "It’s known as the home of golf.",
+        "A small town on the east coast of Scotland, north of Edinburgh."
+      ],
+      "fact": "People have played golf on its Old Course for about 600 years."
+    },
+    {
+      "kind": "home",
+      "name": "Glasgow, Scotland",
+      "lat": 55.86, "lng": -4.25,
+      "clues": [
+        "There’s a statue here that has worn a traffic cone on its head for forty years.",
+        "Celtic, Rangers, Irn-Bru and the deep-fried Mars bar’s spiritual home.",
+        "Scotland’s biggest city, on the River Clyde."
+      ],
+      "fact": "The council once planned to raise the statue to stop the cone. The city said no."
+    },
+
+    {
+      "kind": "wonder",
+      "name": "Machu Picchu, Peru",
+      "lat": -13.163, "lng": -72.545,
+      "clues": [
+        "The Spanish conquered the whole empire and never found this place.",
+        "A lost city of the Incas on a mountain ridge, with llamas wandering into your photos.",
+        "High in the Andes in Peru."
+      ],
+      "fact": "It was built without wheels, iron tools or mortar, and it has survived 500 years of earthquakes."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Pyramids of Giza, Egypt",
+      "lat": 29.98, "lng": 31.13,
+      "clues": [
+        "The only one of the Seven Wonders of the Ancient World that’s still standing.",
+        "Three enormous pointy tombs, guarded by a Sphinx with no nose.",
+        "On the edge of Cairo, in Egypt."
+      ],
+      "fact": "Cleopatra lived closer in time to the iPhone than to the building of the Great Pyramid."
+    },
+    {
+      "kind": "wonder",
+      "name": "Uluru, Australia",
+      "lat": -25.345, "lng": 131.036,
+      "clues": [
+        "Most of it is underground, like an iceberg made of sandstone.",
+        "A giant red rock, sacred to the Anangu people. Climbing it was banned in 2019.",
+        "Almost exactly in the middle of Australia."
+      ],
+      "fact": "It changes colour through the day, and glows bright red at sunset."
+    },
+    {
+      "kind": "wonder",
+      "name": "Mount Everest",
+      "lat": 27.988, "lng": 86.925,
+      "clues": [
+        "On a busy day there’s a queue for the top.",
+        "The highest mountain on Earth.",
+        "In the Himalayas, on the border between Nepal and Tibet."
+      ],
+      "fact": "It grows by about four millimetres a year."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Taj Mahal, India",
+      "lat": 27.175, "lng": 78.042,
+      "clues": [
+        "Princess Diana was photographed sitting alone on a bench in front of it.",
+        "A white marble tomb built by a heartbroken emperor for his favourite wife.",
+        "In the city of Agra, in northern India."
+      ],
+      "fact": "It took 20,000 workers and a thousand elephants about twenty years."
+    },
+    {
+      "kind": "wonder",
+      "name": "Niagara Falls",
+      "lat": 43.08, "lng": -79.07,
+      "clues": [
+        "Jim and Pam from The Office got married on a boat here.",
+        "In 1901 a 63-year-old teacher went over the edge in a barrel, and lived.",
+        "A giant waterfall on the border between Canada and the USA."
+      ],
+      "fact": "Engineers can turn the flow down at night, and they do."
+    },
+    {
+      "kind": "wonder",
+      "name": "Christ the Redeemer, Brazil",
+      "lat": -22.95, "lng": -43.21,
+      "clues": [
+        "He gets struck by lightning several times a year.",
+        "A giant statue with open arms on a mountaintop, looking down on Copacabana beach.",
+        "In Rio de Janeiro, on the coast of Brazil."
+      ],
+      "fact": "In 2014 a lightning strike took off the tip of his thumb."
+    },
+    {
+      "kind": "wonder",
+      "name": "Petra, Jordan",
+      "lat": 30.33, "lng": 35.44,
+      "clues": [
+        "Indiana Jones found the Holy Grail inside its most famous building.",
+        "A rose-red city carved straight into the cliffs about 2,000 years ago.",
+        "In the desert in the south of Jordan."
+      ],
+      "fact": "Behind the grand front of the Treasury there’s just one small, empty room."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Great Wall of China",
+      "lat": 40.43, "lng": 116.57,
+      "clues": [
+        "No, you can’t see it from space.",
+        "Over 13,000 miles of it were built to keep invaders out.",
+        "The most-visited stretch is just north of Beijing."
+      ],
+      "fact": "The mortar in some sections was made with sticky rice."
+    },
+    {
+      "kind": "wonder",
+      "name": "Mount Fuji, Japan",
+      "lat": 35.36, "lng": 138.73,
+      "clues": [
+        "It’s the mountain on the emoji keyboard. 🗻",
+        "A perfectly cone-shaped volcano with snow on top that hasn’t erupted since 1707.",
+        "South-west of Tokyo, in Japan."
+      ],
+      "fact": "There’s a post office at the summit."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Grand Canyon, Arizona",
+      "lat": 36.1, "lng": -112.1,
+      "clues": [
+        "It’s a mile deep, and it took a river about six million years.",
+        "The most famous hole in the ground in America.",
+        "In Arizona, in the south-west USA."
+      ],
+      "fact": "You could stack four Shards in it and still not reach the rim."
+    },
+    {
+      "kind": "wonder",
+      "name": "Area 51, Nevada",
+      "lat": 37.24, "lng": -115.81,
+      "clues": [
+        "In 2019 two million people signed up to storm it. “They can’t stop all of us.”",
+        "A secret air base where the US government definitely isn’t keeping any aliens.",
+        "In the desert of Nevada, in the western USA."
+      ],
+      "fact": "About 150 people actually turned up. Nobody got in."
+    },
+    {
+      "kind": "wonder",
+      "name": "Bermuda",
+      "lat": 32.3, "lng": -64.78,
+      "clues": [
+        "Ships and planes are said to vanish in the triangle named after it.",
+        "It also gave its name to a pair of knee-length shorts.",
+        "A tiny British island territory in the Atlantic, about 650 miles off the east coast of the USA."
+      ],
+      "fact": "Its beaches really are pink, thanks to the crushed shells of tiny red sea creatures."
+    },
+    {
+      "kind": "wonder",
+      "name": "The wreck of the Titanic",
+      "lat": 41.73, "lng": -49.95,
+      "clues": [
+        "“I’m the king of the world!”",
+        "There was room for Jack on that door. The ship went down here in April 1912.",
+        "The North Atlantic, about 400 miles off Newfoundland, Canada. Yes, it’s in the sea."
+      ],
+      "fact": "She lies two and a half miles down, and wasn’t found until 1985."
+    },
+    {
+      "kind": "wonder",
+      "name": "Pompeii, Italy",
+      "lat": 40.75, "lng": 14.49,
+      "clues": [
+        "Bastille asked how they were going to be an optimist about this.",
+        "A Roman town buried by a volcano in AD 79, graffiti and all.",
+        "Beside Mount Vesuvius, near Naples in southern Italy."
+      ],
+      "fact": "The graffiti is mostly insults, adverts and people boasting about their love lives."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Leaning Tower of Pisa, Italy",
+      "lat": 43.72, "lng": 10.4,
+      "clues": [
+        "Everybody here is taking exactly the same photo.",
+        "A bell tower that started to tilt before the builders had even finished it.",
+        "In Tuscany, in the north of Italy."
+      ],
+      "fact": "It took 199 years to build, which gave it plenty of time to lean."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Eiffel Tower, France",
+      "lat": 48.858, "lng": 2.294,
+      "clues": [
+        "It was only meant to stay up for twenty years, and the locals hated it.",
+        "A 330-metre iron tower that sparkles on the hour, every hour, after dark.",
+        "Paris."
+      ],
+      "fact": "It’s about fifteen centimetres taller in summer, because the iron expands."
+    },
+    {
+      "kind": "wonder",
+      "name": "Bran Castle, Transylvania",
+      "lat": 45.515, "lng": 25.367,
+      "clues": [
+        "Bring garlic.",
+        "It’s sold to tourists as Dracula’s castle.",
+        "In Transylvania, in the middle of Romania."
+      ],
+      "fact": "Bram Stoker never went to Romania. He wrote much of Dracula in Whitby."
+    },
+    {
+      "kind": "wonder",
+      "name": "Alcatraz, California",
+      "lat": 37.827, "lng": -122.423,
+      "clues": [
+        "Al Capone did time here, and played banjo in the prison band.",
+        "An island prison nobody is known to have escaped from alive.",
+        "In San Francisco Bay, on the west coast of the USA."
+      ],
+      "fact": "The inmates had hot showers, so they’d never get used to cold water and try the swim."
+    },
+    {
+      "kind": "wonder",
+      "name": "The Hollywood Sign, California",
+      "lat": 34.134, "lng": -118.322,
+      "clues": [
+        "It started out as an advert for a housing estate, and had four more letters.",
+        "Nine white letters on a hillside, each one four storeys tall.",
+        "Los Angeles, on the west coast of the USA."
+      ],
+      "fact": "In 1976 a prankster changed it to read HOLLYWEED."
+    },
+    {
+      "kind": "wonder",
+      "name": "Victoria Falls",
+      "lat": -17.925, "lng": 25.857,
+      "clues": [
+        "Its local name means ‘the smoke that thunders’.",
+        "You can swim in a pool right on the edge, if you’re feeling brave.",
+        "A giant waterfall in southern Africa, on the border between Zambia and Zimbabwe."
+      ],
+      "fact": "The spray can be seen from thirty miles away."
+    },
+    {
+      "kind": "wonder",
+      "name": "Cape Town, South Africa",
+      "lat": -33.96, "lng": 18.41,
+      "clues": [
+        "The mountain behind it is so flat that the cloud on top is called the tablecloth.",
+        "Winter Love Island moved in nearby. The penguins on the beach were there first.",
+        "A city near the southern tip of Africa."
+      ],
+      "fact": "Table Mountain is about six times older than the Himalayas."
+    },
+    {
+      "kind": "wonder",
+      "name": "Angkor Wat, Cambodia",
+      "lat": 13.41, "lng": 103.87,
+      "clues": [
+        "Angelina Jolie raided a tomb here, and the tree roots have nearly eaten it.",
+        "The biggest religious building in the world. It’s on its country’s flag.",
+        "In the jungle of Cambodia, in south-east Asia."
+      ],
+      "fact": "It was built as a Hindu temple and gradually became a Buddhist one."
+    },
+    {
+      "kind": "wonder",
+      "name": "Shibuya Crossing, Japan",
+      "lat": 35.66, "lng": 139.7,
+      "clues": [
+        "Up to 3,000 people cross the road here every time the lights change.",
+        "Neon, giant video screens, and a statue of a very loyal dog called Hachikō.",
+        "Tokyo."
+      ],
+      "fact": "Hachikō waited at the station for his owner every day for nearly ten years."
+    },
+    {
+      "kind": "wonder",
+      "name": "Easter Island, Chile",
+      "lat": -27.11, "lng": -109.35,
+      "clues": [
+        "A Dutch explorer landed here on a Sunday in spring and named it after the day.",
+        "It’s watched over by nearly a thousand giant stone heads, like the 🗿 emoji.",
+        "A tiny speck in the Pacific, over 2,000 miles west of Chile."
+      ],
+      "fact": "The statues are called moai, and most of them have bodies buried below the ground."
+    },
+    {
+      "kind": "wonder",
+      "name": "Zanzibar, Tanzania",
+      "lat": -6.16, "lng": 39.2,
+      "clues": [
+        "A spice island whose old quarter is called Stone Town.",
+        "The singer of ‘Bohemian Rhapsody’ was born here.",
+        "It lies in the Indian Ocean, just off the east coast of Africa."
+      ],
+      "fact": "It was once the world’s biggest producer of cloves."
+    },
+    {
+      "kind": "wonder",
+      "name": "Mauritius",
+      "lat": -20.2, "lng": 57.5,
+      "clues": [
+        "Sailors stopping here for supplies ate a large, trusting, flightless bird.",
+        "It was the only home the dodo ever had.",
+        "A honeymoon island in the Indian Ocean, to the east of Madagascar."
+      ],
+      "fact": "The dodo was extinct within about a century of people arriving."
+    },
+
+    {
+      "kind": "pirate",
       "name": "Port Royal, Jamaica",
       "lat": 17.937, "lng": -76.841,
       "clues": [
         "Once called the wickedest city on Earth.",
-        "Most of it slid into the sea during an earthquake in 1692.",
-        "It guards the harbour of Kingston, on a Caribbean island famous for reggae."
+        "Jack Sparrow sails into it on a sinking boat at the start of the first film.",
+        "It guards the harbour of Kingston, on the Caribbean island famous for reggae."
       ],
-      "fact": "Two thirds of Port Royal sank in minutes. Its ruins are still under the harbour."
+      "fact": "Two thirds of the real Port Royal slid into the sea in an earthquake in 1692."
     },
     {
+      "kind": "pirate",
       "name": "Nassau, Bahamas",
       "lat": 25.06, "lng": -77.345,
       "clues": [
         "For about a decade this town was the capital of a self-declared Republic of Pirates.",
         "Blackbeard, Calico Jack and Anne Bonny all drank here.",
-        "Today it’s the capital of the Bahamas."
+        "Today it’s the capital of the Bahamas, just off the coast of Florida."
       ],
       "fact": "The pirate republic ended in 1718 when Governor Woodes Rogers arrived offering royal pardons."
     },
     {
+      "kind": "pirate",
       "name": "Tortuga, Haiti",
       "lat": 20.04, "lng": -72.79,
       "clues": [
         "Its name means ‘turtle’, after the shape of the island.",
-        "In the 1600s it was the headquarters of the buccaneers.",
-        "It sits just off the north coast of Haiti."
+        "It’s where Jack Sparrow goes to find a crew, and a slap.",
+        "It sits just off the north coast of Haiti, in the Caribbean."
       ],
-      "fact": "The buccaneers here called themselves the Brethren of the Coast."
+      "fact": "The real buccaneers here called themselves the Brethren of the Coast."
     },
     {
+      "kind": "pirate",
       "name": "Île Sainte-Marie, Madagascar",
       "lat": -16.9, "lng": 49.9,
       "clues": [
         "This island has what’s said to be the world’s only pirate cemetery.",
         "Pirates used it to ambush ships sailing home from India.",
-        "It lies off the east coast of Madagascar."
+        "It lies off the east coast of Madagascar, the big island off Africa with the lemurs."
       ],
       "fact": "As many as a thousand pirates are thought to have lived here around 1700."
     },
     {
+      "kind": "pirate",
       "name": "Ocracoke Island, North Carolina",
       "lat": 35.115, "lng": -75.98,
       "clues": [
         "A thin strip of sand in a chain of barrier islands.",
         "Blackbeard fought his last battle here in November 1718.",
-        "It’s part of the Outer Banks, on the east coast of the USA."
+        "It’s on the east coast of the USA, about halfway between New York and Florida."
       ],
       "fact": "Legend says Blackbeard’s headless body swam around the ship three times."
     },
     {
+      "kind": "pirate",
       "name": "Cartagena, Colombia",
       "lat": 10.39, "lng": -75.48,
       "clues": [
         "Spanish treasure fleets loaded up with gold and emeralds here.",
         "Francis Drake captured the city in 1586 and held it to ransom.",
-        "A walled city on the Caribbean coast of Colombia."
+        "A walled city on the Caribbean coast of Colombia, at the top of South America."
       ],
       "fact": "After the raids, Spain built the largest fortress in its American colonies here."
     },
     {
+      "kind": "pirate",
       "name": "Cape Horn, Chile",
       "lat": -55.98, "lng": -67.27,
       "clues": [
         "Sailors feared this headland more than any other.",
         "Tradition says rounding it earns you a gold earring.",
-        "It’s the southern tip of South America."
+        "It’s the very southern tip of South America."
       ],
       "fact": "Before the Panama Canal opened in 1914, this was the main sea route between the Atlantic and the Pacific."
     },
     {
+      "kind": "pirate",
       "name": "Galápagos Islands, Ecuador",
       "lat": -0.63, "lng": -90.36,
       "clues": [
         "Buccaneers hid here and stocked their ships with live giant tortoises.",
-        "A young naturalist visited in 1835 and took a keen interest in the finches.",
-        "These islands sit on the equator, about 1,000 km west of Ecuador."
+        "A young Charles Darwin visited in 1835 and took a keen interest in the finches.",
+        "These islands sit on the equator, about 600 miles west of South America."
       ],
       "fact": "‘Galápago’ is an old Spanish word for tortoise."
     },
     {
+      "kind": "pirate",
       "name": "Robinson Crusoe Island, Chile",
       "lat": -33.64, "lng": -78.85,
       "clues": [
         "A Scottish privateer was marooned here alone for over four years.",
         "His story inspired a very famous novel about a castaway.",
-        "It’s in the Pacific, about 670 km off the coast of Chile."
+        "It’s in the Pacific, about 400 miles off the long thin coast of Chile."
       ],
       "fact": "The real castaway was Alexander Selkirk, rescued in 1709."
     },
     {
+      "kind": "pirate",
       "name": "Pitcairn Island",
       "lat": -25.07, "lng": -130.1,
       "clues": [
         "One of the most remote inhabited islands on Earth.",
         "Mutineers from HMS Bounty hid here in 1790 and burned their ship.",
-        "It’s in the South Pacific, roughly halfway between New Zealand and Peru."
+        "It’s in the South Pacific, roughly halfway between New Zealand and South America."
       ],
       "fact": "Around fifty people live here today, many descended from the mutineers."
     },
     {
+      "kind": "pirate",
       "name": "Oak Island, Nova Scotia",
       "lat": 44.51, "lng": -64.29,
       "clues": [
@@ -114,16 +1051,18 @@
       "fact": "Theories about what’s buried here range from pirate gold to Shakespeare’s manuscripts."
     },
     {
+      "kind": "pirate",
       "name": "Cocos Island, Costa Rica",
       "lat": 5.53, "lng": -87.06,
       "clues": [
         "Hundreds of expeditions have searched this jungle island for the lost Treasure of Lima.",
         "Today it’s better known for hammerhead sharks than for gold.",
-        "It’s in the Pacific, about 550 km off Costa Rica."
+        "It’s in the Pacific, about 340 miles off Central America."
       ],
       "fact": "Nobody has ever found the treasure. Or at least, nobody has admitted to it."
     },
     {
+      "kind": "pirate",
       "name": "Clew Bay, Ireland",
       "lat": 53.83, "lng": -9.75,
       "clues": [
@@ -134,56 +1073,62 @@
       "fact": "Grace O’Malley commanded hundreds of men and a fleet of galleys from her castles here."
     },
     {
+      "kind": "pirate",
       "name": "Algiers, Algeria",
       "lat": 36.75, "lng": 3.06,
       "clues": [
         "For three centuries this was the great stronghold of the Barbary corsairs.",
         "The red-bearded Barbarossa brothers ruled from here.",
-        "It’s a North African capital on the Mediterranean."
+        "A North African capital on the Mediterranean, directly south of Mallorca."
       ],
       "fact": "Barbary corsairs raided as far north as Cornwall, Ireland and even Iceland."
     },
     {
+      "kind": "pirate",
       "name": "Saint-Malo, France",
       "lat": 48.65, "lng": -2.03,
       "clues": [
         "A walled port that grew rich on legal piracy.",
         "Its corsairs raided English ships with the French king’s blessing.",
-        "It’s on the north coast of Brittany."
+        "It’s on the north coast of Brittany, a ferry ride from Portsmouth."
       ],
       "fact": "Its motto was roughly: ‘Not French, not Breton, but from Saint-Malo.’"
     },
     {
+      "kind": "pirate",
       "name": "Panama City, Panama",
       "lat": 8.98, "lng": -79.52,
       "clues": [
-        "Captain Henry Morgan marched across the jungle to sack this city in 1671.",
+        "Captain Henry Morgan, the one on the rum bottle, sacked this city in 1671.",
         "Spanish silver from Peru passed through here on its way to Europe.",
         "Today a very famous canal starts right beside it."
       ],
       "fact": "Morgan was arrested for the raid, then knighted and made deputy governor of Jamaica."
     },
     {
+      "kind": "pirate",
       "name": "Charleston, South Carolina",
       "lat": 32.78, "lng": -79.93,
       "clues": [
         "Blackbeard blockaded this entire port for nearly a week in 1718.",
         "His ransom demand was not gold but a chest of medicine.",
-        "A historic harbour city in South Carolina, USA."
+        "A historic harbour city on the east coast of the USA, a little north of Florida."
       ],
       "fact": "He got his medicine chest and sailed away without firing a shot."
     },
     {
+      "kind": "pirate",
       "name": "Hong Kong",
       "lat": 22.3, "lng": 114.17,
       "clues": [
         "These waters were ruled by the most successful pirate in history, and she was a woman.",
         "Zheng Yi Sao commanded hundreds of junks and tens of thousands of pirates.",
-        "A famous harbour city at the mouth of China’s Pearl River."
+        "A famous skyscraper-packed harbour city on the south coast of China."
       ],
       "fact": "She negotiated a pardon, kept her loot, and retired to run a gambling house."
     },
     {
+      "kind": "pirate",
       "name": "Wapping, London",
       "lat": 51.503, "lng": -0.058,
       "clues": [
@@ -194,16 +1139,18 @@
       "fact": "Pirates’ bodies were left until three tides had washed over them."
     },
     {
+      "kind": "pirate",
       "name": "Bristol, England",
       "lat": 51.45, "lng": -2.59,
       "clues": [
         "Blackbeard is believed to have been born in this port.",
         "In ‘Treasure Island’, the Hispaniola sets sail from here.",
-        "A harbour city in the south-west of England, famous for a suspension bridge and hot-air balloons."
+        "A harbour city in the south-west of England, famous for Banksy, a suspension bridge and hot-air balloons."
       ],
       "fact": "Long John Silver ran the Spy-glass tavern on Bristol’s docks."
     },
     {
+      "kind": "pirate",
       "name": "Penzance, Cornwall",
       "lat": 50.12, "lng": -5.54,
       "clues": [
@@ -214,54 +1161,26 @@
       "fact": "‘The Pirates of Penzance’ opened in 1879 and has barely been off the stage since."
     },
     {
-      "name": "Zanzibar, Tanzania",
-      "lat": -6.16, "lng": 39.2,
-      "clues": [
-        "A spice island whose old quarter is called Stone Town.",
-        "The singer of ‘Bohemian Rhapsody’ was born here.",
-        "It lies in the Indian Ocean, just off the coast of Tanzania."
-      ],
-      "fact": "It was once the world’s biggest producer of cloves."
-    },
-    {
-      "name": "Mauritius",
-      "lat": -20.2, "lng": 57.5,
-      "clues": [
-        "Sailors stopping here for supplies ate a large, trusting, flightless bird.",
-        "It was the only home the dodo ever had.",
-        "An island nation in the Indian Ocean, east of Madagascar."
-      ],
-      "fact": "The dodo was extinct within about a century of people arriving."
-    },
-    {
+      "kind": "pirate",
       "name": "Tahiti, French Polynesia",
       "lat": -17.65, "lng": -149.43,
       "clues": [
         "HMS Bounty spent five months here collecting breadfruit plants.",
         "The crew liked it so much that leaving helped spark the mutiny.",
-        "It’s the largest island of French Polynesia, in the South Pacific."
+        "It’s the largest island of French Polynesia, in the middle of the South Pacific."
       ],
-      "fact": "Captain Bligh survived a 6,000 km voyage in an open boat after being cast adrift."
+      "fact": "Captain Bligh survived a voyage of nearly 4,000 miles in an open boat after being cast adrift."
     },
     {
+      "kind": "pirate",
       "name": "Havana, Cuba",
       "lat": 23.11, "lng": -82.37,
       "clues": [
         "Spanish treasure fleets gathered here every year before crossing the Atlantic.",
-        "Famous for cigars, rum and classic 1950s cars.",
+        "Famous for cigars, rum and classic 1950s cars. Camila Cabello left her heart here.",
         "It’s the capital of the largest island in the Caribbean."
       ],
       "fact": "A French corsair burned the city to the ground in 1555."
-    },
-    {
-      "name": "Easter Island, Chile",
-      "lat": -27.11, "lng": -109.35,
-      "clues": [
-        "A Dutch explorer landed here on a Sunday in spring, 1722, and named it after the day.",
-        "It’s watched over by nearly a thousand giant stone heads.",
-        "A tiny speck in the Pacific, over 3,500 km west of Chile."
-      ],
-      "fact": "The statues are called moai, and most of them have bodies buried below the ground."
     }
   ]
 }

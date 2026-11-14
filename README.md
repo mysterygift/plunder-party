@@ -11,7 +11,7 @@ Eight original games:
 | 💥 **Broadside** | Answer daft prompts. Two answers go head to head, the crew votes. Ends with "The Last Word", where everyone answers the same prompt. | 3–12 |
 | 🦜 **Scuttlebutt** | Answer an innocent question. A crewmate gets your answer with no context and decides what it was *really* about. Vote for the best twist. Played on a retro "ShipOS" desktop. | 3–12 |
 | 🏴‍☠️ **Flying Colours** | Draw pirate flags on your phone, then invent ship names. Everyone is dealt a haul of other people’s flags and names (no two hands share anything) and pairs one of each to launch a ship. The ships parade across the TV and the crew votes for the finest. | 3–12 |
-| 🗺️ **Dead Reckoning** | Clues (and optionally a photo) appear on the TV. Drop an X on the treasure map on your phone. Closest wins the most doubloons. | 1–12 |
+| 🗺️ **Dead Reckoning** | Where in the world? Clues (and optionally a photo) appear on the TV, over a 3D model of the world that the camera wanders across. Drop an X on the map on your phone. Then the TV flies to the spot and sticks everyone’s pin in, furthest first. Closest wins the most doubloons. Each game deals one place from each theme: pirate haunts, off the telly, holidays, home waters and the bucket list. | 1–12 |
 | 💣 **Bombard!** | A drinking game. The crew is split into Pirates and Navy, each with a fleet hidden in fog. Pick a tile, fire: miss and you take a swig, sink a ship and the other side drinks. Then everyone joins forces against the Kraken. The TV shows the battle as a 3D tabletop diorama. | 2–12 |
 | 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. The TV shows the table as a 3D diorama: leather cups, the bid chalked on the baize, and the dice that count hopping onto the chalk marks. | 2–12 |
 | 🏝️ **Find the One Piece** | A choose-your-own captain’s log, played as one crew with no scores. The log writes itself beside a model island; the crew votes on what to do, then everybody rolls one die and the total decides how it goes, from Perfect down to Diabolical. Beach, jungle, New Oldham, a monkey, a volcano, a dragon, and five endings. About ten minutes. | 2–12 |
@@ -67,7 +67,7 @@ restarting.
 | `content/one-piece.json` | Find the One Piece: the whole story (every entry, option and outcome), the odds, the timers, and which tune each scene plays |
 | `content/knots.json` | Knot So Fast: races, laps, timers, how the wind and the cannon behave, doubloons, ship names |
 | `content/knots-questions.json` | Knot So Fast: the 600 trivia questions, by category |
-| `content/dead-reckoning.json` | Locations: name, coordinates, clues, fun fact, optional photo |
+| `content/dead-reckoning.json` | Locations: name, theme, coordinates, clues, fun fact, optional photo. Also the themes themselves, and whether distances are in miles or km |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
 
@@ -84,6 +84,7 @@ hardest to easiest; they're revealed one at a time as the clock runs down.
 
 ```json
 {
+  "kind": "home",
   "name": "Where we got engaged",
   "lat": 53.4084, "lng": -2.9916,
   "image": "engagement.jpg",
@@ -91,6 +92,11 @@ hardest to easiest; they're revealed one at a time as the clock runs down.
   "fact": "She said yes."
 }
 ```
+
+`kind` is the theme, and has to be one of the `kinds` listed at the top of the
+file (add your own there: a name and an emoji). A game deals one place from
+each theme in turn, so five rounds is one of each. `"units"` is `"miles"` or
+`"km"`.
 
 **Adding a Scuttlebutt round**
 
@@ -336,7 +342,8 @@ src/content.js       Loads and checks the files in content/
 src/speech.js        Renders the narrator's lines to audio with the Mac's voices
 public/host.*        The big screen
 public/play.*        The phone controller
-public/map.js        The pan-and-zoom treasure map (plain SVG)
+public/map.js        The pan-and-zoom map on the phones for Dead Reckoning (plain SVG)
+public/reckoning-*   Dead Reckoning on the TV: the 3D model of the world and the reveal (-host.js), and the words over it (.css)
 public/flag.js       The flag drawing format, shared by the phones, the TV and the server
 public/sound.js      Sound effects, chiptune shanties and narrator playback
 public/bombard-*.js  Bombard!: the 3D diorama on the TV (-host), the flat board on phones (-play), its sounds (-sound)

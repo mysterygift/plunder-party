@@ -43,6 +43,21 @@ function drawPin() {
   map.draw({ marks: myPin ? [{ kind: 'x', lat: myPin.lat, lng: myPin.lng }] : [] });
 }
 
+/** The answer: your pin, the real spot, and a dotted line showing how far out you were. */
+function drawReveal(v) {
+  const spot = v.reveal;
+  map.draw({
+    marks: [
+      { kind: 'pin', lat: myPin.lat, lng: myPin.lng, color: v.me?.color, emoji: v.me?.avatar },
+      { kind: 'x', lat: spot.lat, lng: spot.lng, label: spot.name, delay: 500 },
+    ],
+    lines: [{ from: myPin, to: spot, color: '#fff3d6', delay: 800 }],
+  });
+  requestAnimationFrame(() => map.flyTo([myPin, spot], 1500));
+}
+
+const clueHtml = (clue) => `<b>Clue ${clue.n} of ${clue.of}</b><span>${esc(clue.text)}</span>`;
+
 // ---------------------------------------------------------------------------
 // The flag easel (Flying Colours). Like the map, it lives outside the normal
 // redraw: a half-drawn flag must survive whatever the server sends meanwhile.
@@ -316,17 +331,25 @@ const screens = {
   },
 
   map(v) {
+    const r = v.reveal;
+    let foot;
+    if (r) {
+      const place = r.of > 1 ? (r.rank === 1 ? 'Closest of the whole crew!' : `${r.rank} of ${r.of} on the map`) : '';
+      foot = `<p class="map-result">${r.bullseye ? '🎯 Spot on!' : `<b>${fmt(r.off)}</b> ${esc(r.unit)} off`} <span class="gain">+${fmt(r.points)}</span></p>
+        <p class="tiny">${esc(r.name)}${place ? ` · ${place}` : ''}</p>`;
+    } else if (v.locked) {
+      foot = '<p class="locked">🔒 X locked in. Good luck!</p>';
+    } else {
+      foot = `<p class="tiny">Tap the map to drop your X. Pinch to zoom.</p>
+        <button class="btn" data-act="lock" ${myPin ? '' : 'disabled'}>Lock in my X</button>`;
+    }
     return `<div class="map-screen">
-      <div id="mapSlot"></div>
-      <div class="zoom"><button data-act="zoom-in" aria-label="Zoom in">+</button><button data-act="zoom-out" aria-label="Zoom out">−</button></div>
-      <div class="map-foot">
-        ${
-          v.locked
-            ? '<p class="locked">🔒 X locked in. Good luck!</p>'
-            : `<p class="tiny">Tap the map to drop your X. Pinch to zoom.</p>
-               <button class="btn" data-act="lock" ${myPin ? '' : 'disabled'}>Lock in my X</button>`
-        }
+      ${!r && v.clue ? `<div class="map-clue" id="mapClue">${clueHtml(v.clue)}</div>` : ''}
+      <div class="map-wrap">
+        <div id="mapSlot"></div>
+        <div class="zoom"><button data-act="zoom-in" aria-label="Zoom in">+</button><button data-act="zoom-out" aria-label="Zoom out">−</button></div>
       </div>
+      <div class="map-foot">${foot}</div>
     </div>`;
   },
 
@@ -373,7 +396,18 @@ function render(v) {
   if (!moved && (v.screen === 'draw' || v.screen === 'combine')) return;
 
   // The map screen only needs a full redraw when the round or lock state changes.
-  if (v.screen === 'map' && previous?.screen === 'map' && previous.key === v.key && previous.locked === v.locked) return;
+  // A new clue just changes the strip along the top.
+  if (v.screen === 'map' && previous?.screen === 'map' && previous.key === v.key && previous.locked === v.locked && !previous.reveal === !v.reveal) {
+    const strip = $('mapClue');
+    if (strip && v.clue && v.clue.n !== previous.clue?.n) {
+      strip.innerHTML = clueHtml(v.clue);
+      strip.classList.remove('fresh');
+      void strip.offsetWidth; // start the flash again
+      strip.classList.add('fresh');
+      navigator.vibrate?.(20);
+    }
+    return;
+  }
 
   // Knot So Fast builds its race screen once and then only changes what moves (see knots-play.js).
   if (knotsShown(v, screenEl, send)) return;
@@ -395,7 +429,10 @@ function render(v) {
     }
     myPin ??= v.pin;
     map.setPickable(!v.locked);
-    drawPin();
+    if (v.reveal) {
+      myPin = v.pin;
+      drawReveal(v);
+    } else drawPin();
     const lock = document.querySelector('[data-act="lock"]');
     if (lock) lock.disabled = !myPin;
   }

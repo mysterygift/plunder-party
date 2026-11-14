@@ -1,0 +1,94 @@
+/* Dead Reckoning on the big screen: the words over the 3D map
+   (see reckoning-host.js). The phone's map is styled in base.css and play.css. */
+
+/* The model of the world fills the whole window, behind the 1920x1080 stage. */
+#drLayer { position: fixed; inset: 0; overflow: hidden; background: #123c46; }
+#drLayer canvas { display: block; width: 100%; height: 100%; }
+body[data-screen^='dr-'] #backdrop { display: none; }
+
+/* Darkened and slightly out of focus at the top and bottom, like a photo of a model. */
+.dr-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4, 14, 20, 0.78) 0%, rgba(4, 14, 20, 0.34) 10%, transparent 20%, transparent 86%, rgba(4, 14, 20, 0.4) 94%, rgba(4, 14, 20, 0.7) 100%),
+    radial-gradient(ellipse at 50% 52%, transparent 60%, rgba(4, 14, 20, 0.45) 100%);
+}
+.dr-vignette::before, .dr-vignette::after { content: ''; position: absolute; left: 0; right: 0; height: 13%; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+.dr-vignette::before { top: 0; mask-image: linear-gradient(180deg, #000 40%, transparent); -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent); }
+.dr-vignette::after { bottom: 0; mask-image: linear-gradient(0deg, #000 40%, transparent); -webkit-mask-image: linear-gradient(0deg, #000 40%, transparent); }
+
+/* Name tags over the pins. reckoning-host.js moves them with `transform`; --u is one "TV pixel". */
+.dr-tags { position: absolute; inset: 0; pointer-events: none; }
+.dr-tag {
+  position: absolute; left: 0; top: 0; translate: -50% -100%; display: flex; align-items: center; gap: calc(var(--u) * 9px); white-space: nowrap;
+  padding: calc(var(--u) * 4px) calc(var(--u) * 16px) calc(var(--u) * 5px) calc(var(--u) * 5px);
+  font: calc(var(--u) * 27px) var(--display); color: var(--parchment); letter-spacing: 0.02em;
+  background: rgba(6, 14, 24, 0.9); border: calc(var(--u) * 3px) solid var(--c, var(--gold)); border-radius: calc(var(--u) * 40px);
+  box-shadow: 0 calc(var(--u) * 5px) calc(var(--u) * 14px) rgba(0, 0, 0, 0.55);
+  animation: dr-tag 0.32s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.dr-tag .face {
+  width: calc(var(--u) * 38px); height: calc(var(--u) * 38px); border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--c); font-size: calc(var(--u) * 22px); line-height: 1;
+}
+.dr-tag b { font-weight: 400; }
+.dr-tag i { font: italic calc(var(--u) * 23px) var(--body); color: var(--foam); }
+.dr-tag.best { border-color: var(--gold); background: rgba(52, 34, 6, 0.95); box-shadow: 0 0 calc(var(--u) * 26px) rgba(247, 201, 72, 0.75); z-index: 2; }
+.dr-tag.best i { color: var(--gold); }
+/* The name of the place itself, on a strip of parchment over the X. */
+.dr-tag.dr-here {
+  padding: calc(var(--u) * 5px) calc(var(--u) * 24px) calc(var(--u) * 8px); font-size: calc(var(--u) * 40px); color: var(--red-dark);
+  background: linear-gradient(180deg, #f8ecc9, var(--parchment-dark)); border: calc(var(--u) * 3px) solid #6b4a1f; border-radius: calc(var(--u) * 8px); z-index: 3;
+}
+@keyframes dr-tag { from { opacity: 0; scale: 0.4; } }
+
+/* ----- the title card ----- */
+.dr-round {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 26px 300px 40px;
+  background: linear-gradient(90deg, transparent, rgba(8, 5, 3, 0.86) 20%, rgba(8, 5, 3, 0.86) 80%, transparent);
+}
+.dr-kind { display: inline-flex; align-items: center; gap: 0.35em; }
+.dr-kind > span { font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; font-size: 0.85em; } /* the display font mangles some emoji */
+.dr-theme { margin: 6px 0 0; padding: 8px 40px 12px; rotate: -1.5deg; font: 58px var(--display); color: var(--red-dark); }
+
+/* ----- guessing: the clues sit in a column down the right, the map has the rest ----- */
+.dr-guess, .dr-reveal { width: 100%; height: 100%; position: relative; }
+.dr-side { position: absolute; right: 44px; top: 0; bottom: 36px; width: 600px; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+/* a shadow behind the column, so the words never have to fight the map */
+.dr-side::before { content: ''; position: absolute; inset: -140px -60px -80px -150px; z-index: -1; background: linear-gradient(90deg, transparent, rgba(10, 6, 3, 0.74) 26%); }
+.dr-side .title { font-size: 80px; text-align: center; }
+.dr-meta { margin: 0; text-align: center; font: 32px var(--display); letter-spacing: 0.06em; color: var(--foam); }
+.clue { display: flex; align-items: flex-start; gap: 20px; padding: 18px 26px 20px; font-size: 36px; line-height: 1.16; }
+.clue-n { font: 56px/0.85 var(--display); color: var(--red); flex: none; }
+.clue.old { font-size: 29px; padding: 12px 22px 14px; filter: brightness(0.86); }
+.clue.old .clue-n { font-size: 42px; }
+.dr-side .hint { font-size: 30px; }
+.dr-photo { padding: 14px; rotate: -2deg; align-self: center; }
+.dr-photo img { display: block; max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 6px; }
+.has-image .clue { font-size: 30px; }
+.has-image .clue.old { font-size: 25px; }
+.dr-guess .progress { position: absolute; left: 50px; bottom: 26px; max-width: 1180px; margin: 0; justify-content: flex-start; gap: 12px 14px; }
+.dr-guess .prog { flex-direction: row; font-size: 26px; padding: 5px 16px 5px 6px; border-radius: 40px; background: rgba(6, 14, 24, 0.82); }
+.dr-guess .prog .chip { flex-direction: row; }
+.dr-guess .prog .chip .face { font-size: 28px; }
+
+/* ----- the reveal ----- */
+.dr-panel { position: absolute; right: 50px; top: 18px; bottom: 44px; width: 550px; padding: 26px 34px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.dr-panel p { margin: 0; }
+.place { margin: 0; font: 60px/1.05 var(--display); color: var(--red-dark); }
+.fact { font-size: 28px; font-style: italic; line-height: 1.25; }
+.dr-thumb { max-width: 100%; max-height: 190px; object-fit: cover; border-radius: 8px; align-self: center; }
+.dr-results { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.dr-row { display: grid; grid-template-columns: 34px 1fr auto 92px; align-items: center; gap: 12px; font-size: 30px; padding-bottom: 8px; border-bottom: 2px dashed rgba(60, 40, 15, 0.3); }
+.dr-rank { font: 34px var(--display); color: rgba(60, 40, 15, 0.55); text-align: center; }
+.dr-row .chip { min-width: 0; }
+.dr-row .chip .nm { overflow: hidden; text-overflow: ellipsis; }
+.dr-row .km { font-weight: 700; font-family: var(--os-font); font-size: 23px; white-space: nowrap; }
+.dr-row .gain { color: var(--red-dark); font-size: 38px; text-align: right; }
+.dr-row.best .dr-rank { color: var(--red-dark); }
+.dr-row.best .face { box-shadow: 0 0 0 4px var(--gold), 0 0 18px var(--gold); }
+.dr-results.dense { gap: 4px; }
+.dr-results.dense .dr-row { font-size: 23px; padding-bottom: 3px; }
+.dr-results.dense .dr-rank { font-size: 26px; }
+.dr-results.dense .km { font-size: 19px; }
+.dr-results.dense .gain { font-size: 28px; }

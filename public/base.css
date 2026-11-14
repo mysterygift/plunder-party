@@ -127,14 +127,14 @@ body.retro .modal-btn.yes { background: linear-gradient(180deg, #e2685f, var(--o
 .map {
   position: relative; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
   background:
-    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.5), transparent 60%),
-    radial-gradient(ellipse at 80% 90%, rgba(120, 80, 20, 0.3), transparent 55%),
-    #ecdcae;
+    radial-gradient(ellipse at 30% 20%, rgba(150, 225, 220, 0.22), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(4, 22, 34, 0.45), transparent 60%),
+    #1f6c78;
 }
 .map svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.map-grid line { stroke: rgba(110, 75, 25, 0.22); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 5; }
-.map-land { fill: #cfb277; stroke: #5a3d1a; stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
-.map-borders { fill: none; stroke: rgba(90, 61, 26, 0.5); stroke-width: 0.8; vector-effect: non-scaling-stroke; stroke-dasharray: 3 3; }
+.map-grid line { stroke: rgba(244, 230, 193, 0.2); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 2 5; }
+.map-land { fill: #b5bf7c; stroke: #3d2a12; stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.map-borders { fill: none; stroke: rgba(61, 42, 18, 0.45); stroke-width: 0.8; vector-effect: non-scaling-stroke; stroke-dasharray: 3 3; }
 .map-lines line { stroke-width: 2.5; vector-effect: non-scaling-stroke; stroke-dasharray: 7 6; stroke-linecap: round; opacity: 0.9; animation: fade-in 0.6s both; }
 .mark-body { animation: mark-drop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
 .pin-dot { stroke: #fff8e4; stroke-width: 3; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)); }

@@ -124,12 +124,21 @@ input:focus, textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rg
 
 /* map */
 .map-screen { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
-#mapSlot { flex: 1; min-height: 0; position: relative; border-top: 3px solid #6b4a1f; border-bottom: 3px solid #6b4a1f; }
+.map-wrap { flex: 1; min-height: 0; position: relative; }
+#mapSlot { position: absolute; inset: 0; border-top: 3px solid #6b4a1f; border-bottom: 3px solid #6b4a1f; }
 #mapSlot .map { position: absolute; inset: 0; }
 .zoom { position: absolute; right: 10px; top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .zoom button { width: 48px; height: 48px; font: 700 30px/1 var(--os-font); border-radius: 12px; border: 2px solid #6b4a1f; background: rgba(244, 230, 193, 0.95); color: var(--ink); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4); }
 .map-foot { flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
 .locked { margin: 8px 0; font: 26px var(--display); color: var(--gold); }
+/* the newest clue, so nobody has to look up from the map */
+.map-clue { flex: none; display: flex; flex-direction: column; gap: 2px; padding: 8px 16px 10px; background: linear-gradient(180deg, #f8ecc9, var(--parchment-dark)); color: var(--ink); font-size: 17px; line-height: 1.2; }
+.map-clue b { font: 400 15px var(--display); letter-spacing: 0.08em; color: var(--red-dark); }
+.map-clue.fresh { animation: clue-flash 0.9s ease-out; }
+@keyframes clue-flash { from { background: #fff; } }
+.map-result { margin: 4px 0 0; font: 28px var(--display); color: var(--parchment); }
+.map-result b { color: var(--gold); font-weight: 400; }
+.map-result .gain { margin-left: 10px; font-family: var(--display); color: var(--gold); }
 
 .modal { font-size: 18px; }
 

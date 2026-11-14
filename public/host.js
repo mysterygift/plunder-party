@@ -2,18 +2,17 @@
 // Each entry in `screens` turns one kind of view into HTML.
 
 import { esc, fmt, connect, post, startTimers, ask, dismissQuestion } from './common.js';
-import { createMap } from './map.js';
 import * as sound from './sound.js';
 import { flagTag } from './flag.js';
 import * as diorama from './bombard-host.js';
 import * as diceTable from './liars-host.js';
 import * as captainsLog from './onepiece-host.js';
 import * as regatta from './knots-host.js';
+import * as chartTable from './reckoning-host.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
 const screenEl = $('screen');
-const mapLayer = $('mapLayer');
 
 let view = null;
 let players = new Map();
@@ -392,6 +391,9 @@ const screens = {
   // Knot So Fast: the race is a 3D model drawn behind this; these are the sheets between races (see knots-host.js).
   ...regatta.knotsScreens({ anim, chip }),
 
+  // Dead Reckoning: the map is a 3D model drawn behind this; these are the clues and the results (see reckoning-host.js).
+  ...chartTable.reckoningScreens({ anim, chip, progress }),
+
   // Bombard!: the battle itself is a 3D model drawn behind this (see bombard-host.js).
   // These are just the words along the top: the two sides and their crews.
   bombard(v) {
@@ -420,78 +422,7 @@ const screens = {
     </div>`;
   },
 
-  'dr-round'(v) {
-    return `<div class="dr-round">
-      <div class="compass"${anim('c', 'pop', 0, 700)}>🧭</div>
-      <p class="kicker">Location</p>
-      <h1 class="title huge"${anim('t', 'slam', 200, 600)}>${v.n} <small>of</small> ${v.total}</h1>
-      ${v.double ? '<p class="note">Double doubloons!</p>' : ''}
-    </div>`;
-  },
-
-  'dr-guess'(v) {
-    const clues = v.clues.map((c, i) => `<div class="clue parch"${anim(`clue${i}`, 'from-right', 0, 550)}><span class="clue-n">${i + 1}</span><span>${esc(c)}</span></div>`).join('');
-    return `<div class="dr-guess ${v.image ? 'has-image' : ''}">
-      ${v.image ? `<div class="dr-photo parch"${anim('photo', 'pop', 0, 600)}><img src="${esc(v.image)}" alt=""></div>` : ''}
-      <div class="dr-clues">
-        <h1 class="title">Where in the world?</h1>
-        ${clues}
-        <p class="hint">${v.more ? `${v.more} more clue${v.more > 1 ? 's' : ''} on the way…` : 'That’s every clue. Drop your X!'}</p>
-      </div>
-      ${progress(v.progress)}
-    </div>`;
-  },
-
-  'dr-reveal'(v) {
-    const rows = v.results
-      .map(
-        (r, i) => `<div class="dr-row"${anim(`row${r.id}`, 'from-right', 2600 + i * 450, 450)}>
-          ${chip(r.id)}
-          <span class="km">${r.km === null ? 'no guess' : `${fmt(r.km)} km`}</span>
-          <span class="gain">+${fmt(r.points)}</span>
-        </div>`,
-      )
-      .join('');
-    return `<div class="dr-reveal">
-      <aside class="dr-panel parch"${anim('panel', 'from-right', 300, 600)}>
-        <p class="kicker dark">It was…</p>
-        <h2 class="place">${esc(v.place.name)}</h2>
-        ${v.image ? `<img class="dr-thumb" src="${esc(v.image)}" alt="">` : ''}
-        ${v.place.fact ? `<p class="fact">${esc(v.place.fact)}</p>` : ''}
-        <div class="dr-results ${v.results.length > 7 ? 'dense' : ''}">${rows}</div>
-      </aside>
-    </div>`;
-  },
 };
-
-// ---------------------------------------------------------------------------
-// The reveal map (kept alive between redraws so its camera can glide)
-// ---------------------------------------------------------------------------
-
-const map = createMap();
-mapLayer.append(map.el);
-let mapKey = null;
-
-function showRevealMap(v) {
-  mapLayer.hidden = false;
-  if (mapKey === v.key) return;
-  mapKey = v.key;
-  const guesses = v.results.filter((r) => r.km !== null);
-  map.reset();
-  map.draw({
-    marks: [
-      ...guesses.map((r, i) => {
-        const p = players.get(r.id);
-        return { kind: 'pin', lat: r.lat, lng: r.lng, color: p?.color, emoji: p?.avatar, label: p?.name, delay: 2600 + i * 450 };
-      }),
-      { kind: 'x', lat: v.place.lat, lng: v.place.lng, label: v.place.name, delay: 500 },
-    ],
-    lines: guesses.map((r, i) => ({ from: r, to: v.place, color: players.get(r.id)?.color, delay: 2900 + i * 450 })),
-  });
-  setTimeout(() => {
-    if (mapKey === v.key) map.flyTo([v.place, ...guesses], 1700);
-  }, 900);
-}
 
 // ---------------------------------------------------------------------------
 // Drawing a view
@@ -539,12 +470,8 @@ function render(v) {
   if (v.screen?.startsWith('kn-')) regatta.show(v, players);
   else regatta.hide();
 
-  if (v.screen === 'dr-reveal') {
-    showRevealMap(v);
-  } else {
-    mapLayer.hidden = true;
-    mapKey = null;
-  }
+  if (v.screen?.startsWith('dr-')) chartTable.show(v, players);
+  else chartTable.hide();
 
   // Toast (errors such as "needs 3 pirates" or a typo in a content file)
   $('toast').hidden = !v.toast;
