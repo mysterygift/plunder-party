@@ -29,7 +29,7 @@ export function unlock() {
   applySettings();
   startSea();
   startBackground();
-  if (wantedSong) startSong(wantedSong);
+  applyMusic();
 }
 
 export function applySettings() {
@@ -636,6 +636,8 @@ function drum(kind, at, bus) {
 }
 
 let wantedSong = null;
+let override = null; // a tune that takes over from whatever the screen wants (Parley's guitarist strikes up)
+let fade = 0; // seconds to cross-fade the next change of tune; 0 is the usual quick cut
 let playing = null; // { name, out, timer }
 const bookmarks = new Map(); // where each song got to, so it carries on rather than restarting
 
@@ -653,6 +655,10 @@ function startSong(name) {
   const length = tracks.lead.length;
   const out = audio.createGain();
   out.connect(musicBus);
+  if (fade) {
+    out.gain.setValueAtTime(0, audio.currentTime);
+    out.gain.linearRampToValueAtTime(1, audio.currentTime + fade);
+  }
 
   let index = bookmarks.get(name) ?? 0;
   let next = audio.currentTime + 0.12;
@@ -693,16 +699,33 @@ function stopSong() {
   const { out, timer } = playing;
   playing = null;
   clearInterval(timer);
-  out.gain.setTargetAtTime(0, audio.currentTime, 0.06); // quick fade, no click
-  setTimeout(() => out.disconnect(), 700);
+  out.gain.setTargetAtTime(0, audio.currentTime, fade ? fade / 3 : 0.06); // quick fade, no click (or a slow one, when asked)
+  setTimeout(() => out.disconnect(), fade * 1000 + 700);
 }
 
 /** Play one of SONGS by name, or pass null for silence. */
 export function music(name) {
   wantedSong = name;
+  applyMusic();
+}
+
+/**
+ * Let one tune take over from whatever the screens ask for, fading across over
+ * `seconds`; pass null to fade back. (Parley: somebody pulls out a guitar.)
+ */
+export function musicOverride(name, seconds = 1) {
+  if (override === name) return;
+  override = name;
+  fade = seconds;
+  applyMusic();
+}
+
+function applyMusic() {
   if (!audio) return;
+  const name = override ?? wantedSong;
   if (name) startSong(name);
   else stopSong();
+  fade = 0;
 }
 
 // ---------------------------------------------------------------------------

@@ -10,6 +10,9 @@ import * as captainsLog from './onepiece-host.js';
 import * as regatta from './knots-host.js';
 import * as chartTable from './reckoning-host.js';
 import * as bowView from './tb-host.js';
+import * as court from './lawyer-host.js';
+import * as beach from './parley-host.js';
+import * as lagoon from './bottle-host.js';
 
 const $ = (id) => document.getElementById(id);
 const stage = $('stage');
@@ -54,12 +57,10 @@ function tickCounters() {
     const eased = 1 - (1 - t) ** 3;
     el.textContent = fmt(Math.round(Number(from) + (to - from) * eased));
   }
+  followRules();
   requestAnimationFrame(tickCounters);
 }
-  followRules();
 
-function chip(id, { cls = '', label = true } = {}) {
-  const p = players.get(id);
 // A long list of rules can run off the bottom of the telly. As each rule
 // appears, glide the intro up just far enough to keep it on screen. The shift
 // lives out here so a redraw (which rebuilds the intro) carries on smoothly.
@@ -84,6 +85,8 @@ function followRules() {
   intro.style.transform = introShift ? `translateY(${-introShift.toFixed(1)}px)` : '';
 }
 
+function chip(id, { cls = '', label = true } = {}) {
+  const p = players.get(id);
   if (!p) return '';
   return `<span class="chip ${cls}" style="--c:${p.color}"><span class="face"><span>${p.avatar}</span></span>${label ? `<span class="nm">${esc(p.name)}</span>` : ''}</span>`;
 }
@@ -426,6 +429,15 @@ const screens = {
   // To the Brig with Ye: the view from the bow is a 3D model drawn behind this; these are the words over it (see tb-host.js).
   ...bowView.brigScreens({ anim, chip, player: (id) => players.get(id) }),
 
+  // Sea Lawyer: the court's desk and the open lexicon are a 3D model drawn behind this (see lawyer-host.js).
+  ...court.lawyerScreens({ anim, chip, progress }),
+
+  // Parley: the beach, the bonfire and the crew's figures are a 3D model drawn behind this (see parley-host.js).
+  ...beach.parleyScreens({ anim, chip }),
+
+  // Message in a Bottle: the islands and the drifting bottles are a 3D model drawn behind this (see bottle-host.js).
+  ...lagoon.bottleScreens({ anim, chip }),
+
   // Bombard!: the battle itself is a 3D model drawn behind this (see bombard-host.js).
   // These are just the words along the top: the two sides and their crews.
   bombard(v) {
@@ -462,6 +474,7 @@ const screens = {
 // ---------------------------------------------------------------------------
 
 let lastSay = 0;
+const OWN_AMBIENCE = ['sl', 'pa', 'mb']; // screens whose diorama makes its own background sounds (see ambience.js)
 let lastSfx = 0;
 let lastDone = 0;
 let heard = null; // what the screen looked like last time, for spotting changes
@@ -507,6 +520,12 @@ function render(v) {
   else chartTable.hide();
   if (v.screen === 'tb') bowView.show(v);
   else bowView.hide();
+  if (v.screen === 'sl') court.show(v);
+  else court.hide();
+  if (v.screen === 'pa') beach.show(v, players);
+  else beach.hide();
+  if (v.screen === 'mb') lagoon.show(v, players);
+  else lagoon.hide();
 
   // Toast (errors such as "needs 3 pirates" or a typo in a content file)
   $('toast').hidden = !v.toast;
@@ -539,7 +558,7 @@ function render(v) {
     if (heard.toast && heard.toast !== was.toast) sound.play('horn');
     if (heard.lobby && was.lobby && heard.selected !== was.selected) sound.play('knock');
   }
-  sound.background(!v.paused);
+  sound.background(!v.paused && !OWN_AMBIENCE.includes(v.screen));
   lastDone = done;
 }
 
@@ -610,6 +629,9 @@ $('curtain').addEventListener('click', () => {
   $('curtain').remove();
   refreshControls();
 });
+// ...and any real click or key press after that wakes the sound up, in case the
+// browser held it back (a curtain lifted by a script doesn't count as a click).
+for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, () => sound.unlock(), { capture: true });
 
 // ---------------------------------------------------------------------------
 // Start-up

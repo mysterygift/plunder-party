@@ -1,0 +1,78 @@
+/* Sea Lawyer: the Admiralty court. The desk and the open lexicon are a 3D
+   model behind the stage (see lawyer-host.js); these are the words over it. */
+
+#slLayer { background: #140c07; }
+body[data-screen='sl'] #backdrop { display: none; }
+
+/* Dark at the edges, like a cabin lit by one candle. */
+.sl-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 6, 3, 0.75) 0%, rgba(10, 6, 3, 0.2) 13%, transparent 25%, transparent 78%, rgba(10, 6, 3, 0.7) 100%),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(10, 6, 3, 0.7) 100%);
+}
+body[data-screen='sl'] .sl-vignette { transition: background 0.6s; }
+
+.sl { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 60px 28px; gap: 18px; }
+
+.sl-head { display: flex; gap: 26px; align-items: center; margin-top: -72px; font: 46px var(--display); color: var(--parchment); text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8); }
+.sl-mult { padding: 2px 22px 6px; border-radius: 40px; background: var(--red); color: #fff; font-size: 38px; }
+
+/* --- writing: the question is on the book; just the progress along the bottom --- */
+.sl-write .sl-foot { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 40px 18px; border-radius: 30px; background: rgba(12, 7, 3, 0.72); }
+.sl-lead { margin: 0; font: 44px var(--display); color: var(--gold); }
+.sl-write .progress { margin-top: 0; }
+.sl-write .prog .chip .face { font-size: 38px; }
+
+/* --- the docket: every answer as a sealed letter --- */
+.sl-prompt { max-width: 1600px; padding: 22px 54px; font-size: 48px; line-height: 1.15; text-align: center; }
+.sl-prompt.slim { font-size: 34px; padding: 12px 40px; margin-top: -60px; }
+.sl-docket { flex: 1; min-height: 0; width: 100%; max-width: 1640px; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: minmax(0, 210px); align-content: center; gap: 26px 34px; --fs: 44px; }
+.sl-docket[style*='--cols:3'] { --fs: 36px; }
+.sl-docket[style*='--cols:4'] { --fs: 29px; }
+
+.sl-letter {
+  position: relative; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.25em;
+  padding: 0.45em 0.9em 0.45em 1.6em; font-size: var(--fs); line-height: 1.12; text-align: center; overflow-wrap: anywhere; color: var(--ink);
+  background:
+    linear-gradient(135deg, transparent 49.6%, rgba(110, 75, 25, 0.16) 50%, transparent 50.4%) no-repeat,
+    linear-gradient(225deg, transparent 49.6%, rgba(110, 75, 25, 0.16) 50%, transparent 50.4%) no-repeat,
+    radial-gradient(ellipse at 25% 15%, rgba(255, 255, 255, 0.5), transparent 55%), #efe0b6;
+  border-radius: 6px; box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.35), inset 0 0 30px rgba(140, 95, 30, 0.25), 0 10px 26px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.4s, filter 0.4s, transform 0.4s;
+}
+.sl-letter p { margin: 0; }
+.sl-wax {
+  position: absolute; left: -0.55em; top: 50%; translate: 0 -50%; width: 1.5em; height: 1.5em; display: grid; place-items: center;
+  border-radius: 46% 54% 50% 50%; font: 0.75em var(--display); color: rgba(255, 220, 200, 0.85);
+  background: radial-gradient(circle at 35% 30%, #d1473b, #8c211a 70%); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 0 0 0.14em rgba(255, 180, 160, 0.25);
+}
+.sl-letter.dim { opacity: 0.35; filter: grayscale(0.6); }
+.sl-letter.lie, .sl-letter.house { filter: sepia(0.3) brightness(0.8); }
+.sl-letter.lie p, .sl-letter.house p { text-decoration: line-through 0.08em rgba(200, 55, 45, 0.75); }
+.sl-letter.truth { box-shadow: 0 0 0 6px var(--gold), 0 0 50px rgba(247, 201, 72, 0.7); }
+.sl-letter.truth .sl-wax { background: radial-gradient(circle at 35% 30%, #ffe08a, var(--gold-dark) 70%); color: var(--ink); }
+.sl-by { display: flex; align-items: center; gap: 0.35em; font-size: 0.6em; }
+.sl-by em { opacity: 0.75; }
+.sl-by .gain { color: var(--red-dark); font-size: 1.2em; }
+.sl-fell { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; font-size: 0.55em; }
+
+/* --- a lie on trial: the exhibit, blown up over the docket --- */
+.sl-lie .sl-docket { opacity: 0.55; }
+.sl-exhibit { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.sl-big { position: relative; width: 1260px; padding: 50px 80px 44px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 30px; box-shadow: 0 0 0 4px rgba(110, 75, 25, 0.4), 0 30px 90px rgba(0, 0, 0, 0.8); }
+.sl-big-text { margin: 0; font-size: 76px; line-height: 1.1; overflow-wrap: anywhere; }
+.sl-big-fell, .sl-big-by { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px 22px; font-size: 44px; }
+.sl-big em { font-size: 36px; opacity: 0.75; }
+.sl-big .gain { color: var(--red-dark); font-size: 62px; }
+/* Slammed down over the bottom-right corner of the exhibit, clear of the words. */
+.sl-stamp {
+  position: absolute; right: -70px; bottom: -64px; rotate: -10deg; padding: 0 40px 6px; white-space: nowrap;
+  font: 120px var(--display); color: var(--red); border: 11px double var(--red); border-radius: 20px;
+  background: #f4e6c1; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* --- the truth is written in the book; this is who found it --- */
+.sl-finders { margin-top: auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px 24px; padding: 22px 50px; font-size: 46px; max-width: 1700px; }
+.sl-finders em { font-size: 38px; opacity: 0.8; }
+.sl-finders .gain { color: var(--red-dark); font-size: 56px; }

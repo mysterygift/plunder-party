@@ -4,7 +4,7 @@ A pirate party game pack you host on your laptop. The laptop is the big screen
 (AirPlay it to the TV); everyone else plays in their phone's browser over the
 same wifi. Nothing to install on the phones.
 
-Nine original games:
+Twelve original games:
 
 | Game | What it is | Players |
 | --- | --- | --- |
@@ -16,6 +16,9 @@ Nine original games:
 | 🎲 **LiAARRRRGH’s Dice** | Liar’s dice. Everyone rolls in secret (your dice are on your phone), then you take turns bidding how many of a number are under *all* the cups, or calling the last bid a lie. Whoever is wrong loses a die. Last pirate with a die wins. The TV shows the table as a 3D diorama: leather cups, the bid chalked on the baize, and the dice that count hopping onto the chalk marks. | 2–12 |
 | 🏝️ **Find the One Piece** | A choose-your-own captain’s log, played as one crew with no scores. The log writes itself beside a model island; the crew votes on what to do, then everybody rolls one die and the total decides how it goes, from Perfect down to Diabolical. Beach, jungle, New Oldham, a monkey, a volcano, a dragon, and five endings. About ten minutes. | 2–12 |
 | ⛵ **Knot So Fast** | A quick-fire trivia regatta. Crews of two or three race a ship round a desert island: questions fire onto every phone with no pause, right answers fill the sails, and a gold question fires your cannon at the ship in front. A 45-second solo sprint picks the crews, then three races. The TV shows it as a 3D model on the tavern table. About seven minutes. | 4–12 (2 or 3 can play, a boat each) |
+| ⚖️ **Sea Lawyer** | A bluffing game. A real bit of sea slang or sea history goes up with the answer blanked out. Everyone writes a convincing lie, then tries to pick the truth from among all the lies. Find the truth for doubloons; fool a crewmate and you pocket doubloons for everyone you fooled. The TV is a candlelit Admiralty court: the question is inked into a great lexicon on the judge's desk, the lies come in as sealed letters, and the gavel comes down on the verdict. | 3–12 |
+| 🔥 **Parley** | Who among ye…? A question about the crew goes up ("who's most likely to text their ex tonight?"). Vote in secret, then guess who the crew picked. Ends with the Black Spot: guess how many votes you'll get yourself. The TV shows the crew as carved figures round a bonfire on a moonlit beach, getting up to mischief while they wait; the votes drop out of the sky as doubloons, and the camera goes in close on the crew's pick (split screen for a tie). | 3–12 |
+| 🍾 **Message in a Bottle** | Draw it, guess it, pass it on. Write a message and cork it in a bottle; the next pirate draws it, the next writes what they think the drawing is, and so on round the crew. Then every bottle is unrolled page by page, and the crew votes for the best page in each. The TV is a sunny archipelago, one island per pirate, with the bottles drifting from island to island. | 3–12 |
 | ⛓️ **To the Brig with Ye** | A talking game with secret mutineers. Each leg, the captain sends two pirates up the crow’s nest; only they can see which side of the channel hides the reef, and each hoists a flag in secret. If the flags disagree, one of them is lying: the crew argues it out, votes on the heading, then votes somebody into the brig. Three strikes on the reef and the mutineers win. The TV shows the view from the bow, with the fork in the channel ahead. About a quarter of an hour. | 5–12 |
 
 ## Running it
@@ -69,9 +72,20 @@ restarting.
 | `content/knots.json` | Knot So Fast: races, laps, timers, how the wind and the cannon behave, doubloons, ship names |
 | `content/knots-questions.json` | Knot So Fast: the 600 trivia questions, by category |
 | `content/brig.json` | To the Brig with Ye: voyages, legs, the hull, how many mutineers, the size of the brig, the timers, and the names of the forks |
+| `content/sea-lawyer.json` | Sea Lawyer: the questions (each with its answer, a few house lies and an optional fun fact), questions per round, timers |
+| `content/parley.json` | Parley: the questions, the Black Spot questions, questions per round, timers |
+| `content/bottle.json` | Message in a Bottle: ideas for opening messages, pages per bottle, timers |
 | `content/dead-reckoning.json` | Locations: name, theme, coordinates, clues, fun fact, optional photo. Also the themes themselves, and whether distances are in miles or km |
 | `content/theme.css` | Colours and fonts for every screen |
 | `content/images/` | Photos for Dead Reckoning |
+
+**Swapping a tune**
+
+The music is synthesized from text in `public/*-sound.js`. To use your own tune, convert a MIDI file and paste the result over the song you want to replace (Message in a Bottle's is `SONGS.bottle` in `public/bottle-sound.js`):
+
+```bash
+node tools/midi-to-song.js "my tune.mid" --name=bottle
+```
 
 **Placeholders in prompts**
 

@@ -1,0 +1,78 @@
+/* Message in a Bottle: a sunny archipelago. The islands and the bottles are a
+   3D model behind the stage (see bottle-host.js); these are the words over it. */
+
+#mbLayer { background: #8fd0ee; }
+body[data-screen='mb'] #backdrop { display: none; }
+
+.mb-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 40, 60, 0.35) 0%, transparent 18%, transparent 82%, rgba(10, 40, 60, 0.45) 100%),
+    radial-gradient(ellipse at 50% 55%, transparent 60%, rgba(10, 40, 60, 0.35) 100%);
+}
+
+/* --- name plates above each island --- */
+.mb-label {
+  display: flex; flex-direction: column; align-items: center; gap: 0.1em; padding: 0.2em 0.55em 0.26em; border-radius: 0.55em;
+  color: var(--ink); background: rgba(244, 230, 193, 0.92); border: 0.07em solid rgba(110, 75, 25, 0.45);
+  box-shadow: 0 0.2em 0.5em rgba(0, 40, 60, 0.35); transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.mb-label .chip { font-size: 0.9em; }
+.mb-label.in { border-color: var(--gold-dark); box-shadow: 0 0 0 0.12em var(--gold), 0 0.2em 0.5em rgba(0, 40, 60, 0.35); }
+.mb-label.here { border-color: var(--red); box-shadow: 0 0 0 0.14em var(--red), 0 0 1em rgba(200, 55, 45, 0.5); }
+.mb-label.away .chip { opacity: 0.55; }
+.mb-foot { font-size: 0.6em; }
+.mb-done { font-family: var(--display); color: var(--gold-dark); }
+.mb-wait { font-style: italic; opacity: 0.6; }
+
+/* --- the words over the lagoon --- */
+.mb { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 60px 30px; gap: 16px; }
+.mb-head { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 44px 16px; margin-top: -60px; border-radius: 26px; background: rgba(8, 40, 58, 0.72); color: var(--parchment); text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+.mb-head.slim { flex-direction: row; gap: 16px; padding: 8px 34px 12px; font-size: 40px; }
+.mb-step { font: 40px var(--display); color: var(--gold); }
+.mb-what { font-size: 44px; display: flex; align-items: center; gap: 14px; }
+.mb-hint { margin: auto 0 0; padding: 10px 34px 14px; border-radius: 30px; background: rgba(8, 40, 58, 0.72); font-size: 40px; font-style: italic; color: var(--foam); }
+
+/* --- one page at a time, unrolled on a scroll on the right (the camera keeps the bottle on the left) --- */
+.mb-reveal .mb-head.slim { margin-top: -60px; }
+.mb-scroll {
+  position: absolute; right: 70px; top: 90px; bottom: 50px; width: 900px; display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 50px 60px;
+  color: var(--ink); background:
+    linear-gradient(180deg, #c9a868 0, #f4e6c1 34px, #f4e6c1 calc(100% - 34px), #c9a868 100%),
+    var(--parchment);
+  border-radius: 18px; box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.35), inset 0 0 60px rgba(140, 95, 30, 0.3), 0 24px 60px rgba(0, 30, 50, 0.5);
+  transform-origin: 50% 0;
+}
+[data-anim='mb-unroll'] { animation-name: mb-unroll; animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1); }
+@keyframes mb-unroll { from { opacity: 0; transform: scaleY(0.05); } }
+.mb-page { display: grid; place-items: center; min-height: 0; flex: 1; }
+.mb-words { margin: 0; font: 74px/1.25 var(--hand); text-align: center; color: #1d2a55; overflow-wrap: anywhere; }
+.mb-art { width: 100%; }
+.mb-art .flag { width: 100%; border-radius: 6px; box-shadow: 0 0 0 2px rgba(110, 75, 25, 0.4); }
+.mb-lost { margin: 0; font-size: 52px; font-style: italic; opacity: 0.55; text-align: center; }
+.mb-prev { display: flex; align-items: center; gap: 18px; padding: 10px 16px; border-radius: 10px; background: rgba(110, 75, 25, 0.1); }
+.mb-prev em { font-size: 30px; opacity: 0.7; }
+.mb-prev .mb-words.small { font-size: 34px; text-align: left; }
+.mb-prev .mb-art.small { width: 210px; flex: none; }
+.mb-prev .mb-lost.small { font-size: 28px; }
+.mb-by { display: flex; justify-content: center; align-items: center; gap: 16px; font-size: 44px; }
+.mb-by em { font-size: 34px; opacity: 0.75; }
+
+/* --- the whole bottle laid out, for the vote --- */
+.mb-chain { flex: 1; min-height: 0; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; align-items: center; gap: 20px 10px; }
+.mb-card { position: relative; width: calc((100% - 80px) / min(var(--n), 4) - 30px); max-width: 420px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.mb-card .mb-words.small { font-size: 32px; line-height: 1.15; }
+.mb-card .mb-art.small { width: 100%; }
+.mb-card .mb-lost.small { font-size: 28px; }
+.mb-card.best { box-shadow: 0 0 0 7px var(--gold), 0 0 50px rgba(247, 201, 72, 0.75); }
+.mb-n { position: absolute; left: -14px; top: -14px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%; font: 30px var(--display); background: var(--red); color: #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); }
+.mb-card-foot { display: flex; align-items: center; gap: 10px; font-size: 28px; }
+.mb-card-foot .gain { color: var(--red-dark); font-size: 34px; }
+.mb-votes { display: flex; gap: 3px; }
+.mb-arrow { font-size: 40px; color: var(--parchment); text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+
+/* While the whole bottle is laid out (the numbered cards), the lagoon dims to a dark navy so the pages are easy to read. */
+.mb-vignette::after { content: ''; position: absolute; inset: 0; background: rgba(6, 16, 36, 0.72); opacity: 0; transition: opacity 0.6s ease; }
+body:has(.mb-fav) .mb-vignette::after { opacity: 1; }
+#mbLayer .kit-labels { transition: opacity 0.4s; }
+body:has(.mb-fav) #mbLayer .kit-labels { opacity: 0; }

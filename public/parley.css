@@ -1,0 +1,72 @@
+/* Parley: a bonfire on a moonlit beach. The beach is a 3D model behind the
+   stage (see parley-host.js); these are the words over it and the name plates. */
+
+#paLayer { background: #081324; }
+body[data-screen='pa'] #backdrop { display: none; }
+
+.pa-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(3, 8, 16, 0.55) 0%, transparent 22%, transparent 80%, rgba(3, 8, 16, 0.75) 100%),
+    radial-gradient(ellipse at 50% 60%, transparent 55%, rgba(3, 8, 16, 0.65) 100%);
+}
+
+/* --- name plates under each figure --- */
+.pa-label {
+  display: flex; flex-direction: column; align-items: center; gap: 0.12em; padding: 0.2em 0.55em 0.28em; border-radius: 0.55em;
+  color: var(--parchment); background: rgba(8, 10, 18, 0.78); border: 0.07em solid rgba(255, 190, 120, 0.3);
+  box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.5); transition: border-color 0.3s, box-shadow 0.3s;
+}
+.pa-label .chip { font-size: 0.9em; }
+.pa-label.in { border-color: var(--gold); box-shadow: 0 0 0.6em rgba(247, 201, 72, 0.45); }
+.pa-label.away .chip { opacity: 0.55; }
+.pa-foot { display: flex; gap: 0.4em; align-items: center; font-size: 0.62em; }
+.pa-done { color: var(--gold); font-family: var(--display); }
+.pa-wait { font-style: italic; opacity: 0.6; }
+.pa-count { font: 1.25em var(--display); color: var(--gold); }
+.pa-guess { padding: 0 0.5em 0.1em; border-radius: 1em; background: rgba(255, 255, 255, 0.12); font-style: italic; animation: pa-pop 0.35s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
+.pa-guess.hit { background: var(--gold); color: var(--ink); font-style: normal; font-weight: 700; }
+.pa-guess.close { background: var(--foam); color: var(--ink); }
+.pa-tag {
+  position: absolute; left: 50%; top: -1em; translate: -50% 0; white-space: nowrap; padding: 0.04em 0.6em 0.12em; border-radius: 1em;
+  font: 0.68em var(--display); color: #fff; background: var(--red); box-shadow: 0 0.12em 0.3em rgba(0, 0, 0, 0.5);
+  animation: pa-pop 0.4s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.pa-tag.gold { background: var(--gold); color: var(--ink); }
+@keyframes pa-pop { from { opacity: 0; scale: 0.4; } }
+
+/* --- the words over the beach --- */
+.pa { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 0 70px 34px; }
+.pa-head { display: flex; gap: 24px; align-items: center; margin-top: -72px; font: 44px var(--display); color: var(--parchment); text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8); }
+.pa-mult { padding: 2px 22px 6px; border-radius: 40px; background: var(--red); color: #fff; font-size: 36px; }
+.pa-prompt { position: relative; max-width: 1500px; padding: 26px 70px 30px; font-size: 64px; line-height: 1.12; text-align: center; }
+.pa-prompt.spot { background: radial-gradient(ellipse at 25% 15%, rgba(255, 255, 255, 0.2), transparent 55%), #1b1517; color: var(--parchment); box-shadow: inset 0 0 0 3px rgba(200, 55, 45, 0.7), 0 14px 34px rgba(0, 0, 0, 0.6); }
+.pa-skull { position: absolute; left: -40px; top: 50%; translate: 0 -50%; font-size: 90px; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6)); }
+.pa-hint { margin: auto 0 0; padding: 12px 36px 16px; border-radius: 30px; background: rgba(5, 9, 18, 0.72); font-size: 40px; font-style: italic; color: var(--foam); }
+.pa-banner { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 50px 22px; max-width: 1760px; }
+.pa-line { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 20px; font-size: 44px; }
+.pa-line em { font-size: 36px; opacity: 0.78; }
+.pa-line em.gap { margin-left: 30px; }
+.pa-line .gain { color: var(--red-dark); font-size: 52px; }
+
+/* --- close-ups of the crew's pick (see closeUp() in parley-host.js) --- */
+.kit-labels .pa-label { transition: opacity 0.4s, border-color 0.3s, box-shadow 0.3s; }
+.kit-labels.closed .pa-label { opacity: 0; }
+.pa-dividers i { position: absolute; top: 0; bottom: 0; width: calc(var(--u) * 10px); translate: -50% 0; background: linear-gradient(90deg, #3a2414, var(--gold) 30%, var(--gold) 70%, #3a2414); box-shadow: 0 0 calc(var(--u) * 24px) rgba(0, 0, 0, 0.8); }
+.pa-flash { position: absolute; inset: 0; pointer-events: none; background: #fff6dc; opacity: 0; }
+.pa-flash.go { animation: pa-flash 0.6s ease-out; }
+@keyframes pa-flash { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+
+.pa-prompt.slim { font-size: 40px; padding: 12px 46px 16px; }
+.pa-prompt.slim .pa-skull { font-size: 56px; left: -26px; }
+.pa-panels { position: absolute; left: 0; right: 0; bottom: 140px; display: grid; grid-template-columns: repeat(var(--n), 1fr); pointer-events: none; }
+.pa-panels.leaves { animation: pa-out 0.5s var(--leave) both; }
+@keyframes pa-out { to { opacity: 0; transform: translateY(30px); } }
+.pa-panel { display: flex; justify-content: center; }
+.pa-caption { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 34px 14px; font-size: 48px; }
+.pa-panels[style*='--n:3'] .pa-caption, .pa-panels[style*='--n:4'] .pa-caption { font-size: 36px; padding: 8px 20px 12px; }
+.pa-kicker { font: 0.62em var(--display); letter-spacing: 0.06em; color: var(--red-dark); }
+.pa-votes { font: 0.7em var(--display); color: var(--gold-dark); }
+.pa-banner.slim { padding: 10px 40px 14px; }
+.pa-banner.slim .pa-line { font-size: 38px; }
+.pa { position: relative; }

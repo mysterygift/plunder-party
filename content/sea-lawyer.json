@@ -1,0 +1,358 @@
+{
+  "seconds": { "write": 55, "pick": 30 },
+
+  "questionsPerRound": null,
+
+  "questions": [
+    {
+      "topic": "Sailor’s slang",
+      "q": "On a sailing ship, the “lubber’s hole” is ___.",
+      "a": "a gap in the mast platform for nervous climbers",
+      "alts": ["a hole in the crows nest floor", "a hole in the platform at the top of the mast"],
+      "decoys": ["where the cook throws the scraps", "the gap under the captain’s door", "a leak nobody can find"],
+      "fact": "Proper sailors climbed round the outside of the platform. Landlubbers sneaked up through the hole."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "An “Irish pennant” is ___.",
+      "a": "a loose rope end left flapping about",
+      "alts": ["a loose end of rope", "a dangling rope end"],
+      "decoys": ["a green flag flown on Sundays", "a tot of whiskey before breakfast", "a ship’s cat"],
+      "fact": "A sign of a scruffy ship, and an easy way to get shouted at by the bosun."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "On an old warship, the “loblolly boy” was ___.",
+      "a": "the surgeon’s assistant",
+      "alts": ["the doctors assistant", "the surgeons mate"],
+      "decoys": ["the lad who fed the chickens", "the youngest powder monkey", "the captain’s personal drummer"],
+      "fact": "Named after loblolly, a thick porridge he dished out to the sick and wounded."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "A “bumboat” is ___.",
+      "a": "a little boat that sells goods to ships at anchor",
+      "alts": ["a boat selling supplies to ships", "a floating shop"],
+      "decoys": ["the smallest lifeboat on board", "a boat full of sewage", "a boat rowed backwards"],
+      "fact": "They’d paddle out with fruit, drink and souvenirs for sailors who weren’t allowed ashore."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "A “monkey’s fist” is ___.",
+      "a": "a ball-shaped knot that weights the end of a throwing line",
+      "alts": ["a knot", "a heavy knot on the end of a rope"],
+      "decoys": ["a punch thrown below decks", "a bunch of bananas kept for luck", "a tiny anchor"],
+      "fact": "Heavy enough to throw a rope across to the dock. Sneaky sailors hid a stone inside."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "To “swallow the anchor” means ___.",
+      "a": "to retire from the sea and settle ashore",
+      "alts": ["to retire", "to give up sailing", "to quit the sea"],
+      "decoys": ["to down a pint in one", "to lose a bet with the captain", "to get horribly seasick"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "“Baggywrinkle” is ___.",
+      "a": "fluffy old rope wrapped round rigging to stop sails rubbing",
+      "alts": ["padding on the rigging", "anti chafe padding"],
+      "decoys": ["a sailor’s wrinkled hands after a wash", "a pudding made from leftover biscuits", "a loose-fitting pair of trousers"],
+      "fact": "It looks like giant hairy caterpillars clinging to the ropes."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "In old sailors’ slang, “cackle fruit” were ___.",
+      "a": "hens’ eggs",
+      "alts": ["eggs", "chicken eggs"],
+      "decoys": ["coconuts", "pickled onions", "seagulls"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "Fiddler’s Green is ___.",
+      "a": "a sailors’ heaven of endless rum, music and dancing",
+      "alts": ["sailors heaven", "a sailors afterlife", "paradise for sailors"],
+      "decoys": ["the patch of deck where the band played", "a pub in Portsmouth", "the green slime on the bottom of a hull"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "A “holystone” was ___.",
+      "a": "a soft sandstone used to scrub the decks",
+      "alts": ["a stone for scrubbing the deck", "a scrubbing stone"],
+      "decoys": ["a lucky pebble kept in the captain’s pocket", "the ship’s heaviest cannonball", "a gravestone for sailors buried at sea"],
+      "fact": "Sailors scrubbed on their knees, as if at prayer. Hence holy."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "A “bosun’s chair” is ___.",
+      "a": "a plank on a rope, for hoisting someone up the mast",
+      "alts": ["a seat hung from a rope", "a swing for working up the mast"],
+      "decoys": ["the only comfy chair on board", "a barrel turned upside down", "a punishment for falling asleep on watch"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "“Chock-a-block” first meant ___.",
+      "a": "two pulley blocks hauled so tight together they can’t move",
+      "alts": ["pulleys pulled tight together", "two blocks touching"],
+      "decoys": ["a hold stacked to the ceiling with cargo", "a cannon jammed with too much powder", "a harbour too full to moor in"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "On a sailing ship, a “sheet” is not a sail. It’s ___.",
+      "a": "a rope",
+      "alts": ["a line", "a rope that controls a sail"],
+      "decoys": ["a hammock", "a map", "a flag"],
+      "fact": "Let the sheets fly loose and the ship staggers about. Hence three sheets to the wind."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "A “slush fund” was first ___.",
+      "a": "money from selling the fat skimmed off the ship’s cooking",
+      "alts": ["money from selling grease", "money from selling cooking fat"],
+      "decoys": ["money hidden in the bilge water", "wages paid in melted snow", "a bribe for the harbour master"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "“Batten down the hatches”: battens are ___.",
+      "a": "strips of wood that pin covers over the hatches",
+      "alts": ["strips of wood", "wooden strips"],
+      "decoys": ["the ship’s cats", "iron bolts the size of your arm", "sacks of sand"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "“Starboard” comes from the Old English “steorbord”, meaning ___.",
+      "a": "the steering side",
+      "alts": ["steering side", "steer board"],
+      "decoys": ["the side facing the stars", "the strong side", "the captain’s side"],
+      "fact": "Ships were steered with an oar on the right, so they moored on the left: the side by the port."
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "The left side of a ship was renamed “port” because the old name, “larboard”, ___.",
+      "a": "sounded too much like starboard",
+      "alts": ["sounded like starboard", "was confused with starboard"],
+      "decoys": ["was a rude word in Portuguese", "was the name of a hated admiral", "was too hard to shout in a storm"]
+    },
+    {
+      "topic": "Sailor’s slang",
+      "q": "Grog, sailors’ watered-down rum, is named after an admiral’s nickname, which came from his ___.",
+      "a": "cloak made of grogram cloth",
+      "alts": ["coat", "cloak", "grogram coat"],
+      "decoys": ["gravelly voice", "habit of falling asleep at dinner", "pet frog"],
+      "fact": "Admiral Vernon, “Old Grog”, watered down the rum in 1740. His sailors were not grateful."
+    },
+    {
+      "topic": "Sea superstitions",
+      "q": "Old sailors would never whistle on board, because it was said to ___.",
+      "a": "whip up a storm",
+      "alts": ["call up the wind", "bring a storm", "summon wind"],
+      "decoys": ["wake the kraken", "make the rum go off", "attract mermaids"]
+    },
+    {
+      "topic": "Sea superstitions",
+      "q": "A sailor with a swallow tattoo was showing off that he had ___.",
+      "a": "sailed 5,000 nautical miles",
+      "alts": ["sailed five thousand miles", "sailed 5000 miles"],
+      "decoys": ["survived a shipwreck", "kissed a mermaid", "crossed the equator drunk"],
+      "fact": "Swallows come home every year, so it was also a promise to make it back."
+    },
+    {
+      "topic": "Sea superstitions",
+      "q": "Some sailors had a pig and a hen tattooed on their feet to ___.",
+      "a": "stop them from drowning",
+      "alts": ["keep them from drowning", "save them from drowning", "help them float"],
+      "decoys": ["make sure they were always fed", "remember which foot was which", "keep their feet warm"],
+      "fact": "Pigs and hens were carried in wooden crates, which floated free when a ship went down."
+    },
+    {
+      "topic": "Sea superstitions",
+      "q": "In 1493, Christopher Columbus reported seeing three mermaids, and noted that they ___.",
+      "a": "weren’t as pretty as they’re painted",
+      "alts": ["were ugly", "werent very pretty", "were not as beautiful as people said"],
+      "decoys": ["were singing in Spanish", "had stolen his breakfast", "waved at him"],
+      "fact": "He’d almost certainly spotted manatees."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "To look terrifying in battle, Blackbeard would tuck ___ under his hat.",
+      "a": "lit fuses",
+      "alts": ["burning fuses", "slow matches", "lit matches", "fuses"],
+      "decoys": ["a live crab", "a pistol", "a skull"],
+      "fact": "They wreathed his face in smoke. Very effective. Smelt awful."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "Under Black Bart Roberts’ pirate code, anyone still drinking after 8pm had to ___.",
+      "a": "do it out on the open deck",
+      "alts": ["drink on deck", "go up on deck"],
+      "decoys": ["pay the captain a doubloon", "sing for the rest of the crew", "drink from the bilge"],
+      "fact": "Lights and candles went out at eight. The code was surprisingly big on bedtimes."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "Black Bart Roberts’ pirate code also said the ship’s musicians got ___.",
+      "a": "Sundays off",
+      "alts": ["a day off on sunday", "rest on the sabbath", "sunday off"],
+      "decoys": ["double rum", "the first pick of any loot", "to sleep in the captain’s cabin"],
+      "fact": "The other six days and nights, they played on request."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "When Captain Kidd was hanged at Wapping in 1701, ___.",
+      "a": "the rope snapped, so they hanged him twice",
+      "alts": ["the rope broke", "he was hanged twice"],
+      "decoys": ["the crowd cheered for an encore", "his parrot gave the eulogy", "he asked for a cup of tea first"],
+      "fact": "His body was then tarred and hung in a cage by the Thames for years, as a warning to sailors."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "The Welsh privateer Henry Morgan, who’s now on a rum bottle, ended his days as ___.",
+      "a": "Lieutenant Governor of Jamaica",
+      "alts": ["governor of jamaica", "deputy governor of jamaica"],
+      "decoys": ["a vicar in Cardiff", "the landlord of a London tavern", "a prisoner in the Tower"]
+    },
+    {
+      "topic": "Pirate history",
+      "q": "The Spanish called Sir Francis Drake “El Draque”, which means ___.",
+      "a": "the dragon",
+      "alts": ["dragon"],
+      "decoys": ["the duck", "the thief", "the ginger one"]
+    },
+    {
+      "topic": "Pirate history",
+      "q": "One theory says the pirate flag’s name, the Jolly Roger, comes from the French “joli rouge”, meaning ___.",
+      "a": "pretty red",
+      "alts": ["lovely red", "beautiful red", "nice red"],
+      "decoys": ["happy skeleton", "old Roger", "big bones"],
+      "fact": "Early pirate flags were often red, meaning no mercy would be shown."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "One theory says pirates wore eye patches so they could ___.",
+      "a": "keep one eye used to the dark below deck",
+      "alts": ["see in the dark", "keep one eye adjusted to darkness", "see below deck"],
+      "decoys": ["aim a pistol better", "hide a missing eye from their mums", "sleep on watch without being caught"],
+      "fact": "Swap the patch to the other eye when you head below, and you can see straight away."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "Robert Louis Stevenson drew the first map of Treasure Island to entertain ___.",
+      "a": "his 12-year-old stepson",
+      "alts": ["his stepson", "a child", "his son"],
+      "decoys": ["a bored doctor", "his publisher", "the landlady of a Scottish inn"],
+      "fact": "It was a rainy holiday in Braemar. The boy asked for a story to go with it."
+    },
+    {
+      "topic": "Pirate history",
+      "q": "In Treasure Island, Long John Silver’s parrot is called ___.",
+      "a": "Captain Flint",
+      "alts": ["flint", "cap n flint", "capn flint"],
+      "decoys": ["Polly", "Admiral Biscuit", "Pieces"],
+      "fact": "Named after Silver’s old captain. She squawks “Pieces of eight!”"
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "Nelson’s body was brought home from Trafalgar preserved in a barrel of ___.",
+      "a": "brandy",
+      "alts": ["spirits", "alcohol"],
+      "decoys": ["salt", "seawater", "vinegar"],
+      "fact": "Legend says the sailors drank some of it on the way. They called it tapping the admiral."
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "Black Tot Day, 31 July 1970, was the day the Royal Navy ___.",
+      "a": "stopped giving sailors a daily rum ration",
+      "alts": ["ended the rum ration", "stopped the daily tot of rum", "stopped giving out rum"],
+      "decoys": ["painted its last ship black", "let women serve at sea", "sank its last pirate ship"],
+      "fact": "Sailors held mock funerals. Some wore black armbands."
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "The Royal Navy’s old toast for Saturday night is “Our wives and sweethearts…” and it ends ___.",
+      "a": "may they never meet",
+      "alts": ["and may they never meet"],
+      "decoys": ["and the ship that brings us home", "God bless them all", "and a fair wind back"]
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "Henry VIII’s warship, the Mary Rose, sank in 1545 ___.",
+      "a": "right in front of Henry, who was watching from the shore",
+      "alts": ["while henry watched", "in front of the king"],
+      "decoys": ["on its first day afloat, before leaving the harbour", "after hitting a whale", "because the cook set fire to it"],
+      "fact": "Divers later found the skeleton of the ship’s dog, Hatch, in the wreck."
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "The kids’ TV show Blue Peter is named after a flag that ships fly to say ___.",
+      "a": "we’re about to set sail",
+      "alts": ["about to sail", "leaving port", "ready to depart"],
+      "decoys": ["there’s a doctor on board", "we’ve run out of biscuits", "someone has fallen overboard"],
+      "fact": "A blue flag with a white square in the middle. The show was a voyage of adventure."
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "In 2002, the Shipping Forecast sea area Finisterre was renamed ___.",
+      "a": "FitzRoy",
+      "alts": ["fitz roy"],
+      "decoys": ["Biscay", "Trafalgar", "Atlantis"],
+      "fact": "After Robert FitzRoy, founder of the Met Office, who also captained Darwin’s ship, the Beagle."
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "The Plimsoll line painted on a ship’s hull shows ___.",
+      "a": "how heavily it can safely be loaded",
+      "alts": ["how much cargo it can carry", "the safe loading limit", "the maximum load"],
+      "decoys": ["where the barnacles should be scraped to", "the height of the highest wave it’s survived", "where to paint the ship’s name"]
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "In 1859 Britain and the USA nearly went to war over ___.",
+      "a": "a pig",
+      "alts": ["a pig that was shot", "a dead pig"],
+      "decoys": ["a stolen ship’s bell", "a game of cricket", "who invented the steamship"],
+      "fact": "An American farmer shot a British pig eating his potatoes. The only casualty was the pig."
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "In England, every unmarked mute swan on open water technically belongs to ___.",
+      "a": "the monarch",
+      "alts": ["the king", "the queen", "the crown"],
+      "decoys": ["the Church of England", "the Lord Mayor of London", "whoever feeds it first"]
+    },
+    {
+      "topic": "Rule, Britannia",
+      "q": "Legend says that if the ravens ever leave the Tower of London, ___.",
+      "a": "the kingdom will fall",
+      "alts": ["britain will fall", "the tower will fall", "the monarchy will fall"],
+      "decoys": ["it will rain for forty days", "the Thames will run dry", "the Crown Jewels will vanish"],
+      "fact": "They keep at least six. Plus a spare."
+    },
+    {
+      "topic": "Creatures of the deep",
+      "q": "A group of sharks is called a ___.",
+      "a": "shiver",
+      "alts": ["a shiver"],
+      "decoys": ["grin", "fright", "toothery"]
+    },
+    {
+      "topic": "Creatures of the deep",
+      "q": "A group of jellyfish is called a ___.",
+      "a": "smack",
+      "alts": ["bloom", "a smack"],
+      "decoys": ["wobble", "sting", "jiggle"]
+    },
+    {
+      "topic": "Creatures of the deep",
+      "q": "A baby oyster is called a ___.",
+      "a": "spat",
+      "alts": ["a spat"],
+      "decoys": ["pearlet", "shuck", "nib"]
+    },
+    {
+      "topic": "Creatures of the deep",
+      "q": "A seahorse is unusual because it’s the ___ who gives birth.",
+      "a": "father",
+      "alts": ["male", "dad", "daddy"],
+      "decoys": ["grandmother", "eldest sister", "cousin"]
+    }
+  ]
+}

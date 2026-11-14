@@ -87,8 +87,9 @@ function repaintPad() {
   refreshPad();
 }
 
-function setupPad(key) {
-  Object.assign(pad, { key, cloth: 0, ink: 0, strokes: [], points: 0, sent: false, live: null }); // a fresh black flag and white paint; the brush size carries over
+function setupPad(key, v = {}) {
+  // A fresh black flag and white paint (or whatever the game asks for); the brush size carries over.
+  Object.assign(pad, { key, cloth: v.cloth ?? 0, ink: v.ink ?? 0, strokes: [], points: 0, sent: false, live: null });
   const svg = $('pad');
   const at = (e) => {
     const box = svg.getBoundingClientRect();
@@ -157,7 +158,7 @@ async function sendFlag(key) {
   pad.sent = true;
   pad.live = null;
   const button = $('hoist');
-  if (button) button.textContent = 'Hoisting…';
+  if (button) button.textContent = 'Sending…';
   refreshPad();
   const result = await send({ type: 'flag', key, flag: padFlag() });
   const retry = () => {
@@ -340,6 +341,7 @@ const screens = {
            ${v.context ? `<div class="context"><small>${esc(v.context.label)}</small><p>“${esc(v.context.text)}”</p></div>` : ''}
            ${v.flag ? `<div class="muse">${flagTag(v.flag)}</div>` : ''}
            <p class="prompt">${esc(v.prompt)}</p>
+           ${v.warn ? `<p class="warn">${esc(v.warn)}</p>` : ''}
            <textarea id="answer" name="text" rows="3" maxlength="${v.max}" placeholder="${esc(v.placeholder ?? '')}" autocomplete="off" enterkeyhint="send"></textarea>
            <div class="row"><span class="counter" id="counter">0 / ${v.max}</span><button class="btn" type="submit">Send</button></div>`,
         )}
@@ -367,6 +369,7 @@ const screens = {
     const sizes = WIDTHS.map((w, i) => `<button class="tool size" data-act="size" data-id="${i}" aria-label="Brush size ${i + 1}"><i style="--d:${6 + i * 8}px"></i></button>`).join('');
     return `<div class="fill scroll draw">
       <p class="heading light">${esc(v.heading)}</p>
+      ${v.prompt ? `<p class="draw-this"><small>Draw this:</small>${esc(v.prompt)}</p>` : ''}
       ${v.idea ? `<p class="tiny">Stuck? Try ${esc(v.idea)}.</p>` : ''}
       <div class="easel">
         <svg id="pad" viewBox="0 0 ${FLAG_W} ${FLAG_H}" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -379,13 +382,13 @@ const screens = {
       <div class="tools">
         <div class="tool-row">${inks}<button class="sw rubber" data-act="ink" data-id="${ERASER}" aria-label="Eraser">🧽</button></div>
         <div class="tool-row">
-          <button class="tool wide" data-act="cloth" aria-label="Change the cloth colour"><i id="clothDot"></i>Cloth</button>
+          ${v.noCloth ? '<i id="clothDot" hidden></i>' : '<button class="tool wide" data-act="cloth" aria-label="Change the cloth colour"><i id="clothDot"></i>Cloth</button>'}
           ${sizes}
           <button class="tool" id="undo" data-act="undo" aria-label="Undo">↩︎</button>
           <button class="tool" id="clear" data-act="clear" aria-label="Start again">🗑️</button>
         </div>
       </div>
-      <button class="btn" id="hoist" data-act="hoist" disabled>Hoist it!</button>
+      <button class="btn" id="hoist" data-act="hoist" disabled>${esc(v.send ?? 'Hoist it!')}</button>
     </div>`;
   },
 
@@ -513,7 +516,7 @@ function render(v) {
     if (lock) lock.disabled = !myPin;
   }
 
-  if (v.screen === 'draw') setupPad(v.key);
+  if (v.screen === 'draw') setupPad(v.key, v);
   if (v.screen === 'combine') {
     Object.assign(pick, { key: v.key, flag: null, name: null, sent: false });
     refreshPick();

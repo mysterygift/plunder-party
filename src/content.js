@@ -21,6 +21,9 @@ const FILES = {
   knots: 'knots.json',
   knotsQuestions: 'knots-questions.json',
   brig: 'brig.json',
+  lawyer: 'sea-lawyer.json',
+  parley: 'parley.json',
+  bottle: 'bottle.json',
 };
 
 function readJson(file) {
@@ -61,8 +64,24 @@ export function loadContent() {
     need(Array.isArray(bombard[list]) && bombard[list].length >= 7, `content/bombard.json needs at least 7 "${list}".`);
   }
   checkStory(content.onepiece);
+  checkLawyer(content.lawyer);
+  need(Array.isArray(content.parley.prompts) && content.parley.prompts.length >= 10, 'content/parley.json needs at least 10 "prompts".');
+  need(Array.isArray(content.bottle.ideas) && content.bottle.ideas.length >= 12, 'content/bottle.json needs at least 12 "ideas".');
+  need(Array.isArray(content.parley.finalPrompts) && content.parley.finalPrompts.length >= 1, 'content/parley.json needs at least 1 "finalPrompts" entry.');
   checkQuestions(content.knotsQuestions);
   return content;
+}
+
+/** Sea Lawyer: every question needs a blank to fill, the real answer, and a few house lies. */
+function checkLawyer(bank) {
+  const file = 'content/sea-lawyer.json';
+  need(Array.isArray(bank?.questions) && bank.questions.length >= 8, `${file} needs at least 8 "questions".`);
+  bank.questions.forEach((x, i) => {
+    const where = `${file}: question ${i + 1}`;
+    need(typeof x.q === 'string' && x.q.includes('___'), `${where} needs a "q" with ___ where the answer goes.`);
+    need(typeof x.a === 'string' && x.a.trim(), `${where} ("${x.q}") has no answer "a".`);
+    need(Array.isArray(x.decoys) && x.decoys.length >= 3, `${where} ("${x.q}") needs at least three "decoys" (house lies).`);
+  });
 }
 
 /** Knot So Fast: every question needs one right answer and three different wrong ones. */

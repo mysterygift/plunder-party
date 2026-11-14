@@ -1,0 +1,7 @@
+/* The 3D layers made with kit3d.js (Sea Lawyer, Parley, Message in a Bottle):
+   each fills the window behind the 1920x1080 stage. --u is one "TV pixel". */
+
+.kit-layer { position: fixed; inset: 0; overflow: hidden; }
+.kit-layer canvas { display: block; width: 100%; height: 100%; }
+.kit-labels { position: absolute; inset: 0; pointer-events: none; font-size: calc(var(--u) * 34px); }
+.kit-label { position: absolute; left: 0; top: 0; white-space: nowrap; }

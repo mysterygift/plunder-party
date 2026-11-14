@@ -4,68 +4,140 @@
     {
       "name": "plunder-test",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3100", "SPEED=3", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3100",
+        "SPEED=3",
+        "node",
+        "server.js"
+      ],
       "port": 3100
     },
     {
       "name": "bombard-test",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3210", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3210",
+        "node",
+        "server.js"
+      ],
       "port": 3210
     },
     {
       "name": "bombard-fast",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3211", "SPEED=6", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3211",
+        "SPEED=6",
+        "node",
+        "server.js"
+      ],
       "port": 3211
     },
     {
       "name": "liars-test",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3310", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3310",
+        "node",
+        "server.js"
+      ],
       "port": 3310
     },
     {
       "name": "onepiece-fast",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3421", "SPEED=40", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3421",
+        "SPEED=40",
+        "node",
+        "server.js"
+      ],
       "port": 3421
     },
     {
       "name": "knots-test",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3520", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3520",
+        "node",
+        "server.js"
+      ],
       "port": 3520
     },
     {
       "name": "knots-fast",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3521", "SPEED=6", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3521",
+        "SPEED=6",
+        "node",
+        "server.js"
+      ],
       "port": 3521
     },
     {
       "name": "brig-test",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3710", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3710",
+        "node",
+        "server.js"
+      ],
       "port": 3710
     },
     {
       "name": "brig-fast",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3711", "SPEED=6", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3711",
+        "SPEED=6",
+        "node",
+        "server.js"
+      ],
       "port": 3711
     },
     {
       "name": "scuttlebutt-fast",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3810", "SPEED=6", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3810",
+        "SPEED=6",
+        "node",
+        "server.js"
+      ],
       "port": 3810
     },
     {
       "name": "onepiece-test",
       "runtimeExecutable": "env",
-      "runtimeArgs": ["PORT=3420", "node", "server.js"],
+      "runtimeArgs": [
+        "PORT=3420",
+        "node",
+        "server.js"
+      ],
       "port": 3420
+    },
+    {
+      "name": "newgames-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=3910",
+        "SPEED=2",
+        "node",
+        "server.js"
+      ],
+      "port": 3910
+    },
+    {
+      "name": "newgames-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=3911",
+        "SPEED=12",
+        "node",
+        "server.js"
+      ],
+      "port": 3911
     }
   ]
 }
