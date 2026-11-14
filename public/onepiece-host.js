@@ -140,7 +140,13 @@ export function onePieceScreens({ anim, chip, inked }) {
       .join('')}</ol>`;
   }
 
-  /** The dice as they land, one beside each pirate, and the running total. */
+  /** "×1.15", for a crew that agreed. */
+  const times = (boost) => `×${boost.toFixed(2).replace(/0$/, '')}`;
+
+  /**
+   * The dice as they land, one beside each pirate, and the running total.
+   * Once all hands have rolled, a crew of one mind sees its total multiplied.
+   */
   function dice(r) {
     const men = r.dice
       .map((d) => {
@@ -149,8 +155,12 @@ export function onePieceScreens({ anim, chip, inked }) {
       })
       .join('');
     const landed = r.dice.filter((d) => d.n !== null).length;
+    const all = landed === r.count;
+    const boosted = r.boost > 1;
+    const caption = !all ? `${landed} of ${r.count} rolled` : boosted ? `${r.sum} ${times(r.boost)}` : 'All hands';
+    const shown = all ? r.total : r.sum;
     return `<div class="op-dice ${r.count > 4 ? 'dense' : ''}">${men}</div>
-      <p class="op-sum"><small>${landed < r.count ? `${landed} of ${r.count} rolled` : 'All hands'}</small><b>${r.total || '–'}</b></p>`;
+      <p class="op-sum ${all && boosted ? 'boosted' : ''}"><small>${caption}</small><b>${shown || '–'}</b></p>`;
   }
 
   /**
@@ -175,6 +185,7 @@ export function onePieceScreens({ anim, chip, inked }) {
       marker = `<div class="op-marker"${anim('marker', 'op-slide', 250, 1900, `left:${at.toFixed(2)}%;--from:0%`)}><b>${r.total}</b></div>`;
     }
     const notes = [
+      r.boost > 1 ? `<span class="for">Of one mind: the dice count ${times(r.boost)}.</span>` : '',
       r.helped.length ? `<span class="for">In our favour: ${esc(r.helped.join(', '))}.</span>` : '',
       r.hurt.length ? `<span class="against">Against us: ${esc(r.hurt.join(', '))}.</span>` : '',
       r.canny ? '<span>A canny plan: no worse than Bad, no better than Good.</span>' : '',
@@ -220,6 +231,7 @@ export function onePieceScreens({ anim, chip, inked }) {
         <p class="op-hand op-ask">${esc(v.ask)}</p>
         ${options(v, true)}
         ${v.tied && v.phase === 'chosen' ? `<p class="op-prompt"${anim('tie', 'fade', 0, 500)}>A tie, settled with a doubloon</p>` : ''}
+        ${v.roll.boost > 1 && v.phase === 'chosen' ? `<p class="op-prompt"${anim('accord', 'fade', 300, 500)}>${v.roll.backers === v.roll.count ? 'All' : v.roll.backers} of one mind: the dice count ${times(v.roll.boost)}</p>` : ''}
         <p class="op-hand">${inked('lead', v.lead, 500, INK_SPEED)}</p>
         ${v.phase === 'chosen' ? '' : `<div class="op-roll"${anim('roll', 'rise', 0, 450)}>${dice(v.roll)}</div>${scale(v)}`}
         ${gauge(v)}

@@ -1,0 +1,192 @@
+/* Mutiny: the plotters down in the hold. The hold is a 3D model behind the
+   stage (see mutiny-host.js); the first half of this file is the words over
+   it on the TV (everything "muh-"), the second half is the phones ("mu-"). */
+
+#muLayer { background: #0a0705; }
+body[data-screen='mu'] #backdrop { display: none; }
+
+.muh-vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(6, 4, 2, 0.6) 0%, transparent 24%, transparent 76%, rgba(6, 4, 2, 0.8) 100%),
+    radial-gradient(ellipse at 50% 58%, transparent 50%, rgba(6, 4, 2, 0.72) 100%);
+}
+
+/* --- name plates over each figure --- */
+.muh-label {
+  display: flex; flex-direction: column; align-items: center; gap: 0.1em; padding: 0.2em 0.55em 0.26em; border-radius: 0.55em;
+  color: var(--parchment); background: rgba(12, 8, 5, 0.8); border: 0.07em solid rgba(255, 190, 120, 0.3);
+  box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.5); transition: opacity 0.4s, border-color 0.3s, box-shadow 0.3s;
+}
+.muh-label .chip { font-size: 0.9em; }
+.muh-label.in { border-color: var(--gold); box-shadow: 0 0 0.6em rgba(247, 201, 72, 0.45); }
+.muh-label.away .chip { opacity: 0.55; }
+.kit-labels.closed .muh-label { opacity: 0; }
+.muh-foot { display: flex; gap: 0.4em; align-items: center; font-size: 0.6em; }
+.muh-row { display: flex; gap: 0.16em; }
+.muh-row i { font-style: normal; width: 1.5em; height: 1.5em; display: grid; place-items: center; border-radius: 0.3em; line-height: 1; }
+.muh-row .up { background: var(--red); box-shadow: 0 0 0.3em rgba(255, 120, 100, 0.6); }
+.muh-row .down { background: #25323f; }
+.muh-row .none { background: rgba(255, 255, 255, 0.08); opacity: 0.6; font-style: italic; }
+.muh-done { color: var(--gold); font-family: var(--display); }
+.muh-wait { font-style: italic; opacity: 0.6; }
+.muh-count { font: 1.2em var(--display); color: #ffd9d2; }
+.muh-tag {
+  position: absolute; left: 50%; top: -1em; translate: -50% 0; white-space: nowrap; padding: 0.04em 0.6em 0.12em; border-radius: 1em;
+  font: 0.68em var(--display); color: #fff; background: var(--red); box-shadow: 0 0.12em 0.3em rgba(0, 0, 0, 0.5);
+  animation: muh-pop 0.4s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.muh-tag.gold { background: var(--gold); color: var(--ink); }
+.muh-tag.spy { background: #4f9e2c; }
+@keyframes muh-pop { from { opacity: 0; scale: 0.4; } }
+
+/* --- the words over the hold --- */
+.muh { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0 60px 26px; }
+.muh-head { display: flex; gap: 22px; align-items: center; margin-top: -72px; font: 44px var(--display); color: var(--parchment); text-shadow: 0 3px 8px rgba(0, 0, 0, 0.8); }
+.muh-topic { padding: 0 22px 5px; border-radius: 40px; background: rgba(12, 8, 5, 0.75); border: 2px solid rgba(247, 201, 72, 0.5); color: var(--gold); font-size: 38px; }
+.muh-mult { padding: 2px 22px 6px; border-radius: 40px; background: var(--red); color: #fff; font-size: 36px; }
+
+.muh-card { display: flex; flex-direction: column; align-items: center; gap: 2px; max-width: 1560px; padding: 14px 64px 22px; text-align: center; }
+.muh-card small { font: 34px var(--display); letter-spacing: 0.06em; color: var(--red-dark); }
+.muh-card > b { font-weight: 400; font-size: 62px; line-height: 1.1; }
+.muh-card .muh-who { display: flex; align-items: center; gap: 16px; font-size: 50px; }
+.muh-by { display: flex; align-items: center; gap: 10px; margin-top: 4px; font-size: 26px; font-style: italic; opacity: 0.8; }
+.muh-card.slim { padding: 8px 46px 14px; }
+.muh-secret { font: 400 84px/1.05 var(--display) !important; color: var(--red-dark); }
+.muh-secret .chip { font-size: 0.8em; }
+.muh-key { margin: 2px 0 0; padding: 0; list-style: none; counter-reset: q; display: flex; flex-direction: column; gap: 2px; font-size: 32px; line-height: 1.15; text-align: left; }
+.muh-key li { counter-increment: q; }
+.muh-key li::before { content: counter(q); display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; margin-right: 0.45em; border-radius: 50%; background: var(--red-dark); color: #fff; font: 0.8em var(--display); }
+
+.muh-hint { margin: auto 0 0; padding: 10px 34px 14px; border-radius: 30px; background: rgba(8, 5, 3, 0.76); font-size: 38px; font-style: italic; color: var(--foam); text-align: center; }
+.muh-hint.big { display: flex; gap: 44px; font: 54px var(--display); font-style: normal; color: var(--gold); }
+.muh-hint.big b { font-weight: 400; }
+.muh-hint.big b + b { color: var(--foam); }
+
+.muh-words { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; max-width: 1800px; min-height: 112px; align-content: center; }
+.muh-word { padding: 3px 18px 6px; border-radius: 8px 12px 9px 13px; background: var(--parchment); color: var(--ink); font-size: 30px; line-height: 1.15; box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5); }
+.muh-words.crew .muh-word { font-size: 36px; padding: 6px 30px 10px; }
+.muh-words.hot .muh-word { animation: muh-hot 1.1s ease-in-out infinite alternate; }
+@keyframes muh-hot { to { box-shadow: inset 0 0 0 3px var(--red), 0 0 18px rgba(247, 201, 72, 0.7); } }
+.muh-word.dim { opacity: 0.45; }
+.muh-word.secret { background: var(--gold); font-size: 34px; box-shadow: 0 0 0 3px #fff8e4, 0 0 24px rgba(247, 201, 72, 0.8); }
+.muh-word.wrong { background: #e9b9b2; text-decoration: line-through; text-decoration-color: var(--red); }
+
+.muh-banner { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 46px 16px; max-width: 1760px; }
+.muh-hint + .muh-words, .muh-banner + .muh-words { margin-top: 0; }
+.muh-line { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 16px; font-size: 38px; }
+.muh-line em { font-size: 32px; opacity: 0.8; }
+.muh-line b { font-weight: 400; font-family: var(--display); font-size: 42px; }
+.muh-line .gain { color: var(--red-dark); font-size: 44px; }
+.muh-votes { font: 40px var(--display); color: var(--red-dark); }
+
+.muh-stamp {
+  position: absolute; left: 50%; top: 118px; translate: -50% 0; rotate: -5deg; white-space: nowrap; padding: 4px 44px 14px; border-radius: 18px;
+  font: 104px/1.1 var(--display); letter-spacing: 0.02em; background: rgba(10, 6, 3, 0.82); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.muh-stamp.spy { color: #9be05e; border: 9px solid #9be05e; }
+.muh-stamp.fleeting { opacity: 0; } /* only there while its animation runs */
+[data-anim='stamp-pass'] { animation-name: muh-stamp-pass; animation-timing-function: linear; }
+@keyframes muh-stamp-pass { 0% { opacity: 0; scale: 3; } 12% { opacity: 1; scale: 1; } 86% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1; } }
+.muh-slips { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.muh-slips .muh-line { padding: 10px 40px 14px; }
+.muh-away { color: var(--red-dark); margin-left: 8px; }
+.muh-stamp.loyal { color: #ff8f85; border: 9px solid #ff8f85; }
+
+.muh-titles { display: flex; flex-direction: column; gap: 16px; padding: 26px 60px 32px; min-width: 1100px; }
+.muh-title { display: flex; align-items: center; gap: 18px; font-size: 40px; }
+.muh-title em { font: 48px var(--display); font-style: normal; color: var(--red-dark); min-width: 520px; }
+.muh-title span:last-child { margin-left: auto; font-size: 30px; font-style: italic; opacity: 0.8; }
+
+/* ----- the phones ----- */
+body.play .mu { gap: 10px; padding-top: 10px; }
+body.play .mu > * { flex: none; width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; }
+body.play .mu-body { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+body.play .mu-body > p { margin: 0; }
+body.play .mu .heading.light { font-size: 30px; }
+body.play .mu .prompt.light { margin: 0; }
+
+/* the strip along the bottom: tap to see your secret again */
+.mu-secret {
+  margin-top: auto; display: flex; align-items: baseline; justify-content: center; gap: 8px; padding: 10px 12px 12px; border-radius: 14px; font-size: 16px; color: var(--foam);
+  background: rgba(4, 16, 28, 0.6); border: 2px dashed rgba(201, 239, 230, 0.35);
+}
+.mu-secret b { font: 400 20px var(--display); letter-spacing: 0.03em; }
+.mu-secret small { font-size: 14px; font-style: italic; opacity: 0.8; }
+.mu-secret.open { border-style: solid; border-color: var(--gold); background: #4a3508; color: #fff; }
+.mu-secret.open.spy { border-color: #9be05e; background: #23490f; }
+
+/* the card you are dealt at the start of a plot */
+.mu-card {
+  width: 100%; padding: 22px 20px 24px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; border-radius: 18px;
+  color: var(--ink); border: 3px solid var(--gold-dark); background: linear-gradient(180deg, #f8ecc9, var(--parchment-dark)); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+.mu-card-icon { font-size: 74px; line-height: 1.1; }
+.mu-card b { font: 400 34px/1.05 var(--display); letter-spacing: 0.02em; }
+.mu-card .mu-word { font-size: 46px; color: var(--red-dark); overflow-wrap: anywhere; }
+.mu-card p { margin: 0; font-size: 19px; line-height: 1.25; }
+.mu-card em { font-style: normal; font-family: var(--display); font-size: 1.15em; }
+.mu-card ul { margin: 4px 0 0; padding: 0 0 0 20px; text-align: left; font-size: 17px; line-height: 1.35; }
+.mu-card small { font-size: 16px; font-style: italic; opacity: 0.9; }
+.mu-card.spy { color: #fff; border-color: #9be05e; background: linear-gradient(180deg, #3f7d1f, #1f4a0c); }
+.mu-card.spy em { color: var(--gold); }
+.mu-card.back {
+  min-height: 300px; justify-content: center; color: var(--parchment); border: 3px solid var(--gold-dark);
+  background: repeating-linear-gradient(45deg, #2a1b10 0 14px, #33210f 14px 28px);
+}
+.mu-card.back b { color: var(--gold); }
+
+/* the bosun's hand of questions */
+.mu-qs { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+.mu-q {
+  display: flex; flex-direction: column; gap: 2px; padding: 12px 16px 14px; text-align: left; color: var(--ink); font-size: 21px; line-height: 1.2;
+  background: var(--parchment); border: 0; border-radius: 12px 16px 12px 18px; box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.4), 0 5px 0 rgba(0, 0, 0, 0.35);
+}
+.mu-q small { font: 15px var(--display); letter-spacing: 0.05em; color: var(--red-dark); }
+.mu-q b { font-weight: 400; }
+.mu-q:active { transform: translateY(3px); box-shadow: inset 0 0 0 4px var(--red), 0 2px 0 rgba(0, 0, 0, 0.35); }
+.mu-q:disabled { opacity: 0.5; }
+.mu-q.own { align-items: center; color: var(--parchment); background: rgba(4, 16, 28, 0.65); box-shadow: inset 0 0 0 2px rgba(201, 239, 230, 0.35); border-radius: 14px; }
+.mu-link { background: none; border: 0; padding: 8px; font-size: 17px; font-style: italic; color: var(--foam); text-decoration: underline; }
+
+/* the question, and the two hands */
+.mu-ask { width: 100%; padding: 14px 16px 18px; border-radius: 14px 20px 14px 22px; background: var(--parchment); color: var(--ink); box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.4), 0 8px 18px rgba(0, 0, 0, 0.4); }
+.mu-ask small { display: block; font: 18px var(--display); letter-spacing: 0.05em; color: var(--red-dark); }
+.mu-ask b { font-weight: 400; font-size: 27px; line-height: 1.15; }
+.mu-two { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mu-hand {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 16px 6px 14px; border-radius: 18px; color: var(--ink);
+  background: linear-gradient(180deg, #ffe08a, var(--gold)); border: 2px solid var(--gold-dark); box-shadow: 0 6px 0 #7a4e0c;
+}
+.mu-hand span { font-size: 64px; line-height: 1.1; }
+.mu-hand b { font: 400 26px var(--display); letter-spacing: 0.02em; }
+.mu-hand.down { color: var(--parchment); background: linear-gradient(180deg, #35546b, #1c3447); border-color: #0d1f2c; box-shadow: 0 6px 0 #0a1721; }
+.mu-hand:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5); }
+.mu-hand:disabled { opacity: 0.5; }
+
+/* who to accuse, each with how they answered */
+.mu-key { width: 100%; margin: 0; padding: 8px 12px 10px; list-style: none; display: flex; flex-direction: column; gap: 3px; border-radius: 12px; background: rgba(4, 16, 28, 0.55); font-size: 15px; line-height: 1.2; text-align: left; color: var(--foam); }
+.mu-key b { display: inline-grid; place-items: center; width: 1.4em; height: 1.4em; margin-right: 4px; border-radius: 50%; background: var(--gold); color: var(--ink); font: 400 0.9em var(--display); }
+.mu-picks { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.mu-pick {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; font-size: 22px; text-align: left; color: var(--parchment);
+  background: rgba(4, 16, 28, 0.65); border: 3px solid rgba(201, 239, 230, 0.28); border-radius: 16px;
+}
+.mu-pick:active { transform: translateY(2px); border-color: var(--red); }
+.mu-pick:disabled { opacity: 0.45; }
+.mu-row { display: flex; gap: 3px; font-size: 17px; }
+.mu-row i { font-style: normal; width: 1.6em; height: 1.6em; display: grid; place-items: center; border-radius: 6px; line-height: 1; background: rgba(255, 255, 255, 0.08); }
+.mu-row .up { background: var(--red); }
+.mu-row .down { background: #25323f; }
+.mu-mine { font-size: 30px; }
+
+/* the Chameleon's one guess */
+.mu-words { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mu-words.crew { grid-template-columns: 1fr; }
+.mu-word-btn {
+  min-height: 58px; padding: 8px 10px; color: var(--ink); font-size: 19px; line-height: 1.15; overflow-wrap: anywhere;
+  background: var(--parchment); border: 0; border-radius: 10px 14px 10px 16px; box-shadow: inset 0 0 0 2px rgba(110, 75, 25, 0.4), 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+.mu-word-btn b { font-weight: 400; }
+.mu-word-btn:active { transform: translateY(3px); box-shadow: inset 0 0 0 4px var(--red), 0 1px 0 rgba(0, 0, 0, 0.35); }
+.mu-word-btn:disabled { opacity: 0.5; }

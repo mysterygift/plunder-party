@@ -150,6 +150,28 @@
       "port": 3960
     },
     {
+      "name": "mutiny-test",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=4010",
+        "SPEED=2",
+        "node",
+        "server.js"
+      ],
+      "port": 4010
+    },
+    {
+      "name": "mutiny-fast",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "PORT=4011",
+        "SPEED=10",
+        "node",
+        "server.js"
+      ],
+      "port": 4011
+    },
+    {
       "name": "cradle-test",
       "runtimeExecutable": "env",
       "runtimeArgs": [

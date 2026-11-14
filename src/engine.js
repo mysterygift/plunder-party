@@ -26,9 +26,10 @@ import * as brig from './games/brig.js';
 import * as lawyer from './games/lawyer.js';
 import * as parley from './games/parley.js';
 import * as bottle from './games/bottle.js';
+import * as mutiny from './games/mutiny.js';
 import * as cradle from './games/cradle.js';
 
-export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars, onepiece, knots, brig, lawyer, parley, bottle, cradle];
+export const GAMES = [broadside, scuttlebutt, colours, reckoning, bombard, liars, onepiece, knots, brig, lawyer, parley, bottle, mutiny, cradle];
 
 const AVATARS = ['🦜', '🐙', '🦀', '🦈', '🐬', '🐢', '🦑', '🐡', '🦞', '🐳', '🐒', '🦩'];
 const COLORS = ['#e4572e', '#17bebb', '#ffc914', '#76b041', '#b388eb', '#f78fb3', '#4ea8de', '#ff9f1c', '#5c6bc0', '#e56b6f', '#9bc53d', '#c9ada7'];

@@ -8,6 +8,7 @@ import { liarsScreens, liarsTap, liarsShown } from './liars-play.js';
 import { onePieceScreens, onePieceTap, onePieceShown } from './onepiece-play.js';
 import { knotsShown } from './knots-play.js';
 import { brigScreens, brigTap, brigShown } from './tb-play.js';
+import { mutinyScreens, mutinyTap, mutinyShown } from './mutiny-play.js';
 import { cradleScreens, cradleTap, cradleShown } from './cradle-play.js';
 import { FLAG_W, FLAG_H, CLOTHS, INKS, WIDTHS, ERASER, MAX_STROKES, MAX_POINTS, strokePath, strokesSvg, inkColor, flagTag } from './flag.js';
 
@@ -434,6 +435,7 @@ const screens = {
   ...onePieceScreens, // Find the One Piece: op-page, op-vote, op-roll, op-end (see onepiece-play.js)
   ...cradleScreens, // Cradle to Kraken: ck-* (see cradle-play.js)
   ...brigScreens, // To the Brig with Ye: tb-role, tb-wait, tb-pick, tb-nest, tb-helm, tb-brig (see tb-play.js)
+  ...mutinyScreens, // Mutiny: mu-card, mu-wait, mu-ask, mu-hands, mu-vote, mu-guess (see mutiny-play.js)
 
   gameover(v) {
     return `<div class="center">
@@ -497,6 +499,7 @@ function render(v) {
   liarsShown(v);
   onePieceShown(v);
   brigShown(v);
+  mutinyShown(v);
   if (cradleShown(v, screenEl, send)) return;
   const draft = typing && previous?.key === v.key ? { id: typing.id, value: typing.value } : null;
   screenEl.innerHTML = (screens[v.screen] ?? screens.wait)(v);
@@ -564,6 +567,7 @@ screenEl.addEventListener('click', async (e) => {
   if (act.startsWith('ld-')) return liarsTap(act, id, view, send);
   if (act.startsWith('op-')) return onePieceTap(act, id, view, send);
   if (act.startsWith('tb-')) return brigTap(act, id, view, send);
+  if (act.startsWith('mu-')) return mutinyTap(act, id, view, send);
   if (act.startsWith('ck-')) return cradleTap(act, el, view, send);
   if (busy) return;
   if (act === 'zoom-in') return map.zoomBy(0.55);
@@ -571,7 +575,9 @@ screenEl.addEventListener('click', async (e) => {
   if (act === 'choose') {
     busy = true;
     el.classList.add('chosen');
-    const result = await send({ type: 'choose', key: view.key, id: Number(id) });
+    // Send the option's own id back: most are numbers, but Parley's are player ids (strings).
+    const option = view.options?.find((o) => String(o.id) === id);
+    const result = await send({ type: 'choose', key: view.key, id: option ? option.id : Number(id) });
     if (result.error) busy = false;
     return;
   }

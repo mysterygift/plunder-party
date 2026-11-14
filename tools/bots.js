@@ -3,7 +3,7 @@
 //   npm run bots                  -> 4 bots join the lobby and play along
 //   npm run bots -- 6             -> 6 bots
 //   npm run bots -- 4 scuttlebutt -> 4 bots, and they start that game themselves
-//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots | brig | lawyer | parley | bottle | cradle)
+//                                    (broadside | scuttlebutt | colours | reckoning | bombard | liars | onepiece | knots | brig | lawyer | parley | bottle | mutiny | cradle)
 //
 // Start the server first (npm start). You can join on your own phone too:
 // the bots answer and vote, you play for real.
@@ -305,6 +305,49 @@ async function runBot(name, index) {
         await act({ type: 'tb-jail', key: view.key, id: vote?.id ?? 'nobody' });
         break;
       }
+      // Mutiny. Robots can't judge a dartboard, so the loyal ones share a made-up
+      // truth for each watchword and question (and still disagree about one time
+      // in five, like people do). The Chameleon tosses a coin. Then the loyal ones
+      // accuse whoever was the odd one out most often, more or less.
+      case 'mu-card':
+        if (view.ready) break;
+        await pause(1500, 5000);
+        await act({ type: 'mu-ready' });
+        break;
+      case 'mu-ask':
+        await pause(2000, 7000);
+        await act({ type: 'mu-pick', key: view.key, id: pick(view.cards).id });
+        break;
+      case 'mu-hands': {
+        if (view.mine !== null) break;
+        await pause(1200, 6000);
+        let up = Math.random() < 0.5;
+        if (!view.spy) {
+          const truth = [...`${view.word}|${view.question}`].reduce((n, ch) => (n * 31 + ch.codePointAt(0)) % 9973, 7) % 2 === 0;
+          up = Math.random() < 0.82 ? truth : !truth;
+        }
+        await act({ type: 'mu-hand', key: view.key, up });
+        break;
+      }
+      case 'mu-vote': {
+        if (view.mine) break;
+        await pause(3000, 14000);
+        const oddness = (o) => {
+          let score = Math.random() * 1.2;
+          view.questions.forEach((_, i) => {
+            const same = view.options.filter((x) => x.hands[i] === o.hands[i]).length;
+            if (o.hands[i] === null) score += 0.5;
+            else if (same * 2 < view.options.length) score += 1;
+          });
+          return score;
+        };
+        const target = view.spy ? pick(view.options) : [...view.options].sort((a, b) => oddness(b) - oddness(a))[0];
+        await act({ type: 'mu-accuse', key: view.key, id: target.id });
+        break;
+      }
+      case 'mu-guess':
+        await pause(2500, 9000);
+        await act({ type: 'mu-guess', key: view.key, id: pick(view.options).id });
       // Cradle to Kraken: spin, give orders, bet, vote, tell tales (well, press the button).
       case 'ck-calling':
         await pause(1500, 7000);

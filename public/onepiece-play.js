@@ -53,20 +53,22 @@ function vote(v) {
       <p class="op-kick">${esc(v.heading)}</p>
       <h1 class="op-h">${esc(v.ask || 'We resolved to…')}</h1>
       <div class="op-slips">${options}</div>
-      <p class="op-sub">${mine === null ? 'Tap one. Most votes wins.' : 'Vote cast. Tap another to change your mind.'}</p>
+      <p class="op-sub">${mine === null ? 'Tap one. Most votes wins, and the more of us agree, the more the roll is worth.' : 'Vote cast. Tap another to change your mind.'}</p>
     </div>
   </div>`;
 }
 
 function roll(v) {
   if (local.rollKey !== v.key) Object.assign(local, { rollKey: v.key, sent: false });
+  const boosted = v.boost > 1;
+  const times = boosted ? `×${v.boost.toFixed(2).replace(/0$/, '')}` : '';
   if (v.n === null) {
     return `<div class="center op-phone">
       <div class="op-leaf">
         <p class="op-kick">${esc(v.heading)}</p>
         <div class="op-die waiting">${dieBack()}</div>
         <button class="btn op-throw" data-act="op-roll" ${local.sent ? 'disabled' : ''}>${local.sent ? 'Rolling…' : 'Roll'}</button>
-        <p class="op-sub">The crew needs ${v.need} or better between us.</p>
+        <p class="op-sub">The crew needs ${v.need} or better between us.${boosted ? ` We were of one mind, so the dice count ${times}.` : ''}</p>
       </div>
     </div>`;
   }
@@ -79,7 +81,13 @@ function roll(v) {
       <p class="op-kick">${esc(v.heading)}</p>
       <div class="op-die">${dieTag(v.n, tumbling ? 'roll' : '', tumbling ? ` style="animation-delay:${-elapsed}ms"` : '')}</div>
       <h1 class="op-h">You rolled a ${v.n}</h1>
-      <p class="op-sub">${v.done ? `The crew rolled ${v.total}.` : `${v.total} so far, with ${v.count - v.rolled} still to roll. We need ${v.need}.`}</p>
+      <p class="op-sub">${
+        v.done
+          ? boosted
+            ? `The crew rolled ${v.sum}. Of one mind, ${times}: ${v.total}.`
+            : `The crew rolled ${v.total}.`
+          : `${v.sum} so far, with ${v.count - v.rolled} still to roll. We need ${v.need}${boosted ? `, and the dice count ${times}` : ''}.`
+      }</p>
     </div>
   </div>`;
 }
