@@ -40,6 +40,7 @@ export const KINDS = {
   sloop: { size: 2, label: 'sloop' },
   head: { size: 4, label: 'head' }, // the Kraken's head is a 2x2 block
   arm: { size: 0, label: 'tentacle' }, // arms come in several lengths
+  knob: { size: 1, label: 'knob' }, // a single tile of bonus: hitting it pays out, but you needn't, to win
 };
 
 const F = 'frigate';
@@ -76,7 +77,7 @@ export const HUNTS = {
   12: { lair: [9, 8], arms: [4, 4, 3, 3, 2, 2], sea: [6, 6], fleet: [F, B, B, S, S], strikes: 6, cunning: 0.6 },
 };
 
-const POINTS = { hit: 100, sink: 200, victory: 300, krakenHit: 150, sever: 250, slain: 500 };
+const POINTS = { hit: 100, sink: 200, victory: 300, krakenHit: 150, sever: 250, knob: 400, slain: 500 };
 
 const DEFAULT_NAMES = {
   pirates: ['The Soggy Biscuit', 'The Unwashed', 'Plank You Very Much', 'The Angry Haddock', 'Rum for Improvement', 'The Crusty Barnacle', 'The Wet Sock', 'Sea You Later'],
@@ -166,6 +167,8 @@ export function strike(board, tile) {
 }
 
 export const afloat = (board) => board.pieces.filter((p) => !p.sunk);
+/** The bits of Kraken that still have to go before it's dead. The knob is a bonus, not one of them. */
+const vitals = (board) => afloat(board).filter((p) => p.kind !== 'knob');
 const untouched = (board) => Array.from({ length: board.cols * board.rows }, (_, i) => i).filter((i) => !board.shots.has(i));
 const coord = (board, tile) => `${String.fromCharCode(65 + (tile % board.cols))}${Math.floor(tile / board.cols) + 1}`;
 
@@ -533,6 +536,8 @@ async function seaBattle(game, sides) {
       line.t = impact + 300;
       line.add({ type: 'banner', dur: 3400, tone: 'drink', side: target, text: `${enemy.name}, drink!`, sub: `${player.name} sank ${label}` });
       line.t += 3400;
+      // Their last ship just went down: the battle's over, so any guns still loaded stay quiet.
+      if (afloat(enemy.board).length === 0) break;
     }
     line.t += 1400;
 
@@ -602,7 +607,11 @@ async function krakenHunt(game) {
     name: 'The Kraken',
     icon: '🐙',
     crew: [],
-    board: makeBoard(plan.lair[0], plan.lair[1], [{ kind: 'head', size: 4, name: 'head' }, ...plan.arms.map((size) => ({ kind: 'arm', size, name: 'tentacle' }))]),
+    board: makeBoard(plan.lair[0], plan.lair[1], [
+      { kind: 'head', size: 4, name: 'head' },
+      ...plan.arms.map((size) => ({ kind: 'arm', size, name: 'tentacle' })),
+      { kind: 'knob', size: 1, name: 'knob' },
+    ]),
   };
   const sides = [fleet, beast];
   game.sides = sides;
@@ -616,8 +625,8 @@ async function krakenHunt(game) {
   await ctx.wait(12500);
 
   ctx.screen({
-    host: () => ({ ...scene(game, 2, sides), key: 'bb-2-rules', mode: 'brief', headline: 'Kill it before it sinks you', sub: 'It hits a ship: everyone drinks · It sinks a ship: someone is out' }),
-    player: () => ({ screen: 'wait', key: 'bb-2-rules', icon: '🐙', text: 'Find it in the fog', sub: 'It hits a ship: everyone drinks. It sinks one: somebody’s out.' }),
+    host: () => ({ ...scene(game, 2, sides), key: 'bb-2-rules', mode: 'brief', headline: 'Kill it before it sinks you', sub: 'It hits a ship: everyone drinks · It sinks a ship: someone is out · Find its knob for bonus doubloons' }),
+    player: () => ({ screen: 'wait', key: 'bb-2-rules', icon: '🐙', text: 'Find it in the fog', sub: 'It hits a ship: everyone drinks. It sinks one: somebody’s out. It has a knob somewhere: hit it for a bonus.' }),
   });
   await ctx.wait(9000);
 
@@ -634,6 +643,7 @@ async function krakenHunt(game) {
     line.before = before;
     let severed = 0;
     let hits = 0;
+    let knobbed = null; // whoever found the knob this round
 
     // --- the crew's guns ---
     for (const shot of shots) {
@@ -645,6 +655,15 @@ async function krakenHunt(game) {
       line.t += shotMs;
       if (!result.hit) {
         line.tell(player, impact, { icon: '💦', text: `${where}: just water`, sub: 'No harm done. Keep looking.', tone: 'plain' });
+        continue;
+      }
+      if (result.part.kind === 'knob') {
+        knobbed = player;
+        ctx.award(player, POINTS.knob);
+        line.tell(player, impact, { icon: '🎯', text: `${where}: you found its knob!`, sub: `+${POINTS.knob} doubloons. It didn’t like that one bit.`, tone: 'good' });
+        line.t = impact + 300;
+        line.add({ type: 'banner', dur: 2600, tone: 'good', text: 'Right on the knob!', sub: `${player.name} gets ${POINTS.knob} bonus doubloons` });
+        line.t += 2600;
         continue;
       }
       hits++;
@@ -660,9 +679,10 @@ async function krakenHunt(game) {
       line.t = impact + 300;
       line.add({ type: 'banner', dur: 2600, tone: 'good', text: result.sunk.kind === 'head' ? 'Right between the eyes!' : 'Tentacle severed!', sub: `${player.name} finished off ${what}` });
       line.t += 2600;
+      if (vitals(beast.board).length === 0) break; // the last of it is gone: no need to fire the rest
     }
 
-    const slain = afloat(beast.board).length === 0;
+    const slain = vitals(beast.board).length === 0;
     const drowned = [];
     let swigsAll = 0;
 
@@ -714,7 +734,7 @@ async function krakenHunt(game) {
     await playVolley(game, 2, sides, round, line, { headline: 'Fire!', sub: 'Find its head and its arms' });
 
     const shipsLeft = afloat(fleet.board).length;
-    const armsLeft = afloat(beast.board).length;
+    const armsLeft = vitals(beast.board).length;
     const over = slain || shipsLeft === 0 || quiet >= 2;
     ctx.screen({
       host: () => ({
@@ -722,7 +742,7 @@ async function krakenHunt(game) {
         key: `bb-2-${round}-after`,
         mode: 'after',
         round,
-        headline: drowned.length ? `${listNames(drowned.map((d) => d.player))} lost at sea` : severed ? `${plural(severed, 'piece')} of Kraken gone` : hits ? 'It’s wounded' : 'It’s still out there',
+        headline: drowned.length ? `${listNames(drowned.map((d) => d.player))} lost at sea` : knobbed ? `${knobbed.name} found its knob!` : severed ? `${plural(severed, 'piece')} of Kraken gone` : hits ? 'It’s wounded' : 'It’s still out there',
         sub: `${plural(armsLeft, 'piece')} of Kraken left · ${plural(shipsLeft, 'ship')} afloat`,
       }),
       player: (p) =>
