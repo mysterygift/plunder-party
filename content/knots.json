@@ -8,12 +8,18 @@
     "scramble": 45,
     "cutoff": 20,
     "countdown": 3,
-    "rules": 7,
     "crews": 12,
     "table": 8,
     "muster": 15,
     "lock": 1,
     "fuse": 8
+  },
+
+  "waves": {
+    "questions": 4,
+    "seconds": 16,
+    "breather": 5,
+    "scramble": false
   },
 
   "wind": {

@@ -61,6 +61,11 @@ let current = null; // the latest view
 
 const tweens = new Set();
 const cam = { target: new THREE.Vector3(0, 0, 0.2), dist: 30, elevation: 1.04 };
+// Between waves of questions the camera swoops down on the leader, then pulls back out when the next wave starts.
+// `k` runs 0 (the whole table) to 1 (close in); `at` follows the leading ship.
+const swoop = { k: 0, at: new THREE.Vector3(0, 0, 0.2) };
+const SWOOP_IN = 1.8; // seconds to get there
+const SWOOP_OUT = 0.9; // and to get back, quicker, as the questions are already on the phones
 
 // The island's moving parts.
 let castaway = null;
@@ -71,7 +76,7 @@ let nextSmoke = 0;
 let nextBolt = 6;
 
 // The race as this screen understands it.
-const race = { key: null, kind: null, clock: 0, rate: 0, motion: null, goal: null, lastEvent: 0, phase: null, count: null, order: '' };
+const race = { key: null, kind: null, clock: 0, rate: 0, motion: null, goal: null, lastEvent: 0, phase: null, count: null, order: '', breather: false };
 let fleet = []; // every ship (or rowing boat) on the water
 const fleetById = new Map();
 const balls = new Set(); // cannonballs in the air
@@ -214,11 +219,10 @@ function init() {
       <div class="kn-heckles"></div>
       <div class="kn-ticker" hidden></div>
       <div class="kn-big" hidden></div>
-      <div class="kn-rules parch" hidden></div>
       <div class="kn-banner" hidden><b></b><span></span></div>
     </div>`;
   document.getElementById('stage').before(layer);
-  for (const name of ['top', 'tags', 'callouts', 'cards', 'heckles', 'ticker', 'big', 'rules', 'banner']) ui[name] = layer.querySelector(`.kn-${name}`);
+  for (const name of ['top', 'tags', 'callouts', 'cards', 'heckles', 'ticker', 'big', 'banner']) ui[name] = layer.querySelector(`.kn-${name}`);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.shadowMap.enabled = true;
@@ -729,6 +733,8 @@ function fit() {
   const v = new THREE.Vector3();
   cam.dist = 30;
   cam.target.set(0, 0, 0.2);
+  const k = swoop.k;
+  swoop.k = 0; // frame the whole table; the swoop is measured from there
   for (let i = 0; i < 40; i++) {
     aimCamera();
     let lo = Infinity;
@@ -744,11 +750,16 @@ function fit() {
     cam.dist *= 1 + (grow - 1) * 0.8;
     cam.target.z -= (((hi + lo) / 2 - (top + bottom) / 2) * cam.dist) / 5.5;
   }
+  swoop.k = k;
   aimCamera();
 }
 
+const aimAt = new THREE.Vector3();
 function aimCamera(jx = 0, jy = 0) {
-  const { target, dist, elevation } = cam;
+  const e = swoop.k * swoop.k * (3 - 2 * swoop.k); // ease in and out
+  const target = aimAt.copy(cam.target).lerp(swoop.at, e * 0.75);
+  const dist = cam.dist * (1 - 0.5 * e);
+  const elevation = cam.elevation - 0.3 * e; // and a little lower, to see the sails side on
   camera.position.set(target.x + jx, target.y + Math.sin(elevation) * dist + jy, target.z + Math.cos(elevation) * dist);
   camera.lookAt(target.x + jx * 0.6, target.y, target.z);
   camera.updateMatrixWorld();
@@ -953,7 +964,7 @@ function setFleet(key, kind, ships) {
     const tag = document.createElement('div');
     tag.className = `kn-tag ${boats ? 'boat' : ''}`;
     const crewChips = s.crew.map((id) => chipHtml(id, false)).join('');
-    tag.innerHTML = boats ? chipHtml(s.crew[0], true) : `<b></b><span>${esc(s.name)}</span>`;
+    tag.innerHTML = `${boats ? chipHtml(s.crew[0], true) : `<b></b><span>${esc(s.name)}</span>`}<i class="kn-ask" aria-hidden="true">👀</i>`;
     tag.style.setProperty('--sail', scheme.sail);
     ui.tags.append(tag);
 
@@ -1387,6 +1398,12 @@ function act(e) {
       sound.play('knLead', { level: 0.7 });
       ruckus('lead', ship);
       break;
+    case 'breather':
+      ticker('👀 Phones down, eyes up!');
+      break;
+    case 'wave':
+      sound.play('knBeep', { level: 0.5 });
+      break;
     case 'lastlap':
       banner('Last lap!', '', 'bell', 2.2);
       sound.play('knBell');
@@ -1416,6 +1433,7 @@ function sync(v) {
   race.rate = live ? v.rate : 0;
   race.motion = v.motion;
   race.goal = v.goal;
+  race.breather = live && !!v.breather;
   const leaderPos = Math.max(...v.ships.map((s) => s.pos));
   let ticks = 0;
   for (const s of v.ships) {
@@ -1430,6 +1448,7 @@ function sync(v) {
     b.sim = snap;
     b.place = s.place;
     b.roll = s.roll;
+    b.tag.classList.toggle('asking', !!s.asking); // this crew still has questions on their phones
     if (s.right > b.right) {
       ticks += s.right - b.right;
       b.gust = 1;
@@ -1480,11 +1499,6 @@ function showRace(v) {
 
   // The words.
   ui.top.querySelector('b').textContent = v.kind === 'scramble' ? 'The Scramble' : `Race ${v.n} of ${v.of}`;
-  ui.rules.hidden = v.phase !== 'rules';
-  if (v.phase === 'rules' && !ui.rules.dataset.done) {
-    ui.rules.dataset.done = '1';
-    ui.rules.innerHTML = `<h2>The Scramble</h2><p>Every pirate for themselves. ${Math.round(v.limit)} seconds: row as far as you can.</p><ol>${v.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ol>`;
-  }
   if (v.phase !== race.phase || v.count !== race.count) {
     const went = race.phase === 'ready' && v.phase === 'go';
     if (v.phase === 'ready' && v.count > 0) {
@@ -1678,6 +1692,15 @@ function frame(now) {
     puff(fire.at.clone(), { colour: 0xe6e1d8, size: rand(0.16, 0.26), rise: rand(2.2, 3), life: rand(2.4, 3.2), drift: new THREE.Vector3(rand(0.3, 0.7), rand(2.2, 3), rand(-0.2, 0.2)) });
   }
 
+  // Swoop in on the leader between waves (see `swoop`).
+  const into = race.breather && fleet.length > 0;
+  swoop.k = clamp(swoop.k + (into ? dt / SWOOP_IN : -dt / SWOOP_OUT), 0, 1);
+  if (into) {
+    const racing = fleet.filter((b) => b.sim.done == null);
+    const lead = (racing.length ? racing : fleet).reduce((a, b) => (b.sim.pos + b.slip > a.sim.pos + a.slip ? b : a));
+    swoop.at.lerp(tmp.copy(lead.group.position).setY(0.3), swoop.k < 0.05 ? 1 : Math.min(1, dt * 3));
+  }
+
   // A slow drift of the camera, plus whatever the guns have shaken loose.
   shake *= Math.max(0, 1 - dt * 5);
   aimCamera(Math.sin(time * 0.21) * 0.22 + rand(-1, 1) * shake, rand(-1, 1) * shake);
@@ -1748,8 +1771,8 @@ export function show(view, playerMap) {
 
   // Between races the model carries on behind the sheet, with nobody racing.
   race.rate = 0;
+  race.breather = false;
   ui.big.hidden = true;
-  ui.rules.hidden = true;
   if (view.screen === 'kn-crews' && race.key !== 'kn-crews') {
     lit.name = 'morning';
     setFleet('kn-crews', 'race', view.ships.map((s) => ({ ...s, pos: 0 })));
@@ -1777,9 +1800,8 @@ export function hide() {
   ui.banner.hidden = true;
   ui.ticker.hidden = true;
   ui.big.hidden = true;
-  ui.rules.hidden = true;
-  delete ui.rules.dataset.done;
-  Object.assign(race, { key: null, kind: null, clock: 0, rate: 0, motion: null, goal: null, lastEvent: 0, phase: null, count: null, order: '' });
+  Object.assign(race, { key: null, kind: null, clock: 0, rate: 0, motion: null, goal: null, lastEvent: 0, phase: null, count: null, order: '', breather: false });
+  swoop.k = 0;
   lit.name = 'morning';
   current = null;
 }

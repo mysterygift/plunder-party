@@ -1,8 +1,11 @@
 // KNOT SO FAST - a quick-fire trivia regatta.
 //
-// Crews of two or three sail a ship round a desert island. Questions fire onto
-// every phone with no pause: a right answer fills the sails, a wrong one spills
-// some wind and locks the phone for a second. Now and then a ship is dealt a
+// Crews of two or three sail a ship round a desert island. Questions come onto
+// every phone in quick waves: a right answer fills the sails, a wrong one spills
+// some wind and locks the phone for a second. Once a phone has answered its
+// wave it tells its owner to watch the telly, and when every phone is done (or
+// the wave runs out of time) there's a short breather while the TV camera
+// swoops in on the leader. That way the room actually sees the race. Now and then a ship is dealt a
 // gold "powder" question, and a right answer to that fires a cannon at the
 // ship one place ahead.
 //
@@ -40,8 +43,6 @@ const PAINTS = 6; // paint schemes for ships (see public/knots-host.js)
 
 const DEFAULT_SHIPS = ['The Wet Sock', 'The Soggy Biscuit', 'Rum for Improvement', 'The Angry Haddock', 'Plank You Very Much', 'Sea You Later', 'The Crusty Barnacle', 'HMS Oops'];
 
-const RULES = ['Tap the right answer. Right answers fill your sails.', 'A wrong answer spills your wind and costs you a second.', 'A gold question loads your cannon. Get it right to fire at the ship in front.'];
-
 const ordinal = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th')}`;
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const round = (n, places = 2) => Math.round(n * 10 ** places) / 10 ** places;
@@ -53,6 +54,7 @@ function settings(raw = {}) {
   const w = raw.wind ?? {};
   const p = raw.powder ?? {};
   const s = raw.seconds ?? {};
+  const wv = raw.waves ?? {};
   return {
     races: Math.round(num(raw.races, 3, 1, 9)),
     laps: Math.round(num(raw.laps, 3, 1, 20)),
@@ -63,6 +65,10 @@ function settings(raw = {}) {
     countdown: Math.round(num(s.countdown, 3, 1, 10)),
     lock: num(s.lock, 1, 0, 10),
     fuse: num(s.fuse, 8, 2, 60),
+    waveQuestions: Math.round(num(wv.questions, 4, 0, 50)), // 0: no waves, questions non-stop
+    waveSeconds: num(wv.seconds, 16, 3, 120),
+    breather: num(wv.breather, 5, 0, 30),
+    scrambleWaves: wv.scramble === true,
     motion: {
       lap: num(w.lap, MOTION.lap, 10),
       drift: num(w.drift, MOTION.drift, 0.05),
@@ -161,13 +167,19 @@ export async function run(ctx) {
   const sailors = new Map(
     ctx.players.map((p) => [
       p,
-      { p, id: p.id, deal: dealerFor(p), out: [], nextId: 1, streak: 0, best: 0, right: 0, wrong: 0, times: [], hits: 0, nextOk: 0, powder: null, notice: null, boat: null, rowed: 0 },
+      { p, id: p.id, deal: dealerFor(p), out: [], quota: Infinity, nextId: 1, streak: 0, best: 0, right: 0, wrong: 0, times: [], hits: 0, nextOk: 0, powder: null, notice: null, boat: null, rowed: 0 },
     ]),
   );
   const tell = (s, text, tone = '') => (s.notice = { id: ++noticeId, text, tone });
+  /** Keep a phone's hand full, as far as this wave allows. */
   const topUp = (s) => {
-    while (s.out.length < HAND) s.out.push({ id: s.nextId++, ...s.deal() });
+    while (s.out.length < HAND && s.quota > 0) {
+      s.out.push({ id: s.nextId++, ...s.deal() });
+      s.quota--;
+    }
   };
+  /** Still answering this wave? (The hand is only empty once the wave's questions are all dealt and answered.) */
+  const stillGoing = (s) => s.out.length > 0 && !s.p.away && s.boat?.done == null;
   const awake = (v) => v.crew.filter((s) => !s.p.away).length || v.crew.length;
   const rolling = (s) => s.streak > S.rollAfter;
 
@@ -250,7 +262,8 @@ export async function run(ctx) {
         s.powder = null;
         fizzle(v, s, 'Too slow: the fuse went out.');
       } else {
-        s.powder.deal = s.out[0].id; // the phone had already moved past it: make it the next one instead
+        if (s.out.length) s.powder.deal = s.out[0].id; // the phone had already moved past it: make it the next one instead
+        else s.powder = null; // ...unless that was the last question of the wave
       }
     }
     R.dirty = true;
@@ -275,6 +288,12 @@ export async function run(ctx) {
 
     for (let i = R.balls.length - 1; i >= 0; i--) {
       if (R.clock >= R.balls[i].land) landBall(R.balls.splice(i, 1)[0]);
+    }
+
+    if (R.waves) {
+      const w = R.wave;
+      if (w.on && (R.clock >= w.until || ![...sailors.values()].some(stillGoing))) endWave();
+      else if (!w.on && R.clock >= w.until) startWave();
     }
 
     const order = inOrder(R.vessels);
@@ -308,6 +327,31 @@ export async function run(ctx) {
 
     const everyoneHome = R.vessels.every((v) => v.done != null);
     if (everyoneHome || (R.cutoffAt != null && R.clock >= R.cutoffAt) || (R.limit && R.clock >= R.limit)) endRace();
+  }
+
+  /** Deal everyone a fresh wave of questions. With waves off there is just the one, and it never ends. */
+  function startWave() {
+    const w = R.wave;
+    w.n++;
+    w.on = true;
+    w.until = R.clock + S.waveSeconds;
+    for (const s of sailors.values()) {
+      s.out = [];
+      s.quota = R.waves || Infinity;
+      topUp(s);
+    }
+    if (w.n > 1) event('wave', { n: w.n });
+    R.dirty = true;
+  }
+
+  /** Phones down, eyes up: a few seconds of just sailing before the next wave. */
+  function endWave() {
+    const w = R.wave;
+    w.on = false;
+    w.until = R.clock + S.breather;
+    for (const s of sailors.values()) Object.assign(s, { out: [], quota: 0, powder: null });
+    event('breather', { n: w.n });
+    R.dirty = true;
   }
 
   function endRace() {
@@ -354,7 +398,6 @@ export async function run(ctx) {
       laps: S.laps,
       phase: R.phase,
       count: R.count,
-      rules: R.phase === 'rules' ? RULES : null,
       light: R.light,
       clock: round(R.clock, 3),
       at: R.tickedAt,
@@ -377,7 +420,9 @@ export async function run(ctx) {
         place: v.place,
         right: v.answers,
         roll: v.crew.some(rolling),
+        asking: R.waves > 0 && R.wave.on && R.phase === 'go' && v.crew.some(stillGoing),
       })),
+      breather: R.waves > 0 && !R.wave.on && R.phase === 'go',
       events: R.events,
     };
   }
@@ -390,6 +435,8 @@ export async function run(ctx) {
     const ahead = order[i - 1];
     const behind = order[i + 1];
     const holder = v.crew.find((c) => c !== s && c.powder);
+    // Between waves, or done with this one: the phone says to watch the telly.
+    const rest = R.waves && R.phase === 'go' && v.done == null ? (!R.wave.on ? 'breather' : s.out.length ? null : 'done') : null;
     return {
       screen: 'kn-race',
       key: R.key,
@@ -398,8 +445,10 @@ export async function run(ctx) {
       of: S.races,
       phase: R.phase,
       count: R.count,
-      rules: R.phase === 'rules' ? RULES : null,
-      hand: R.phase === 'go' && v.done == null ? s.out : [],
+      hand: R.phase === 'go' && v.done == null && !rest ? s.out : [],
+      wave: R.wave.n,
+      rest,
+      still: rest === 'done' ? [...sailors.values()].filter(stillGoing).map((c) => c.p.name) : null,
       powder: s.powder?.deal ?? null,
       mate: holder ? holder.p.name : null,
       ship: v.name,
@@ -422,23 +471,19 @@ export async function run(ctx) {
 
   /** Run one race from the countdown to the last ship home. */
   async function sail({ kind, n, vessels, cannons, goal, limit, light }) {
-    R = { key: `kn-${kind}-${n}`, kind, n, phase: kind === 'scramble' ? 'rules' : 'ready', count: 0, clock: 0, tickedAt: Date.now(), pushedAt: 0, dirty: false, vessels, cannons, goal, limit, light, cutoffAt: null, home: 0, balls: [], events: [], eventId: 0, leader: null, lastLap: false };
+    R = { key: `kn-${kind}-${n}`, kind, n, phase: 'ready', count: 0, clock: 0, tickedAt: Date.now(), pushedAt: 0, dirty: false, vessels, cannons, goal, limit, light, cutoffAt: null, home: 0, balls: [], events: [], eventId: 0, leader: null, lastLap: false, waves: kind === 'scramble' && !S.scrambleWaves ? 0 : S.waveQuestions, wave: { n: 0, on: false, until: 0 } };
     for (const v of vessels) {
       Object.assign(v, { pos: v.head, wind: 0, holedUntil: -1, safeUntil: -1, done: null, place: null, holes: 0, nextPowder: rand(S.powderFirst[0], S.powderFirst[1] ?? S.powderFirst[0]) });
-      for (const s of v.crew) Object.assign(s, { boat: v, out: [], streak: 0, powder: null, notice: null });
+      for (const s of v.crew) Object.assign(s, { boat: v, out: [], quota: 0, streak: 0, powder: null, notice: null });
     }
     ctx.screen({ host: hostRace, player: playerRace, onAction: onAnswer });
-    if (R.phase === 'rules') {
-      await ctx.wait(ctx.seconds('rules', 7));
-      R.phase = 'ready';
-    }
     for (R.count = S.countdown; R.count > 0; R.count--) {
       ctx.update();
       await ctx.wait(1000);
     }
 
-    for (const s of sailors.values()) topUp(s);
     R.phase = 'go';
+    startWave();
     R.tickedAt = Date.now();
     if (limit) ctx.startClock(limit * 1000);
     ctx.update();
@@ -454,6 +499,22 @@ export async function run(ctx) {
     await ctx.wait(kind === 'scramble' ? 2500 : 3500);
     return inOrder(vessels);
   }
+
+  // ----- the rules, on a screen of their own like every other game -----
+
+  const berths = [...new Set(crewSizes(ctx.players.length, S.trios))].sort();
+  const alone = berths[0] === 1;
+  const crewOf = berths.map((n) => ['', 'one', 'two', 'three', 'four', 'five'][n] ?? n).join(' or ');
+  const races = S.races === 1 ? 'one race' : `${S.races} races`;
+  const double = S.races > 1 && S.finalTimes > 1 ? ` The last one pays ${S.finalTimes === 2 ? 'double' : `${S.finalTimes} times over`}.` : '';
+  await ctx.intro([
+    S.waveQuestions ? 'Questions come to your phone in quick waves. Right answers fill your sails.' : 'Questions fire onto your phone non-stop. Right answers fill your sails.',
+    'A wrong answer spills some wind and costs you a second.',
+    'A gold question loads your cannon: get it right to fire at the ship in front.',
+    ...(S.waveQuestions ? ['Done your wave? Eyes on the telly till the next one.'] : []),
+    ...(S.scramble ? [`First, the Scramble: ${Math.round(S.scrambleSeconds)} seconds${S.waveQuestions && !S.scrambleWaves ? ' non-stop' : ''}, every pirate for themselves.`] : []),
+    (alone ? `Then ${races} round the island.` : `Then crews of ${crewOf}, for ${races} round the island.`) + double,
+  ]);
 
   // ----- 1. the Scramble -----
 

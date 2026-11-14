@@ -9,18 +9,20 @@ body[data-screen='kn-race'] #me .score { display: none; }
   flex: 1; min-height: 0; min-width: 0; position: relative; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 9px;
   padding: 10px 12px calc(12px + env(safe-area-inset-bottom)); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
 }
+/* Everything sits in the one column. Without this the cover (which overlaps the card) pushes the card and answers into a second column that squeezes the first to nothing. */
+.kn > * { grid-column: 1; }
 .kn-strip { grid-row: 1; }
 .kn-card { grid-row: 2; }
 .kn-mate { grid-row: 3; }
 .kn-answers { grid-row: 4; }
-.kn-over { grid-row: 2 / span 3; grid-column: 1; }
+.kn-over { grid-row: 2 / span 3; }
 
 /* --- the strip: place, lap, wind, and who to catch --- */
 .kn-strip {
   position: relative; padding: 7px 12px 8px; border-radius: 14px; background: rgba(4, 14, 24, 0.6);
   border: 2px solid rgba(201, 239, 230, 0.22); border-left: 8px solid var(--sail, var(--gold));
 }
-.kn-row { display: flex; align-items: baseline; gap: 7px; }
+.kn-line { display: flex; align-items: baseline; gap: 7px; }
 .kn-place { flex: none; white-space: nowrap; }
 .kn-place b { font: 400 34px/1 var(--display); color: var(--gold); }
 .kn-place small { font-size: 15px; color: var(--foam); }
@@ -30,6 +32,8 @@ body[data-screen='kn-race'] #me .score { display: none; }
 .kn-wind { height: 12px; margin: 6px 0 5px; border-radius: 6px; overflow: hidden; background: rgba(255, 255, 255, 0.13); }
 .kn-wind i { display: block; height: 100%; width: 0; border-radius: 6px; background: linear-gradient(90deg, var(--foam), #fff7d6 60%, var(--gold)); transition: width 0.35s ease-out; }
 .kn-gap { margin: 0; min-height: 1.2em; font-size: 15px; line-height: 1.2; color: var(--foam); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Over the line, the wind and the gap mean nothing: just your place. */
+.kn.home .kn-wind, .kn.home .kn-gap { display: none; }
 .kn-strip.up { animation: kn-up 0.7s ease-out; }
 .kn-strip.down { animation: kn-down 0.7s ease-out; }
 @keyframes kn-up { 0% { background: #2f8f4c; scale: 1.03; } }
@@ -92,6 +96,8 @@ body[data-screen='kn-race'] #me .score { display: none; }
 .kn-count { font: 400 150px/1 var(--display); color: var(--gold); text-shadow: 0 6px 0 #7a4e0c, 0 12px 30px rgba(0, 0, 0, 0.5); animation: kn-count 0.9s ease-out; }
 @keyframes kn-count { from { scale: 1.7; opacity: 0.2; } }
 .kn-flag { font-size: 84px; line-height: 1; }
+.kn-eyes { animation: kn-eyes 2.4s ease-in-out infinite; }
+@keyframes kn-eyes { 0%, 100% { translate: 0 0; } 25% { translate: -10px -4px; } 60% { translate: 10px -4px; } }
 
 /* ============ the big screen ============ */
 
@@ -122,6 +128,14 @@ body[data-screen^='kn-'] #backdrop { display: none; }
 .kn-tag b { display: grid; place-items: center; width: 1.25em; height: 1.25em; border-radius: 50%; font-weight: 400; color: var(--ink); background: var(--sail, var(--gold)); }
 .kn-tag.boat { padding: 0.08em 0.5em 0.08em 0.08em; font-size: 1.7em; border-color: rgba(201, 239, 230, 0.3); }
 .kn-tag.holed { border-color: var(--red); background: rgba(110, 22, 16, 0.95); }
+/* 👀 over a ship whose crew still has questions on their phones this wave. */
+.kn-ask {
+  display: none; position: absolute; left: 50%; bottom: 100%; translate: -50% 0; margin-bottom: 0.45em; padding: 0.12em 0.32em 0.16em; border-radius: 0.6em;
+  font-size: 1.7em; font-style: normal; line-height: 1; background: var(--parchment); border: 0.06em solid var(--sail, var(--gold)); box-shadow: 0 0.12em 0.35em rgba(0, 0, 0, 0.55);
+}
+.kn-ask::after { content: ''; position: absolute; left: 50%; top: 100%; translate: -50% -0.04em; border: 0.22em solid transparent; border-top-color: var(--parchment); }
+.kn-tag.asking .kn-ask { display: block; animation: kn-ask 0.9s ease-in-out infinite alternate; }
+@keyframes kn-ask { from { translate: -50% 0; } to { translate: -50% -0.22em; } }
 
 /* --- notes that pop up over a ship --- */
 .kn-callout {
@@ -203,17 +217,12 @@ body[data-screen^='kn-'] #backdrop { display: none; }
 @keyframes kn-heckle { 0% { opacity: 0; scale: 0.3; } 7% { opacity: 1; scale: 1.12; } 12% { scale: 1; } 82% { opacity: 1; } 100% { opacity: 0; scale: 0.9; } }
 #knLayer:not([data-screen='kn-race']) .kn-heckles { display: none; }
 
-/* --- the countdown, the rules, and the banner --- */
+/* --- the countdown and the banner --- */
 .kn-big {
   position: absolute; left: 50%; top: 46%; translate: -50% -50%; font: 400 42em/1 var(--display); color: var(--gold);
   text-shadow: 0 0.04em 0 #7a4e0c, 0 0.1em 0.3em rgba(0, 0, 0, 0.7); animation: kn-bigpop 0.9s cubic-bezier(0.2, 1.3, 0.4, 1) both;
 }
 @keyframes kn-bigpop { from { opacity: 0; scale: 2; } 60% { opacity: 1; } }
-.kn-rules { position: absolute; left: 50%; top: 45%; translate: -50% -50%; width: 104em; padding: 3em 4.4em 3.4em; animation: kn-bigpop 0.5s ease-out both; }
-.kn-rules h2 { margin: 0; font: 400 7em/1 var(--display); color: var(--red-dark); }
-.kn-rules p { margin: 0.3em 0 0; font-size: 3.4em; font-style: italic; }
-.kn-rules ol { margin: 0.5em 0 0; padding-left: 1.3em; font-size: 3.7em; line-height: 1.22; }
-.kn-rules li + li { margin-top: 0.3em; }
 .kn-banner { position: absolute; left: 0; right: 0; top: 30%; text-align: center; animation: kn-bigpop 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) both; }
 .kn-banner b { display: block; font: 400 15em/1.05 var(--display); color: var(--gold); text-shadow: 0 0.04em 0 #7a4e0c, 0 0.1em 0.2em rgba(0, 0, 0, 0.7); }
 .kn-banner span { display: block; font: italic 4.6em var(--body); color: var(--parchment); text-shadow: 0 0.06em 0.2em rgba(0, 0, 0, 0.8); }

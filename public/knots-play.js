@@ -1,5 +1,6 @@
 // Knot So Fast on the phones: one question, four big answers, and a thin strip
-// saying where you are in the race.
+// saying where you are in the race. Questions come in waves; between them the
+// phone covers up and tells you to watch the telly.
 //
 // This screen is built for speed, so it works differently from the others:
 //   * The server sends the next few questions ahead of time, with the right
@@ -42,6 +43,7 @@ const L = {
   noticeId: 0,
   noticeTimer: null,
   place: null,
+  wave: 0, // which wave of questions the queue belongs to
 };
 
 const $ = (sel) => L.root?.querySelector(sel);
@@ -49,7 +51,7 @@ const $ = (sel) => L.root?.querySelector(sel);
 function build(el, v) {
   el.innerHTML = `<div class="kn" data-kind="${esc(v.kind)}" style="--sail:${PAINTS[v.paint % PAINTS.length].sail}">
     <div class="kn-strip">
-      <div class="kn-row"><span class="kn-place"><b></b><small></small></span><span class="kn-ship"></span><span class="kn-lap"></span></div>
+      <div class="kn-line"><span class="kn-place"><b></b><small></small></span><span class="kn-ship"></span><span class="kn-lap"></span></div>
       <div class="kn-wind"><i></i></div>
       <p class="kn-gap"></p>
       <p class="kn-toast" hidden></p>
@@ -59,7 +61,7 @@ function build(el, v) {
     <div class="kn-answers">${[0, 1, 2, 3].map((i) => `<button class="kn-a" data-kn="${i}"><span></span></button>`).join('')}</div>
     <div class="kn-over" hidden></div>
   </div>`;
-  Object.assign(L, { key: v.key, root: el.firstElementChild, queue: [], seen: 0, asked: null, locked: false, place: null, noticeId: v.notice?.id ?? 0 });
+  Object.assign(L, { key: v.key, root: el.firstElementChild, queue: [], seen: 0, asked: null, locked: false, place: null, wave: v.wave ?? 0, noticeId: v.notice?.id ?? 0 });
   clearTimeout(L.fuse);
 }
 
@@ -160,11 +162,10 @@ function toast(notice) {
   L.noticeTimer = setTimeout(() => (el.hidden = true), 2200);
 }
 
-/** What covers the question when there isn't one to answer: the rules, the countdown, the finish. */
+const names = (list) => (list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : list[0]);
+
+/** What covers the question when there isn't one to answer: the countdown, the finish, the gap between waves. */
 function overlay(v) {
-  if (v.phase === 'rules') {
-    return `<h2>The Scramble</h2><p class="kn-lead">Every pirate for themselves. Row as far as you can.</p><ol>${v.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ol>`;
-  }
   if (v.phase === 'ready') {
     const who = v.kind === 'scramble' ? 'Thumbs ready…' : v.mates.length ? `Aboard <b>${esc(v.ship)}</b> with ${v.mates.map(esc).join(' and ')}` : `Aboard <b>${esc(v.ship)}</b>`;
     return `<p class="kn-lead">${who}</p><div class="kn-count">${v.count || 'GO!'}</div>`;
@@ -172,6 +173,10 @@ function overlay(v) {
   if (v.done != null) {
     const head = v.kind === 'scramble' ? 'Oars down!' : v.done === 1 ? 'You won!' : 'Home!';
     return `<div class="kn-flag">${v.done === 1 ? '🏆' : '🏁'}</div><h2>${head}</h2><p class="kn-lead">${ordinal(v.done)} of ${v.ships}${v.phase === 'over' ? '' : '. Shout at the others.'}</p>`;
+  }
+  if (v.rest) {
+    const still = v.still?.length ? `Waiting on ${esc(names(v.still.slice(0, 3)))}${v.still.length > 3 ? ' and co' : ''}…` : 'Next wave in a moment…';
+    return `<div class="kn-flag kn-eyes">👀</div><h2>Eyes on the telly!</h2><p class="kn-lead">${still}</p>`;
   }
   return null;
 }
@@ -201,6 +206,7 @@ export function knotsShown(v, el, send) {
   $('.kn-gap').textContent = v.gap ? `${v.gap.leagues} league${v.gap.leagues === 1 ? '' : 's'} ${v.gap.dir} ${v.gap.name}` : '';
   L.root.classList.toggle('holed', !!v.holed);
   L.root.classList.toggle('rolling', !!v.roll);
+  L.root.classList.toggle('home', v.done != null);
   if (L.place != null && v.place !== L.place && v.phase === 'go') {
     const strip = $('.kn-strip');
     strip.classList.remove('up', 'down');
@@ -216,10 +222,18 @@ export function knotsShown(v, el, send) {
   mate.hidden = !v.mate;
   if (v.mate) mate.textContent = `🧨 ${v.mate} has the powder question. Help them!`;
 
+  // --- a new wave: forget anything left over from the last one, and give a nudge to look down ---
+  if ((v.wave ?? 0) !== L.wave) {
+    if (L.wave && v.phase === 'go') navigator.vibrate?.([25, 50, 25]);
+    L.wave = v.wave ?? 0;
+    L.queue = [];
+    L.asked = null;
+  }
+
   // --- the question ---
   const cover = overlay(v);
   const over = $('.kn-over');
-  const coverKey = cover ? `${v.phase}:${v.count}:${v.done}` : '';
+  const coverKey = cover ? `${v.phase}:${v.count}:${v.done}:${v.rest}:${v.still?.join()}` : '';
   if (over.dataset.key !== coverKey) {
     over.dataset.key = coverKey;
     over.hidden = !cover;
