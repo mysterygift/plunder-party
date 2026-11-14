@@ -8,7 +8,7 @@
 //
 // Built with the kit in kit3d.js, like Sea Lawyer and Parley.
 
-import { THREE, createStage, shapes, paint, part, keepPlain, decal, palm, rand, easeOut, easeInOut, linear, chipHtml } from './kit3d.js';
+import { THREE, createStage, shapes, paint, part, decal, palm, rand, easeOut, easeInOut, linear, chipHtml } from './kit3d.js';
 import { esc, fmt } from './common.js';
 import { flagTag } from './flag.js';
 import { createAmbience } from './ambience.js';
@@ -47,32 +47,74 @@ const onRing = (angle, k = 1, y = 0) => new THREE.Vector3(Math.sin(angle) * RING
 // The lagoon
 // ---------------------------------------------------------------------------
 
+// The sea, done like Bombard's resin tray: one sheet of little triangles, each a
+// slightly different blue, rippling in short waves that cross each other. The
+// triangles are small round the islands and grow towards the horizon, where the
+// fog takes over. The paler lagoon inside the ring is painted into the water.
+const SEA_BLUE = new THREE.Color(0x1b8fb0);
+const LAGOON = new THREE.Color(0x4fc2c6);
+const FOAM_AT = 0.2; // how high a crest has to be to break white
+
+/** How high the water is at a spot (shared by the sea and everything that floats on it). */
+function swell(x, z, t) {
+  return (
+    Math.sin(x * 0.55 + t * 1.1) * Math.cos(z * 0.7 + t * 0.8) * 0.13 + // the main chop
+    Math.sin(x * 1.3 - z * 0.95 + t * 1.9) * 0.05 + // little ripples across it
+    Math.sin((x + z) * 0.3 - t * 0.6) * 0.1 // a long swell rolling through
+  );
+}
+
 function buildSea(scene) {
-  const geo = new THREE.PlaneGeometry(260, 200, 120, 90).rotateX(-Math.PI / 2);
-  const base = Float32Array.from(geo.attributes.position.array);
-  // The water keeps smooth light in every lighting style: banding on the rolling waves looks wrong.
-  const mesh = new THREE.Mesh(geo, keepPlain(new THREE.MeshStandardMaterial({ color: 0x1b8fb0, roughness: 0.3, metalness: 0.1, flatShading: true })));
+  // A grid squeezed towards the middle: cells about half a unit wide round the
+  // ring, several units wide far out (u + u^3 stretches the edges).
+  const geo = new THREE.PlaneGeometry(2, 2, 170, 120).rotateX(-Math.PI / 2);
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const u = p.getX(i);
+    const v = p.getZ(i);
+    p.setXYZ(i, u * 46 + u ** 3 * 84, 0, v * 30 + v ** 3 * 70);
+  }
+  const sheet = geo.toNonIndexed();
+  const base = Float32Array.from(sheet.attributes.position.array);
+
+  // A colour for each triangle: sea blue, a shade off either way, paler in the lagoon.
+  const colours = new Float32Array(base.length);
+  const c = new THREE.Color();
+  const hsl = {};
+  for (let i = 0; i < base.length; i += 9) {
+    const x = (base[i] + base[i + 3] + base[i + 6]) / 3;
+    const z = (base[i + 2] + base[i + 5] + base[i + 8]) / 3;
+    const inLagoon = 1 - THREE.MathUtils.smoothstep(Math.hypot(x / (RING.a + 7), z / (RING.b + 7)), 0.8, 1.2);
+    c.copy(SEA_BLUE).lerp(LAGOON, inLagoon * 0.55).getHSL(hsl);
+    c.setHSL(hsl.h + rand(-0.012, 0.012), hsl.s, hsl.l + rand(-0.025, 0.035));
+    for (let k = 0; k < 3; k++) c.toArray(colours, i + k * 3);
+  }
+  sheet.setAttribute('color', new THREE.BufferAttribute(colours, 3));
+
+  // Smooth light in every lighting style (banding on rolling water looks wrong),
+  // and the tops of the highest crests break white.
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.25, metalness: 0.12 });
+  mat.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader
+      .replace('void main() {', 'varying float vSeaY;\nvoid main() {')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n\tvSeaY = transformed.y;');
+    shader.fragmentShader = shader.fragmentShader
+      .replace('void main() {', 'varying float vSeaY;\nvoid main() {')
+      .replace('#include <color_fragment>', `#include <color_fragment>\n\tdiffuseColor.rgb = mix( diffuseColor.rgb, vec3( 0.86, 0.96, 0.97 ), smoothstep( ${FOAM_AT.toFixed(2)}, ${(FOAM_AT + 0.08).toFixed(2)}, vSeaY ) * 0.75 );`);
+  };
+  const mesh = new THREE.Mesh(sheet, mat);
   mesh.receiveShadow = true;
   scene.add(mesh);
-  // Sandy shallows under the whole ring, seen through the water as a paler lagoon.
-  const shallow = part(shapes().round, new THREE.MeshBasicMaterial({ color: 0x5fd1cf, transparent: true, opacity: 0.35, depthWrite: false }), { at: [0, 0.02, 0], size: [RING.a + 7, 0.01, RING.b + 7], shadow: false, into: scene });
-  shallow.renderOrder = 1;
-  return { geo, base };
+  return { geo: sheet, base };
 }
 
 function waves(clock) {
   const pos = sea.geo.attributes.position;
   const a = pos.array;
-  for (let i = 0; i < a.length; i += 3) {
-    const x = sea.base[i];
-    const z = sea.base[i + 2];
-    a[i + 1] = Math.sin(x * 0.22 + clock * 1.1) * 0.16 + Math.cos(z * 0.27 - clock * 0.9) * 0.14 + Math.sin((x - z) * 0.5 + clock * 1.8) * 0.05;
-  }
+  const b = sea.base;
+  for (let i = 0; i < a.length; i += 3) a[i + 1] = swell(b[i], b[i + 2], clock);
   pos.needsUpdate = true;
-  sea.geo.computeVertexNormals();
 }
-
-const swell = (x, z, clock) => Math.sin(x * 0.22 + clock * 1.1) * 0.16 + Math.cos(z * 0.27 - clock * 0.9) * 0.14;
 
 function buildSky(scene) {
   part(shapes().smooth, new THREE.MeshBasicMaterial({ color: 0xfff1b8 }), { at: [60, 70, -170], size: 9, shadow: false, into: scene });
